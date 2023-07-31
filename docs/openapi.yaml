@@ -28,7 +28,6 @@ paths:
                 mobile:
                   type: string
                   description: 手机号码
-                  example: 17345670987
       responses:
         200:
           description: 发送成功
@@ -213,6 +212,7 @@ paths:
         content:
           multipart/form-data:
             schema:
+              type: object
               required:
                 - avatar
               properties:
@@ -221,7 +221,7 @@ paths:
                   format: binary
                   description: 头像图片
             encoding:
-              file:
+              avatar:
                 contentType: image/*
       responses:
         200:

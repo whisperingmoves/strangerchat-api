@@ -1,6 +1,6 @@
 const Verification = require('../models/Verification');
 const { generateVerifyCode } = require('../config');
-const {User} = require('../models/User')
+const User = require('../models/User')
 const jwt = require("jsonwebtoken");
 
 const sendVerificationCode = async (req, res) => {

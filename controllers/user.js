@@ -1,8 +1,8 @@
 const User = require('../models/User');
+const {sign} = require("jsonwebtoken");
 const config = require('../config');
-const path = require("path");
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
     const { mobile, gender, birthday, avatar, longitude, latitude } = req.body;
 
     // 校验参数
@@ -26,18 +26,26 @@ const register = async (req, res) => {
         };
     }
 
-    await user.save();
+    try {
+        await user.save();
 
-    // 生成JWT token
-    const token = jwt.sign({ userId: user.id });
+        // 生成JWT token
+        const token = sign({ userId: user.id }, config.jwtSecret);
 
-    res.json({
-        token,
-        userId: user.id
-    });
+        res.json({
+            token,
+            userId: user.id
+        });
+    } catch (err) {
+        if (err.message.includes('duplicate key error')) {
+            res.status(400).json({ message: '用户已存在' });
+        } else {
+            next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+        }
+    }
 }
 
-const uploadAvatar = async (req, res) => {
+const uploadAvatar = async (req, res, next) => {
     try {
 
         if (!req.file) {
@@ -51,12 +59,12 @@ const uploadAvatar = async (req, res) => {
         // const targetPath = path.join(config.avatarUploadPath, fileName);
         // avatar.mv(targetPath);
 
-        const url = '/uploads/avatars/' + fileName;
+        const url = '/uploads/' + fileName;
 
         res.json({ url });
 
     } catch(err) {
-        res.status(500).send(err);
+        next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
     }
 }
 
