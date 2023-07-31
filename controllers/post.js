@@ -105,8 +105,49 @@ const heatPost = async (req, res, next) => {
     }
 };
 
+const likePost = async (req, res, next) => {
+    const { postId } = req.params;
+    const { action } = req.query;
+
+    try {
+        // 检查帖子是否存在
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
+        const userId = req.user.id;
+
+        // 检查用户是否已经点赞过该帖子
+        const isLiked = post.likes.includes(userId);
+
+        // 根据操作进行点赞或取消点赞
+        if (action === '1') {
+            if (isLiked) {
+                return res.status(400).json({ message: '帖子已经被点赞过' });
+            }
+            post.likes.push(userId);
+        } else if (action === '0') {
+            if (!isLiked) {
+                return res.status(400).json({ message: '帖子未被点赞，无法取消点赞' });
+            }
+            post.likes.pull(userId);
+        } else {
+            return res.status(400).json({ message: '无效的点赞操作' });
+        }
+
+        await post.save();
+
+        res.json({});
+    } catch (err) {
+        next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
     heatPost,
+    likePost,
 }

@@ -27,6 +27,7 @@ router.post('/uploadAvatar', uploadAvatar.single('avatar'), userController.uploa
 router.post('/uploadPost', uploadPost.single('post'), postController.uploadPost);
 router.post('/posts', auth, postController.createPost);
 router.post('/posts/:postId/heat', auth, postController.heatPost);
+router.post('/posts/:postId/like', auth, postController.likePost);
 
 
 module.exports = router;
