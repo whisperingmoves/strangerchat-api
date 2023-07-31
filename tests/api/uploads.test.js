@@ -1,6 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const { it, after, describe } = require('mocha');
+const { it, describe } = require('mocha');
 const app = require('../../app');
 const fs = require('fs');
 const path = require('path');
@@ -42,12 +42,12 @@ describe('Uploads API', () => {
         });
     });
 
-    describe('POST /uploadPosts', () => {
+    describe('POST /uploadPost', () => {
         it('should upload post image successfully', done => {
             const filePath = path.join(__dirname, 'test.png');
             chai.request(app)
-                .post('/uploadPosts')
-                .attach('posts', fs.createReadStream(filePath), { filename: 'test.png' })
+                .post('/uploadPost')
+                .attach('post', fs.createReadStream(filePath), { filename: 'test.png' })
                 .then(res => {
                     res.should.have.status(200);
                     res.body.should.have.property('url');
@@ -60,7 +60,7 @@ describe('Uploads API', () => {
 
         it('should return 400 if post image is invalid', done => {
             chai.request(app)
-                .post('/uploadPosts')
+                .post('/uploadPost')
                 .send({
                     // 无效的帖子照片字段
                 })

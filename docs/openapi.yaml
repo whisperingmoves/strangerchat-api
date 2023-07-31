@@ -407,7 +407,7 @@ paths:
                     content:
                       type: string
                       description: 文字内容
-                    location:
+                    city:
                       type: string
                       description: 发帖位置
                     likeCount:
@@ -502,7 +502,7 @@ paths:
                       type: string
                       description: 文字内容
                       example: "这是一条帖子内容。"
-                    location:
+                    city:
                       type: string
                       description: 发帖位置
                       example: "北京"
@@ -619,7 +619,7 @@ paths:
                       type: string
                       description: 文字内容
                       example: "这是一条帖子内容。"
-                    location:
+                    city:
                       type: string
                       description: 发帖位置（非必填字段）
                       example: "北京"
@@ -735,7 +735,7 @@ paths:
                   type: string
                   description: 帖子文字内容
                   example: "这是一条帖子内容。"
-                location:
+                city:
                   type: string
                   description: 帖子发表时所在城市名称
                   example: "北京"
@@ -1126,7 +1126,7 @@ paths:
                     type: string
                     description: 帖子文字内容
                     example: "今天天气真好!"
-                  location:
+                  city:
                     type: string
                     description: 帖子发布位置
                     example: "北京"
@@ -1330,7 +1330,7 @@ paths:
                         format: url
                         description: 图片URL
                         example: /uploads/image1.png
-                    location:
+                    city:
                       type: string
                       format: city name
                       description: 帖子发布时用户所在城市
@@ -1392,7 +1392,7 @@ paths:
                     type: string
                     description: 帖子文字内容
                     example: 今天天气真好!
-                  location:
+                  city:
                     type: string
                     format: city name
                     description: 帖子发表时用户所在城市
@@ -1433,25 +1433,26 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
-  /uploadPosts:
+  /uploadPost:
     post:
       summary: 上传帖子照片
       tags:
         - 资源
+      security: [ ]
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               required:
-                - posts
+                - post
               properties:
-                posts:
+                post:
                   type: string
                   format: binary
                   description: 帖子照片
             encoding:
-              posts:
+              post:
                 contentType: image/*
       responses:
         200:

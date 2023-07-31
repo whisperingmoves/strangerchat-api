@@ -22,10 +22,10 @@ const schema = new mongoose.Schema({
             type: String,
             default: 'Point' // 'Point' indicating geographic coordinates
         },
-        coordinates: [{
-            type: Number,
-            required: true
-        }]
+        coordinates: {
+            type: [Number],
+            index: '2dsphere'
+        }
     },
     createdAt: {
         type: Date,

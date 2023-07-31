@@ -2,9 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const path = require('path'); // 引入 path 模块
 const config = require('./config');
 const routes = require('./routes');
+const Post = require('./models/Post');
+const User = require('./models/User');
 const errorMiddleware = require('./middlewares/error');
 
 // 模块定义
@@ -12,7 +13,23 @@ const swaggerDocument = YAML.load('./docs/openapi.yaml');
 
 const app = express();
 
-mongoose.connect(config.dbUrl);
+mongoose.connect(config.dbUrl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+
+// 在连接成功时创建地理索引
+mongoose.connection.once('open', async () => {
+    try {
+        // 创建用户模型的地理索引
+        await User.createIndexes({ location: '2dsphere' });
+        // 创建帖子模型的地理索引
+        await Post.createIndexes({ location: '2dsphere' });
+        console.log('地理索引创建成功！');
+    } catch (error) {
+        console.error('创建地理索引时出错：', error);
+    }
+});
 
 // 路由定义
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
