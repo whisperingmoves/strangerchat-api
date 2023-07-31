@@ -1432,6 +1432,52 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /uploadPostsImage:
+    post:
+      summary: 上传帖子照片
+      tags:
+        - 资源
+      security: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: 帖子照片
+            encoding:
+              image:
+                contentType: image/*
+      responses:
+        200:
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+                    description: 照片URL
+
+        400:
+          description: 上传失败
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+                    description: 错误信息
 components:
   responses:
     Unauthorized:
