@@ -23,7 +23,7 @@ const uploadPost = async (req, res, next) => {
 };
 
 const createPost = async (req, res, next) => {
-    const { content, city, location, images, visibility, atUsers } = req.body;
+    const { content, city, longitude, latitude, images, visibility, atUsers } = req.body;
 
     // 校验参数
     if (!content) {
@@ -33,13 +33,36 @@ const createPost = async (req, res, next) => {
     // 生成帖子对象
     const post = new Post({
         content,
-        city,
         author: req.user.userId, // 使用当前登录用户的ID作为帖子的作者ID
-        location,
-        images,
-        visibility,
-        atUsers
     });
+
+    // 添加非必填字段
+    if (city) {
+        post.city = city;
+    }
+
+    // 添加可选的地理位置信息
+    if (longitude && latitude) {
+        post.location = {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+        };
+    }
+
+    // 添加可选的帖子照片列表
+    if (images && images.length > 0) {
+        post.images = images;
+    }
+
+    // 添加可选的帖子可见性
+    if (visibility !== undefined) {
+        post.visibility = visibility;
+    }
+
+    // 添加可选的艾特用户列表
+    if (atUsers && atUsers.length > 0) {
+        post.atUsers = atUsers;
+    }
 
     try {
         await post.save();

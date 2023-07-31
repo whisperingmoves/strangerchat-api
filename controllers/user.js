@@ -22,7 +22,7 @@ const register = async (req, res, next) => {
     if (longitude && latitude) {
         user.location = {
             type: 'Point',
-            coordinates: [longitude, latitude]
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
         };
     }
 
