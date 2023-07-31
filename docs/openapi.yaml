@@ -2,7 +2,6 @@ openapi: 3.0.0
 info:
   title: 陌生人聊天交友App
   version: 1.0.0
-
 tags:
   - name: 验证码
     description: 验证码相关接口
@@ -10,7 +9,12 @@ tags:
     description: 用户相关接口
   - name: 资源
     description: 资源相关接口
-
+  - name: 故事
+    description: 故事相关接口
+  - name: 帖子
+    description: 帖子相关接口
+  - name: 评论
+    description: 评论相关接口
 paths:
 
   /verifications/sendCode:
@@ -18,6 +22,7 @@ paths:
       summary: 发送验证码
       tags:
         - 验证码
+      security: [ ]
       requestBody:
         content:
           application/json:
@@ -48,6 +53,7 @@ paths:
       summary: 验证码验证
       tags:
         - 验证码
+      security: [ ]
       requestBody:
         content:
           application/json:
@@ -144,6 +150,7 @@ paths:
       summary: 用户注册
       tags:
         - 用户
+      security: [ ]
       requestBody:
         content:
           application/json:
@@ -209,6 +216,7 @@ paths:
       summary: 上传头像
       tags:
         - 资源
+      security: [ ]
       requestBody:
         content:
           multipart/form-data:
@@ -248,3 +256,1306 @@ paths:
                   message:
                     type: string
                     description: 错误信息
+
+  /stories:
+    get:
+      summary: 获取故事列表
+      description: 获取发表过帖子的用户列表，按创建时间排序，分页展示
+      tags:
+        - 故事
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          description: 每页大小
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - userId
+                    - avatar
+                    - createTime
+                  properties:
+                    userId:
+                      type: string
+                      description: 用户ID
+                    avatar:
+                      type: string
+                      description: 用户头像URL，半截URL，如：/uploads/xxx.png
+                    username:
+                      type: string
+                      description: 用户名
+                    createTime:
+                      type: integer
+                      format: int64
+                      description: 最新帖子创建时间（精确到秒的Unix时间戳）
+                    relation:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                        - 2
+                        - 3
+                      description: |
+                        与登录用户关系
+                        0 - 互相关注
+                        1 - 对方关注了我
+                        2 - 我关注了对方
+                        3 - 新用户
+                      example: 0
+                    firstImage:
+                      type: string
+                      description: 最新帖子第一张图片
+                    online:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否在线:0=否,1=是
+                      default: 0
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/follows:
+    get:
+      summary: 获取我关注用户的帖子列表
+      description: 获取我关注用户发布的帖子列表，按发布时间排序，支持分页
+      tags:
+        - 帖子
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            format: int32
+            default: 1
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: 每页大小
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - authorId
+                    - authorAvatar
+                    - createTime
+                    - content
+                    - postId
+                  properties:
+                    authorId:
+                      type: string
+                      description: 作者用户ID
+                    authorAvatar:
+                      type: string
+                      description: 作者头像
+                    authorName:
+                      type: string
+                      description: 作者用户名
+                    createTime:
+                      type: integer
+                      format: int64
+                      description: 创建时间（精确到秒的Unix时间戳）
+                    images:
+                      type: array
+                      maxItems: 9
+                      items:
+                        type: string
+                        description: 照片URL
+                    content:
+                      type: string
+                      description: 文字内容
+                    location:
+                      type: string
+                      description: 发帖位置
+                    likeCount:
+                      type: integer
+                      default: 0
+                      description: 点赞数
+                    commentCount:
+                      type: integer
+                      default: 0
+                      description: 评论数
+                    postId:
+                      type: string
+                      description: 帖子ID
+                    isLiked:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已点赞（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/recommended:
+    get:
+      summary: 获取推荐帖子列表
+      description: 获取推荐帖子列表，按距离排序，支持分页
+      tags:
+        - 帖子
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: 每页大小
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - authorId
+                    - authorAvatar
+                    - content
+                    - postId
+                  properties:
+                    authorId:
+                      type: string
+                      description: 作者用户ID
+                      example: "user1"
+                    authorAvatar:
+                      type: string
+                      description: 作者头像（半截URL，如/uploads/xxx.png）
+                      example: "/uploads/avatar.png"
+                    authorName:
+                      type: string
+                      description: 作者用户名
+                      example: "John123"
+                    images:
+                      type: array
+                      maxItems: 9
+                      items:
+                        type: string
+                        description: 照片URL（最多9张照片，每张照片为一个半截URL）
+                        example:
+                          - "/uploads/photo1.png"
+                          - "/uploads/photo2.png"
+                    content:
+                      type: string
+                      description: 文字内容
+                      example: "这是一条帖子内容。"
+                    location:
+                      type: string
+                      description: 发帖位置
+                      example: "北京"
+                    likeCount:
+                      type: integer
+                      default: 0
+                      description: 点赞数
+                      example: 10
+                    commentCount:
+                      type: integer
+                      default: 0
+                      description: 评论数
+                      example: 5
+                    postId:
+                      type: string
+                      description: 帖子ID
+                      example: "123456"
+                    isLiked:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已点赞（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+                    isFollowed:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已关注作者（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/latest:
+    get:
+      summary: 获取最新帖子列表
+      description: 获取最新帖子列表，按发布时间排序，支持分页，支持内容模糊匹配
+      tags:
+        - 帖子
+      parameters:
+        - name: keyword
+          in: query
+          description: 匹配关键词
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: 每页大小
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - authorId
+                    - authorAvatar
+                    - createTime
+                    - content
+                    - postId
+                  properties:
+                    authorId:
+                      type: string
+                      description: 作者用户ID
+                      example: "user1"
+                    authorAvatar:
+                      type: string
+                      description: 作者头像（半截URL，如/uploads/xxx.png）
+                      example: "/uploads/avatar.png"
+                    authorName:
+                      type: string
+                      description: 作者用户名（非必填字段）
+                      example: "John123"
+                    createTime:
+                      type: integer
+                      description: 创建时间（精确到秒的Unix时间戳）
+                      example: 1627708878
+                    images:
+                      type: array
+                      maxItems: 9
+                      items:
+                        type: string
+                        description: 照片URL（最多9张照片，每张照片为一个半截URL）
+                        example:
+                          - "/uploads/photo1.png"
+                          - "/uploads/photo2.png"
+                    content:
+                      type: string
+                      description: 文字内容
+                      example: "这是一条帖子内容。"
+                    location:
+                      type: string
+                      description: 发帖位置（非必填字段）
+                      example: "北京"
+                    likeCount:
+                      type: integer
+                      default: 0
+                      description: 点赞数（非必填字段，默认为0）
+                      example: 10
+                    commentCount:
+                      type: integer
+                      default: 0
+                      description: 评论数（非必填字段，默认为0）
+                      example: 5
+                    postId:
+                      type: string
+                      description: 帖子ID
+                      example: "123456"
+                    isLiked:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已点赞（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+                    isFollowed:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已关注作者（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/hot:
+    get:
+      summary: 获取热度帖子列表
+      description: 获取热度排名前7的帖子列表
+      tags:
+        - 帖子
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 7
+                items:
+                  type: object
+                  required:
+                    - postId
+                    - userId
+                    - content
+                  properties:
+                    postId:
+                      type: string
+                      description: 帖子ID
+                      example: "123456"
+                    userId:
+                      type: string
+                      description: 用户ID
+                      example: "user1"
+                    username:
+                      type: string
+                      description: 作者用户名（非必填字段）
+                      example: "John123"
+                    content:
+                      type: string
+                      maxLength: 100
+                      description: 帖子内容摘要（最多100个字符，多余的字符使用省略号代替）
+                      example: "这是一条帖子内容摘要..."
+                    hotIndex:
+                      type: integer
+                      default: 0
+                      description: 热度指数（非必填字段，默认为0）
+                      example: 10
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts:
+    post:
+      summary: 发布帖子
+      tags:
+        - 帖子
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  description: 帖子文字内容
+                  example: "这是一条帖子内容。"
+                location:
+                  type: string
+                  description: 帖子发表时所在城市名称
+                  example: "北京"
+                longitude:
+                  type: string
+                  description: 帖子发表时所在的经度
+                  example: "116.4074"
+                latitude:
+                  type: string
+                  description: 帖子发表时所在的纬度
+                  example: "39.9042"
+                images:
+                  type: array
+                  items:
+                    type: string
+                    description: 帖子照片列表，最多9张照片，每张照片为一个半截URL
+                    example:
+                      - "/uploads/xxx1.png"
+                      - "/uploads/xxx2.png"
+                visibility:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                  description: 帖子可见性（非必填字段）:0=公开可见,1=主页可见,2=自己可见
+                  example: 0
+                  default: 0
+                atUsers:
+                  type: array
+                  items:
+                    type: string
+                    description: 艾特的用户列表，与帖子文字内容共享一个字段
+                    example:
+                      - "user1"
+                      - "user2"
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postId:
+                    type: string
+                    description: 新增帖子ID
+                    example: "123456"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}/heat:
+    post:
+      summary: 给帖子加热/取消加热
+      tags:
+        - 帖子
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "e69b9f6d-4e7a-4a1a-9e4c-4f4f4428ad9e"
+        - name: action
+          in: query
+          required: true
+          description: 加热操作，取值为1（加热）或0（取消加热）
+          schema:
+            type: integer
+            enum: [ 1, 0 ]
+            example: 1
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}/like:
+    post:
+      summary: 给帖子点赞/取消点赞
+      tags:
+        - 帖子
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "e69b9f6d-4e7a-4a1a-9e4c-4f4f4428ad9e"
+        - name: action
+          in: query
+          required: true
+          description: 点赞操作，取值为1（点赞）或0（取消点赞）
+          schema:
+            type: integer
+            enum: [ 1, 0 ]
+            example: 1
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}/comment:
+    post:
+      summary: 评论帖子/回复评论
+      tags:
+        - 帖子
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  description: 评论内容
+                  example: "这是一条评论"
+                parentId:
+                  type: string
+                  description: 父级评论ID(回复评论时必填)
+                  example: "5dbf5fd3-2a3e-4b2a-b9ed-6c6e4f707a4f"
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "e69b9f6d-4e7a-4a1a-9e4c-4f4f4428ad9e"
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /comments/{commentId}:
+    delete:
+      summary: 删除评论
+      tags:
+        - 评论
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: 评论ID
+          schema:
+            type: string
+            format: uuid
+            example: "8fff-4bb9-8bed-bafc84593c84"
+            default: 无
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}/collect:
+    post:
+      summary: 收藏/取消收藏帖子
+      tags:
+        - 帖子
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - operation
+              properties:
+                operation:
+                  type: integer
+                  enum: [ 1, 0 ]
+                  description: 操作类型，1-收藏，0-取消收藏
+                  example: 1
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}/share:
+    post:
+      summary: 分享帖子
+      tags:
+        - 帖子
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sharePlatform
+              properties:
+                sharePlatform:
+                  type: integer
+                  enum: [ 1, 2, 3 ]
+                  description: 分享平台，1-微信，2-QQ，3-微博
+                  example: 1
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /comments/{commentId}/like:
+    post:
+      summary: 评论点赞/取消点赞
+      tags:
+        - 评论
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: 评论ID
+          schema:
+            type: string
+            format: uuid
+            example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - operation
+              properties:
+                operation:
+                  type: integer
+                  enum: [ 1, 0 ]
+                  description: 操作类型，1-点赞，0-取消点赞
+                  example: 1
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}:
+    get:
+      summary: 获取帖子详情
+      tags:
+        - 帖子
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - authorId
+                  - authorAvatar
+                  - createTime
+                  - content
+                  - postId
+                properties:
+                  authorId:
+                    type: string
+                    format: uuid
+                    description: 作者用户ID
+                    example: "d87612b3-5c4d-5f65-9b95-3fc9a2c769bf"
+                  authorAvatar:
+                    type: string
+                    format: url
+                    description: 作者用户头像
+                    example: "/uploads/avatar.png"
+                  authorName:
+                    type: string
+                    description: 作者用户名
+                    example: "小明"
+                  createTime:
+                    type: integer
+                    format: unix timestamp
+                    description: 帖子创建时间
+                    example: 1578518245
+                  isFollowed:
+                    type: integer
+                    default: 0
+                    description: 当前登录用户是否已关注作者:0=否,1=是
+                  images:
+                    type: array
+                    maxItems: 9
+                    items:
+                      type: string
+                      format: url
+                      description: 帖子图片
+                      example: "/uploads/image1.png"
+                  content:
+                    type: string
+                    description: 帖子文字内容
+                    example: "今天天气真好!"
+                  location:
+                    type: string
+                    description: 帖子发布位置
+                    example: "北京"
+                  likeCount:
+                    type: integer
+                    default: 0
+                    description: 点赞数
+                    example: 10
+                  commentCount:
+                    type: integer
+                    default: 0
+                    description: 评论数
+                    example: 20
+                  shareCount:
+                    type: integer
+                    default: 0
+                    description: 分享数
+                    example: 5
+                  postId:
+                    type: string
+                    format: uuid
+                    description: 帖子ID
+                    example: "f460e1ee-6c54-4b01-90e6-d701748f0851"
+                  isLiked:
+                    type: integer
+                    default: 0
+                    description: 当前登录用户是否已点赞:0=否,1=是
+                  isCollected:
+                    type: integer
+                    default: 0
+                    description: 当前登录用户是否已收藏:0=否,1=是
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /posts/{postId}/comments:
+    get:
+      summary: 获取帖子评论列表
+      tags:
+        - 帖子
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 每页数据量
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /comments/{commentId}/replies:
+    get:
+      summary: 获取评论回复列表
+      tags:
+        - 评论
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: 评论ID
+          schema:
+            type: string
+            format: uuid
+            example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 每页数据量
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/me/posts:
+    get:
+      summary: 获取我的帖子列表
+      tags:
+        - 用户
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 每页数据量
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - postId
+                    - createTime
+                    - content
+                  properties:
+                    postId:
+                      type: string
+                      format: uuid
+                      description: 帖子唯一ID
+                      example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+                    createTime:
+                      type: integer
+                      format: unix timestamp
+                      description: 帖子创建时间
+                      example: 1578518245
+                    content:
+                      type: string
+                      description: 帖子文字内容
+                      example: 今天天气真好!
+                    images:
+                      type: array
+                      maxItems: 9
+                      items:
+                        type: string
+                        format: url
+                        description: 图片URL
+                        example: /uploads/image1.png
+                    location:
+                      type: string
+                      format: city name
+                      description: 帖子发布时用户所在城市
+                      example: 北京
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/me/posts/{postId}:
+    get:
+      summary: 获取我的帖子详情
+      description: 该接口允许登录用户获取自己发表的某篇帖子的详情。
+      tags:
+        - 用户
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: 帖子ID
+          schema:
+            type: string
+            format: uuid
+            example: d290f1ee-6c54-4b01-90e6-d701748f0851
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - createTime
+                  - content
+                  - postId
+                properties:
+                  createTime:
+                    type: integer
+                    format: unix timestamp
+                    description: 帖子创建时间，UNIX时间戳格式，精确到秒
+                    example: 1578518245
+                  images:
+                    type: array
+                    maxItems: 9
+                    items:
+                      type: string
+                      format: url
+                      description: 帖子图片URL列表
+                      example:
+                        - /uploads/image1.png
+                        - /uploads/image2.png
+                  content:
+                    type: string
+                    description: 帖子文字内容
+                    example: 今天天气真好!
+                  location:
+                    type: string
+                    format: city name
+                    description: 帖子发表时用户所在城市
+                    example: 北京
+                  likeCount:
+                    type: integer
+                    default: 0
+                    description: 帖子获得的赞数
+                    example: 10
+                  commentCount:
+                    type: integer
+                    default: 0
+                    description: 帖子获得的评论数
+                    example: 20
+                  shareCount:
+                    type: integer
+                    default: 0
+                    description: 帖子被分享的次数
+                    example: 5
+                  postId:
+                    type: string
+                    format: uuid
+                    description: 帖子唯一ID
+                    example: d290f1ee-6c54-4b01-90e6-d701748f0851
+                  isLiked:
+                    type: integer
+                    default: 0
+                    description: 当前登录用户是否点赞，0-未点赞，1-已点赞
+                    example: 1
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+components:
+  responses:
+    Unauthorized:
+      description: 未授权
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    BadRequest:
+      description: 错误的请求
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    Forbidden:
+      description: 禁止访问
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    NotFound:
+      description: 找不到页面
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+    InternalServerError:
+      description: 内部服务器错误
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  schemas:
+    Comment:
+
+      type: object
+
+      required:
+
+        - userId
+
+        - avatar
+
+        - createTime
+
+        - content
+
+        - commentId
+
+      properties:
+
+        userId:
+
+          type: string
+
+          format: uuid
+
+          description: 用户ID
+
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+
+        avatar:
+
+          type: string
+
+          format: url
+
+          description: 用户头像
+
+          example: /uploads/avatar.png
+
+        username:
+
+          type: string
+
+          description: 用户名
+
+          example: 小明
+
+        createTime:
+
+          type: integer
+
+          format: unix timestamp
+
+          description: 评论创建时间
+
+          example: 1578518245
+
+        content:
+
+          type: string
+
+          description: 评论内容
+
+          example: 这个帖子真好看!
+
+        commentId:
+
+          type: string
+
+          format: uuid
+
+          description: 评论ID
+
+          example: f460e1ee-6c54-4b01-90e6-d701748f0852
+security:
+  - JWTAuth: [ ]
