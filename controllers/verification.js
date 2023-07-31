@@ -1,5 +1,5 @@
 const Verification = require('../models/Verification');
-const { generateVerifyCode } = require('../config');
+const { generateVerifyCode, jwtSecret } = require('../config');
 const User = require('../models/User')
 const jwt = require("jsonwebtoken");
 
@@ -7,7 +7,7 @@ const sendVerificationCode = async (req, res) => {
     const mobile = req.body.mobile;
 
     // 检查手机号格式是否正确
-    if (!mobile) return res.status(400).send('手机号格式错误');
+    if (!mobile) return res.status(400).json({message: '手机号格式错误'});
 
     // 生成验证码
     const code = generateVerifyCode();
@@ -40,7 +40,7 @@ const verifyVerificationCode = async (req, res) => {
 
     if (user) {
         // 用户存在
-        const token = jwt.sign({ userId: user.id });
+        const token = jwt.sign({ userId: user.id }, jwtSecret);
 
         // 保存地理位置
         if (longitude && latitude) {
@@ -52,7 +52,7 @@ const verifyVerificationCode = async (req, res) => {
         }
 
         // 返回响应
-        res.json({ token, ...user });
+        res.json({ token, ...user.toObject(), userId: user.id });
     } else {
         // 用户不存在
         res.status(201).json({});

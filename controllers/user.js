@@ -49,7 +49,7 @@ const uploadAvatar = async (req, res, next) => {
     try {
 
         if (!req.file) {
-            return res.status(400).send('请选择文件上传');
+            return res.status(400).json({message: '请选择文件上传'});
         }
 
         const avatar = req.file;

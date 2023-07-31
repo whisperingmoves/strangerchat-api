@@ -35,7 +35,7 @@ describe('Verifications API', () => {
 
         let code;
 
-        before(done => { // 在每个测试用例前发送验证码
+        beforeEach(done => { // 在每个测试用例前发送验证码
             chai.request(app)
                 .post('/verifications/sendCode')
                 .send({ mobile: mobile })
@@ -73,7 +73,7 @@ describe('Verifications API', () => {
                             res.body.should.have.property('token');
                             res.body.should.have.property('userId');
 
-                            res.body.userId.should.be.a('number');
+                            res.body.userId.should.be.a('string');
 
                             res.body.should.have.property('gender')
                                 .and.to.be.oneOf(['male', 'female']);

@@ -87,7 +87,8 @@ paths:
                     type: string
                     description: 登录jwt
                   userId:
-                    type: integer
+                    type: string
+                    description: 用户ID
                   gender:
                     type: string
                     description: 性别
@@ -188,7 +189,7 @@ paths:
                     type: string
                     description: 登录jwt
                   userId:
-                    type: integer
+                    type: string
                     description: 用户ID
 
         400:
