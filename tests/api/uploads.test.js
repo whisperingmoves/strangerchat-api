@@ -1,6 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const {it, after, describe} = require('mocha');
+const { it, after, describe } = require('mocha');
 const app = require('../../app');
 const fs = require('fs');
 const path = require('path');
@@ -9,7 +9,6 @@ chai.use(chaiHttp);
 chai.should();
 
 describe('Uploads API', () => {
-
     describe('POST /uploadAvatar', () => {
         it('should upload avatar successfully', done => {
             const filePath = path.join(__dirname, 'test.png');
@@ -20,6 +19,9 @@ describe('Uploads API', () => {
                     res.should.have.status(200);
                     res.body.should.have.property('url');
                     done();
+                })
+                .catch(err => {
+                    done(err);
                 });
         });
 
@@ -29,10 +31,46 @@ describe('Uploads API', () => {
                 .send({
                     // 无效的头像字段
                 })
-                .then(res  => {
+                .then(res => {
                     res.should.have.status(400);
                     res.body.should.have.property('message');
                     done();
+                })
+                .catch(err => {
+                    done(err);
+                });
+        });
+    });
+
+    describe('POST /uploadPosts', () => {
+        it('should upload post image successfully', done => {
+            const filePath = path.join(__dirname, 'test.png');
+            chai.request(app)
+                .post('/uploadPosts')
+                .attach('posts', fs.createReadStream(filePath), { filename: 'test.png' })
+                .then(res => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('url');
+                    done();
+                })
+                .catch(err => {
+                    done(err);
+                });
+        });
+
+        it('should return 400 if post image is invalid', done => {
+            chai.request(app)
+                .post('/uploadPosts')
+                .send({
+                    // 无效的帖子照片字段
+                })
+                .then(res => {
+                    res.should.have.status(400);
+                    res.body.should.have.property('message');
+                    done();
+                })
+                .catch(err => {
+                    done(err);
                 });
         });
     });

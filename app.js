@@ -20,10 +20,6 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
 app.use(routes);
 
-// 静态文件访问
-app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(config.avatarUploadPath)); // 将上传文件目录暴露为静态资源
-
 app.use(errorMiddleware);
 
 app.listen(config.port, () => {

@@ -1433,26 +1433,25 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
-  /uploadPostsImage:
+  /uploadPosts:
     post:
       summary: 上传帖子照片
       tags:
         - 资源
-      security: [ ]
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               required:
-                - image
+                - posts
               properties:
-                image:
+                posts:
                   type: string
                   format: binary
                   description: 帖子照片
             encoding:
-              image:
+              posts:
                 contentType: image/*
       responses:
         200:

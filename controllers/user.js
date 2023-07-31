@@ -59,7 +59,7 @@ const uploadAvatar = async (req, res, next) => {
         // const targetPath = path.join(config.avatarUploadPath, fileName);
         // avatar.mv(targetPath);
 
-        const url = '/uploads/' + fileName;
+        const url = '/uploads/avatars/' + fileName;
 
         res.json({ url });
 

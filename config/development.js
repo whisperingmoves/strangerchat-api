@@ -4,6 +4,7 @@ module.exports = {
     dbUrl: 'mongodb://localhost:27018/chat_dev',
     verifyCodeExpires: 60,
     avatarUploadPath: './uploads/avatars-dev/',
+    postsUploadPath: './uploads/posts-dev/',
     jwtSecret: 'a-secret-string-for-dev',
     generateVerifyCode() { // 生成6位数验证码的函数
         let code = '';
