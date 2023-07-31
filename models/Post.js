@@ -34,6 +34,10 @@ const postSchema = new mongoose.Schema({
     atUsers: [{
         type: String
     }],
+    heatCount: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

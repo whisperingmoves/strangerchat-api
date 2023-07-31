@@ -73,7 +73,40 @@ const createPost = async (req, res, next) => {
     }
 };
 
+const heatPost = async (req, res, next) => {
+    const { postId } = req.params;
+    const { action } = req.query;
+
+    try {
+        // 检查帖子是否存在
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        // 更新加热次数
+        if (action === '1') {
+            post.heatCount += 1;
+        } else if (action === '0') {
+            if (post.heatCount > 0) {
+                post.heatCount -= 1;
+            } else {
+                return res.status(400).json({ message: '帖子未被加热，无法取消加热' });
+            }
+        } else {
+            return res.status(400).json({ message: '无效的加热操作' });
+        }
+
+        await post.save();
+
+        res.json({});
+    } catch (err) {
+        next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+    }
+};
+
 module.exports = {
     uploadPost,
-    createPost
+    createPost,
+    heatPost,
 }

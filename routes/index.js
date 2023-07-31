@@ -26,6 +26,7 @@ router.post('/uploadAvatar', uploadAvatar.single('avatar'), userController.uploa
 // 帖子路由
 router.post('/uploadPost', uploadPost.single('post'), postController.uploadPost);
 router.post('/posts', auth, postController.createPost);
+router.post('/posts/:postId/heat', auth, postController.heatPost);
 
 
 module.exports = router;
