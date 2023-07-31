@@ -29,5 +29,6 @@ router.post('/posts', auth, postController.createPost);
 router.post('/posts/:postId/heat', auth, postController.heatPost);
 router.post('/posts/:postId/like', auth, postController.likePost);
 router.post('/posts/:postId/collect', auth, postController.collectPost);
+router.post('/posts/:postId/share', auth, postController.sharePost);
 
 module.exports = router;

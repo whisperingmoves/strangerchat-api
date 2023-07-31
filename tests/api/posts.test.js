@@ -248,4 +248,52 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('POST /posts/:postId/share', () => {
+        let postId;
+
+        beforeEach(async () => {
+            // 创建一个测试帖子
+            const createPostResponse = await chai.request(app)
+                .post('/posts')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    content: 'Test post',
+                    city: '北京',
+                    longitude: '116.4074',
+                    latitude: '39.9042',
+                    images: [
+                        "/uploads/xxx1.png",
+                        "/uploads/xxx2.png"
+                    ],
+                    visibility: 0,
+                    atUsers: ["user1", "user2"]
+                });
+
+            postId = createPostResponse.body.postId;
+        });
+
+        it('should share a post to a valid platform', done => {
+            chai.request(app)
+                .post(`/posts/${postId}/share`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ sharePlatform: 1 })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+        });
+
+        it('should return an error when sharing a post to an invalid platform', done => {
+            chai.request(app)
+                .post(`/posts/${postId}/share`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ sharePlatform: 4 })
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.have.property('message').equal('无效的分享平台');
+                    done();
+                });
+        });
+    });
 });

@@ -46,6 +46,17 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
+    shares: [{
+        sharePlatform: {
+            type: Number,
+            enum: [1, 2, 3],
+            required: true
+        },
+        sharedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

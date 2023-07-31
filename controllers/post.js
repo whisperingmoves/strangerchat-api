@@ -185,10 +185,48 @@ const collectPost = async (req, res, next) => {
     }
 };
 
+const sharePost = async (req, res, next) => {
+    const { postId } = req.params;
+    const { sharePlatform } = req.body;
+
+    try {
+        // 检查帖子是否存在
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
+        // const userId = req.user.userId;
+
+        // 检查分享平台的有效性
+        if (![1, 2, 3].includes(sharePlatform)) {
+            return res.status(400).json({ message: '无效的分享平台' });
+        }
+
+        // 创建分享记录
+        const shareRecord = {
+            sharePlatform,
+            sharedAt: new Date()
+        };
+
+        // 将分享记录添加到帖子的shares数组中
+        post.shares.push(shareRecord);
+
+        // 保存帖子
+        await post.save();
+
+        res.json({});
+    } catch (err) {
+        next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
     heatPost,
     likePost,
     collectPost,
+    sharePost,
 }
