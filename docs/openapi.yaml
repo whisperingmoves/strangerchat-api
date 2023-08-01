@@ -900,6 +900,15 @@ paths:
       responses:
         200:
           description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentId:
+                    type: string
+                    description: 新增评论的ID
+                    example: "c1a1d3f2-4b2a-4e7a-b9ed-6c6e4f707a4f"
         400:
           $ref: '#/components/responses/BadRequest'
         401:

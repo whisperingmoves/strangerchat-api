@@ -20,7 +20,7 @@ const createComment = async (req, res, next) => {
 
         await comment.save();
 
-        res.sendStatus(200);
+        res.status(200).json({ commentId: comment.id }); // 返回新增评论的ID
     } catch (err) {
         next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
     }
