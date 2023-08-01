@@ -336,6 +336,50 @@ const getHotPosts = async (req, res, next) => {
     }
 };
 
+const getLatestPosts = async (req, res, next) => {
+    const { keyword, page = 1, pageSize = 10 } = req.query;
+
+    try {
+        const query = {};
+
+        if (keyword) {
+            query.content = { $regex: keyword, $options: 'i' };
+        }
+
+        const posts = await Post.find(query)
+            .sort('-createdAt')
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .populate('author', 'id avatar username')
+            .exec();
+
+        const formattedPosts = await Promise.all(
+            posts.map(async (post) => {
+                const commentCount = await Comment.countDocuments({ post: post.id }).exec();
+
+                return {
+                    authorId: post.author.id,
+                    authorAvatar: post.author.avatar,
+                    authorName: post.author.username,
+                    createTime: Math.floor(post.createdAt.getTime() / 1000),
+                    images: post.images,
+                    content: post.content,
+                    city: post.city,
+                    likeCount: post.likes.length,
+                    commentCount: commentCount,
+                    postId: post.id,
+                    isLiked: post.likes.includes(req.user.id) ? 1 : 0,
+                    isFollowed: 0,
+                };
+            })
+        );
+
+        res.status(200).json(formattedPosts);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
@@ -345,4 +389,5 @@ module.exports = {
     sharePost,
     getPostDetails,
     getHotPosts,
+    getLatestPosts,
 }

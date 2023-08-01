@@ -420,4 +420,47 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('GET /posts/latest', () => {
+        it('should get latest posts list', done => {
+            chai.request(app)
+                .get('/posts/latest')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+
+                    res.body.forEach(post => {
+                        post.should.have.property('authorId');
+                        post.should.have.property('authorAvatar');
+                        post.should.have.property('createTime');
+                        post.should.have.property('content');
+                        post.should.have.property('postId');
+
+                        if (post.hasOwnProperty('authorName')) {
+                            post.authorName.should.be.a('string');
+                        }
+
+                        post.createTime.should.be.a('number');
+                        post.images.should.be.an('array');
+                        post.content.should.be.a('string');
+                        post.likeCount.should.be.a('number');
+                        post.commentCount.should.be.a('number');
+                        post.isLiked.should.be.within(0, 1);
+                        post.isFollowed.should.be.within(0, 1);
+                    });
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get('/posts/latest')
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });
