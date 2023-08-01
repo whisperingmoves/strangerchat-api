@@ -414,7 +414,6 @@ const getRecommendedPosts = async (req, res, next) => {
     }
 
     try {
-        let totalPosts;
         let posts;
 
         if (Object.keys(query).length === 0) {
@@ -437,10 +436,10 @@ const getRecommendedPosts = async (req, res, next) => {
         const postIds = posts.map(post => post._id);
 
         const comments = await Comment.aggregate([
-            { $match: { postId: { $in: postIds } } },
+            { $match: { post: { $in: postIds } } },
             {
                 $group: {
-                    _id: '$postId',
+                    _id: '$post',
                     count: { $sum: 1 },
                 },
             },
@@ -471,7 +470,7 @@ const getRecommendedPosts = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-}
+};
 
 module.exports = {
     uploadPost,
