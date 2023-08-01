@@ -462,6 +462,18 @@ paths:
             default: 10
             minimum: 1
             maximum: 100
+        - name: longitude
+          in: query
+          description: 经度
+          schema:
+            type: number
+            format: float
+        - name: latitude
+          in: query
+          description: 纬度
+          schema:
+            type: number
+            format: float
       responses:
         200:
           description: 成功

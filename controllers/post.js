@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Post = require('../models/Post')
 const Comment = require('../models/Comment');
+const User = require('../models/User');
 
 const uploadPost = async (req, res, next) => {
     try {
@@ -380,6 +381,98 @@ const getLatestPosts = async (req, res, next) => {
     }
 };
 
+const getRecommendedPosts = async (req, res, next) => {
+    const { page = 1, pageSize = 10, longitude, latitude } = req.query;
+    const query = {};
+
+    if (longitude && latitude) {
+        query.location = {
+            $near: {
+                $geometry: {
+                    type: 'Point',
+                    coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                },
+            },
+        };
+    } else {
+        const userId = req.user.userId;
+        try {
+            const user = await User.findById(userId);
+            if (user && user.location && user.location.coordinates && user.location.coordinates.length === 2) {
+                query.location = {
+                    $near: {
+                        $geometry: {
+                            type: 'Point',
+                            coordinates: user.location.coordinates,
+                        },
+                    },
+                };
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+
+    try {
+        let totalPosts;
+        let posts;
+
+        if (Object.keys(query).length === 0) {
+            // No location query, return all posts
+            posts = await Post.find()
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+                .select('-createdAt -location -__v')
+                .populate('author', 'id username avatar');
+        } else {
+            // Location query present, apply distance sorting
+            posts = await Post.find(query)
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+                .select('-createdAt -location -__v')
+                .populate('author', 'id username avatar');
+        }
+
+        const userId = req.user.userId;
+        const postIds = posts.map(post => post._id);
+
+        const comments = await Comment.aggregate([
+            { $match: { postId: { $in: postIds } } },
+            {
+                $group: {
+                    _id: '$postId',
+                    count: { $sum: 1 },
+                },
+            },
+        ]);
+
+        const commentCounts = {};
+        comments.forEach(comment => {
+            commentCounts[comment._id.toString()] = comment.count;
+        });
+
+        const recommendedPosts = posts.map(post => {
+            return {
+                authorId: post.author.id,
+                authorAvatar: post.author.avatar,
+                authorName: post.author.username,
+                images: post.images,
+                content: post.content,
+                city: post.city,
+                likeCount: post.likes.length,
+                commentCount: commentCounts[post._id.toString()] || 0,
+                postId: post.id,
+                isLiked: post.likes.includes(userId) ? 1 : 0,
+                isFollowed: 0, // 暂时写死为0
+            };
+        });
+
+        res.status(200).json(recommendedPosts);
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     uploadPost,
     createPost,
@@ -390,4 +483,5 @@ module.exports = {
     getPostDetails,
     getHotPosts,
     getLatestPosts,
+    getRecommendedPosts,
 }
