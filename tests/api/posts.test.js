@@ -385,4 +385,39 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('GET /posts/hot', () => {
+        it('should get hot posts list', done => {
+            chai.request(app)
+                .get('/posts/hot')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+                    res.body.should.have.lengthOf.at.most(7);
+
+                    res.body.forEach(post => {
+                        post.should.have.property('postId');
+                        post.should.have.property('userId');
+                        post.should.have.property('content');
+                        post.should.have.property('hotIndex');
+
+                        if (post.hasOwnProperty('username')) {
+                            post.username.should.be.a('string');
+                        }
+                    });
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get('/posts/hot')
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });

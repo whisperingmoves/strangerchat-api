@@ -275,6 +275,67 @@ const getPostDetails = async (req, res, next) => {
     }
 };
 
+const getHotPosts = async (req, res, next) => {
+    try {
+        const hotPosts = await Post.aggregate([
+            {
+                $lookup: {
+                    from: 'comments',
+                    localField: '_id',
+                    foreignField: 'postId',
+                    as: 'comments',
+                },
+            },
+            {
+                $addFields: {
+                    commentCount: { $size: '$comments' },
+                    hotIndex: {
+                        $sum: [
+                            '$heatCount',
+                            '$viewsCount',
+                            { $size: '$likes' },
+                            { $size: '$collects' },
+                            { $size: '$shares' },
+                            { $size: '$comments' },
+                        ],
+                    },
+                },
+            },
+            { $sort: { hotIndex: -1 } },
+            { $limit: 7 },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'author',
+                    foreignField: '_id',
+                    as: 'user',
+                },
+            },
+            {
+                $project: {
+                    postId: '$_id',
+                    userId: '$author',
+                    content: { $substr: ['$content', 0, 100] },
+                    hotIndex: 1,
+                    username: { $arrayElemAt: ['$user.username', 0] },
+                },
+            },
+        ]);
+
+        const formattedPosts = hotPosts.map((post) => ({
+            postId: post.postId.toString(),
+            userId: post.userId.toString(),
+            content: post.content + '...',
+            hotIndex: post.hotIndex,
+            username: post.username,
+        }));
+
+        res.status(200).json(formattedPosts);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
@@ -283,4 +344,5 @@ module.exports = {
     collectPost,
     sharePost,
     getPostDetails,
+    getHotPosts,
 }
