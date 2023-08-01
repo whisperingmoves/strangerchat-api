@@ -104,7 +104,9 @@ const likeComment = async (req, res, next) => {
 
 const getCommentReplies = async (req, res, next) => {
     const { commentId } = req.params;
-    const { page = 1, pageSize = 10 } = req.query;
+    let { page = "1", pageSize = "10" } = req.query;
+    page = parseInt(page, 10);
+    pageSize = parseInt(pageSize, 10);
 
     try {
         // 验证 commentId 是否是有效的 ObjectId
@@ -141,7 +143,9 @@ const getCommentReplies = async (req, res, next) => {
 
 const getPostComments = async (req, res, next) => {
     const { postId } = req.params;
-    const { page = 1, pageSize = 10 } = req.query;
+    let { page = "1", pageSize = "10" } = req.query;
+    page = parseInt(page, 10);
+    pageSize = parseInt(pageSize, 10);
 
     try {
         // 验证 postId 是否是有效的 ObjectId

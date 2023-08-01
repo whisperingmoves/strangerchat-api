@@ -15,6 +15,7 @@ const verificationController = require('../controllers/verification');
 const userController = require('../controllers/user');
 const postController = require('../controllers/post');
 const commentController = require('../controllers/comment');
+const storyController = require('../controllers/story');
 
 // 验证码路由
 router.post('/verifications/sendCode', verificationController.sendVerificationCode);
@@ -23,6 +24,9 @@ router.post('/verifications/verifyCode', verificationController.verifyVerificati
 // 用户路由
 router.post('/users/register', userController.register);
 router.post('/uploadAvatar', uploadAvatar.single('avatar'), userController.uploadAvatar);
+
+// 故事路由
+router.get('/stories', auth, storyController.getStoryList);
 
 // 帖子路由
 router.post('/uploadPost', uploadPost.single('post'), postController.uploadPost);

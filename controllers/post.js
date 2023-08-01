@@ -382,7 +382,9 @@ const getLatestPosts = async (req, res, next) => {
 };
 
 const getRecommendedPosts = async (req, res, next) => {
-    const { page = 1, pageSize = 10, longitude, latitude } = req.query;
+    let { page = "1", pageSize = "10", longitude, latitude } = req.query;
+    page = parseInt(page, 10);
+    pageSize = parseInt(pageSize, 10);
     const query = {};
 
     if (longitude && latitude) {
@@ -473,7 +475,9 @@ const getRecommendedPosts = async (req, res, next) => {
 };
 
 const getFollowedUsersPosts = async (req, res, next) => {
-    const { page = 1, pageSize = 10 } = req.query;
+    let { page = "1", pageSize = "10" } = req.query;
+    page = parseInt(page, 10);
+    pageSize = parseInt(pageSize, 10);
 
     try {
         const followedUserIds = [];
