@@ -36,5 +36,6 @@ router.post('/posts/:postId/comment', auth, commentController.createComment);
 // 评论路由
 router.delete('/comments/:commentId', auth, commentController.deleteComment);
 router.post('/comments/:commentId/like', auth, commentController.likeComment);
+router.get('/comments/:commentId/replies', auth, commentController.getCommentReplies);
 
 module.exports = router;

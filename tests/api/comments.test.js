@@ -201,4 +201,43 @@ describe('Comments API', () => {
                 });
         });
     });
+
+    describe('GET /comments/{commentId}/replies', () => {
+        let commentId;
+
+        beforeEach(async () => {
+            // 创建一个测试评论
+            const createCommentResponse = await chai.request(app)
+                .post(`/posts/${postId}/comment`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    content: 'Test comment'
+                });
+
+            commentId = createCommentResponse.body.commentId;
+        });
+
+        it('should return an array of comment replies', done => {
+            chai.request(app)
+                .get(`/comments/${commentId}/replies`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+                    done();
+                });
+        });
+
+        it('should return 404 if comment does not exist', done => {
+            const invalidCommentId = 'invalid-comment-id';
+
+            chai.request(app)
+                .get(`/comments/${invalidCommentId}/replies`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+    });
 });

@@ -101,8 +101,46 @@ const likeComment = async (req, res, next) => {
     }
 };
 
+const getCommentReplies = async (req, res, next) => {
+    const { commentId } = req.params;
+    const { page = 1, pageSize = 10 } = req.query;
+
+    try {
+        // 验证 commentId 是否是有效的 ObjectId
+        if (!mongoose.Types.ObjectId.isValid(commentId)) {
+            return res.status(404).json({ message: '评论不存在' });
+        }
+
+        const comment = await Comment.findById(commentId).exec();
+
+        if (!comment) {
+            return res.status(404).json({ message: '评论不存在' });
+        }
+
+        const replies = await Comment.find({ parentId: commentId })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .populate('author', 'userId avatar username')
+            .exec();
+
+        const formattedReplies = replies.map(reply => ({
+            userId: reply.author.userId,
+            avatar: reply.author.avatar,
+            username: reply.author.username,
+            createTime: Math.floor(reply.createdAt.getTime() / 1000),
+            content: reply.content,
+            commentId: reply.id
+        }));
+
+        res.status(200).json(formattedReplies);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     createComment,
     deleteComment,
     likeComment,
+    getCommentReplies,
 }
