@@ -156,4 +156,49 @@ describe('Comments API', () => {
                 });
         });
     });
+
+    describe('POST /comments/{commentId}/like', () => {
+        // 在测试之前创建一个评论
+        let commentId;
+        let commentToken;
+
+        before(async () => {
+            // 创建一个测试评论
+            const createCommentResponse = await chai.request(app)
+                .post(`/posts/${postId}/comment`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    content: 'Test comment'
+                });
+
+            commentId = createCommentResponse.body.commentId;
+            commentToken = token;
+        });
+
+        it('should like a comment', done => {
+            chai.request(app)
+                .post(`/comments/${commentId}/like`)
+                .set('Authorization', `Bearer ${commentToken}`)
+                .send({
+                    operation: 1 // 1 表示点赞
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+        });
+
+        it('should unlike a comment', done => {
+            chai.request(app)
+                .post(`/comments/${commentId}/like`)
+                .set('Authorization', `Bearer ${commentToken}`)
+                .send({
+                    operation: 0 // 0 表示取消点赞
+                })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+        });
+    });
 });
