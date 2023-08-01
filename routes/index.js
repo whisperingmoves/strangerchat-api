@@ -14,6 +14,7 @@ const uploadPost = multer({
 const verificationController = require('../controllers/verification');
 const userController = require('../controllers/user');
 const postController = require('../controllers/post');
+const commentController = require('../controllers/comment');
 
 // 验证码路由
 router.post('/verifications/sendCode', verificationController.sendVerificationCode);
@@ -30,5 +31,8 @@ router.post('/posts/:postId/heat', auth, postController.heatPost);
 router.post('/posts/:postId/like', auth, postController.likePost);
 router.post('/posts/:postId/collect', auth, postController.collectPost);
 router.post('/posts/:postId/share', auth, postController.sharePost);
+
+// 评论路由
+router.post('/posts/:postId/comment', auth, commentController.createComment);
 
 module.exports = router;
