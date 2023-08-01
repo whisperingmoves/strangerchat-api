@@ -369,7 +369,7 @@ const getLatestPosts = async (req, res, next) => {
                     likeCount: post.likes.length,
                     commentCount: commentCount,
                     postId: post.id,
-                    isLiked: post.likes.includes(req.user.id) ? 1 : 0,
+                    isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
                     isFollowed: 0,
                 };
             })
@@ -472,6 +472,56 @@ const getRecommendedPosts = async (req, res, next) => {
     }
 };
 
+const getFollowedUsersPosts = async (req, res, next) => {
+    const { page = 1, pageSize = 10 } = req.query;
+
+    try {
+        const followedUserIds = [];
+
+        const posts = await Post.find({ author: { $in: followedUserIds } })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .populate('author', 'id avatar username')
+            .lean();
+
+        const postIds = posts.map((post) => post._id);
+
+        const commentCounts = await Comment.aggregate([
+            { $match: { post: { $in: postIds } } },
+            { $group: { _id: '$post', count: { $sum: 1 } } },
+        ]);
+
+        const commentCountsMap = new Map();
+        commentCounts.forEach((count) => {
+            commentCountsMap.set(count._id.toString(), count.count);
+        });
+
+        const formattedPosts = posts.map((post) => {
+            const postId = post._id.toString();
+            const commentCount = commentCountsMap.has(postId) ? commentCountsMap.get(postId) : 0;
+
+            return {
+                authorId: post.author.id,
+                authorAvatar: post.author.avatar,
+                authorName: post.author.username,
+                createTime: Math.floor(post.createdAt.getTime() / 1000),
+                images: post.images,
+                content: post.content,
+                city: post.city,
+                likeCount: post.likes.length,
+                commentCount: commentCount,
+                postId: postId,
+                isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
+            };
+        });
+
+        res.status(200).json(formattedPosts);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
@@ -483,4 +533,5 @@ module.exports = {
     getHotPosts,
     getLatestPosts,
     getRecommendedPosts,
+    getFollowedUsersPosts,
 }

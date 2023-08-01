@@ -518,4 +518,59 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('GET /posts/follows', () => {
+        it('should get followed users posts list', done => {
+            chai.request(app)
+                .get('/posts/follows')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+
+                    res.body.forEach(post => {
+                        post.should.have.property('authorId');
+                        post.should.have.property('authorAvatar');
+                        post.should.have.property('createTime');
+                        post.should.have.property('content');
+                        post.should.have.property('postId');
+                        post.should.have.property('likeCount');
+                        post.should.have.property('commentCount');
+                        post.should.have.property('isLiked');
+
+                        post.authorId.should.be.a('string');
+                        post.authorAvatar.should.be.a('string');
+                        post.createTime.should.be.a('number');
+                        post.content.should.be.a('string');
+                        post.postId.should.be.a('string');
+                        post.likeCount.should.be.a('number');
+                        post.commentCount.should.be.a('number');
+                        post.isLiked.should.be.within(0, 1);
+
+                        if (post.hasOwnProperty('authorName')) {
+                            post.authorName.should.be.a('string');
+                        }
+
+                        if (post.hasOwnProperty('images')) {
+                            post.images.should.be.an('array');
+                        }
+
+                        if (post.hasOwnProperty('city')) {
+                            post.city.should.be.a('string');
+                        }
+                    });
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get('/posts/follows')
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });
