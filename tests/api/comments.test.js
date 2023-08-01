@@ -240,4 +240,29 @@ describe('Comments API', () => {
                 });
         });
     });
+
+    describe('GET /posts/{postId}/comments', () => {
+        it('should return an array of post comments', done => {
+            chai.request(app)
+                .get(`/posts/${postId}/comments`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+                    done();
+                });
+        });
+
+        it('should return 404 if post does not exist', done => {
+            const invalidPostId = 'invalid-post-id';
+
+            chai.request(app)
+                .get(`/posts/${invalidPostId}/comments`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+    });
 });

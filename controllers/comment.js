@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Comment = require('../models/Comment');
+const Post = require('../models/Post');
 
 const createComment = async (req, res, next) => {
     const { content, parentId } = req.body;
@@ -138,9 +139,47 @@ const getCommentReplies = async (req, res, next) => {
     }
 };
 
+const getPostComments = async (req, res, next) => {
+    const { postId } = req.params;
+    const { page = 1, pageSize = 10 } = req.query;
+
+    try {
+        // 验证 postId 是否是有效的 ObjectId
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        const post = await Post.findById(postId).exec();
+
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        const comments = await Comment.find({ post: postId })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .populate('author', 'id avatar username')
+            .exec();
+
+        const formattedComments = comments.map(comment => ({
+            userId: comment.author.id,
+            avatar: comment.author.avatar,
+            username: comment.author.username,
+            createTime: Math.floor(comment.createdAt.getTime() / 1000),
+            content: comment.content,
+            commentId: comment.id
+        }));
+
+        res.status(200).json(formattedComments);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     createComment,
     deleteComment,
     likeComment,
     getCommentReplies,
+    getPostComments,
 }
