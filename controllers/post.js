@@ -338,13 +338,26 @@ const getHotPosts = async (req, res, next) => {
 };
 
 const getLatestPosts = async (req, res, next) => {
-    const { keyword, page = 1, pageSize = 10 } = req.query;
+    let { keyword, page = '1', pageSize = '10', filter = '0' } = req.query;
+    page = parseInt(page);
+    pageSize = parseInt(pageSize);
+    filter = parseInt(filter);
 
     try {
         const query = {};
 
         if (keyword) {
             query.content = { $regex: keyword, $options: 'i' };
+        }
+
+        if (filter === 1) {
+            query.likes = req.user.userId;
+        } else if (filter === 2) {
+            const commentedPostIds = await Comment.distinct('post', { author: req.user.userId }).exec();
+            query._id = { $in: commentedPostIds };
+        } else if (filter === 3) {
+            const favoritedPostIds = await Post.distinct('_id', { collects: req.user.userId }).exec();
+            query._id = { $in: favoritedPostIds };
         }
 
         const posts = await Post.find(query)
