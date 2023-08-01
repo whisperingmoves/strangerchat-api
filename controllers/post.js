@@ -248,6 +248,10 @@ const getPostDetails = async (req, res, next) => {
 
         const commentCount = await Comment.countDocuments({ post: postId });
 
+        // 将帖子的浏览次数加1
+        post.viewsCount += 1;
+        await post.save();
+
         const postDetails = {
             authorId: post.author.id,
             authorAvatar: post.author.avatar,
