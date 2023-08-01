@@ -555,6 +555,47 @@ const getMyPosts = async (req, res, next) => {
     }
 };
 
+const getMyPostDetails = async (req, res, next) => {
+    const { postId } = req.params;
+    const userId = req.user.userId; // 当前登录用户的ID
+
+    try {
+        // 验证 postId 是否是有效的 ObjectId
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        const post = await Post.findOne({ _id: postId, author: userId })
+            .populate('author', 'id avatar username')
+            .populate('likes', 'id')
+            .exec();
+
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        const isLiked = post.likes.some(like => like.userId.toString() === userId);
+
+        const commentCount = await Comment.countDocuments({ post: postId });
+
+        const postDetails = {
+            createTime: Math.floor(post.createdAt.getTime() / 1000),
+            images: post.images,
+            content: post.content,
+            city: post.city,
+            likeCount: post.likes.length,
+            commentCount: commentCount,
+            shareCount: post.shares.length,
+            postId: post.id,
+            isLiked: isLiked ? 1 : 0
+        };
+
+        res.status(200).json(postDetails);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
@@ -568,4 +609,5 @@ module.exports = {
     getRecommendedPosts,
     getFollowedUsersPosts,
     getMyPosts,
+    getMyPostDetails,
 }

@@ -614,4 +614,76 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('GET /users/me/posts/{postId}', () => {
+        let postId;
+        let postsToken;
+
+        before(async () => {
+            // 创建一个测试帖子
+            const createPostResponse = await chai.request(app)
+                .post('/posts')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    content: 'Test post',
+                    city: '北京',
+                    images: [
+                        "/uploads/xxx1.png",
+                        "/uploads/xxx2.png"
+                    ]
+                });
+
+            postId = createPostResponse.body.postId;
+
+            postsToken = token;
+        });
+
+        it('should get my post details', done => {
+            chai.request(app)
+                .get(`/users/me/posts/${postId}`)
+                .set('Authorization', `Bearer ${postsToken}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('createTime');
+                    res.body.should.have.property('content');
+                    res.body.should.have.property('postId');
+                    res.body.should.have.property('isLiked');
+
+                    // 验证可选字段
+                    if (res.body.hasOwnProperty('images')) {
+                        res.body.images.should.be.an('array');
+                    }
+
+                    if (res.body.hasOwnProperty('city')) {
+                        res.body.city.should.be.a('string');
+                    }
+
+                    // 验证计数字段
+                    res.body.should.have.property('likeCount');
+                    res.body.should.have.property('commentCount');
+                    res.body.should.have.property('shareCount');
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get(`/users/me/posts/${postId}`)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+
+        it('should return 404 if post does not exist', done => {
+            chai.request(app)
+                .get('/users/me/posts/nonExistentPostId')
+                .set('Authorization', `Bearer ${postsToken}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+    });
 });

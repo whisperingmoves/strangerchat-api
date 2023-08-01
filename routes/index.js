@@ -25,6 +25,7 @@ router.post('/verifications/verifyCode', verificationController.verifyVerificati
 router.post('/users/register', userController.register);
 router.post('/uploadAvatar', uploadAvatar.single('avatar'), userController.uploadAvatar);
 router.get('/users/me/posts', auth, postController.getMyPosts);
+router.get('/users/me/posts/:postId', auth, postController.getMyPostDetails);
 
 // 故事路由
 router.get('/stories', auth, storyController.getStoryList);
