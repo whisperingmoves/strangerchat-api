@@ -526,6 +526,35 @@ const getFollowedUsersPosts = async (req, res, next) => {
     }
 };
 
+const getMyPosts = async (req, res, next) => {
+    let { page = '1', pageSize = '10' } = req.query;
+    page = parseInt(page);
+    pageSize = parseInt(pageSize);
+    const userId = req.user.userId;
+
+    try {
+        const posts = await Post.find({ author: userId })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .exec();
+
+        const formattedPosts = posts.map((post) => {
+            return {
+                postId: post.id,
+                createTime: Math.floor(post.createdAt.getTime() / 1000),
+                content: post.content,
+                images: post.images,
+                city: post.city
+            };
+        });
+
+        res.status(200).json(formattedPosts);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
@@ -538,4 +567,5 @@ module.exports = {
     getLatestPosts,
     getRecommendedPosts,
     getFollowedUsersPosts,
+    getMyPosts,
 }

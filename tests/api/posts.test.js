@@ -573,4 +573,45 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('GET /users/me/posts', () => {
+        it('should get my posts list', done => {
+            chai.request(app)
+                .get('/users/me/posts')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+
+                    res.body.forEach(post => {
+                        post.should.have.property('postId');
+                        post.should.have.property('createTime');
+                        post.should.have.property('content');
+
+                        post.postId.should.be.a('string');
+                        post.createTime.should.be.a('number');
+                        post.content.should.be.a('string');
+
+                        if (post.hasOwnProperty('images')) {
+                            post.images.should.be.an('array');
+                        }
+
+                        if (post.hasOwnProperty('city')) {
+                            post.city.should.be.a('string');
+                        }
+                    });
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get('/users/me/posts')
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });
