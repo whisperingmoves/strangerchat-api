@@ -15,6 +15,8 @@ tags:
     description: 帖子相关接口
   - name: 评论
     description: 评论相关接口
+  - name: 通知
+    description: 通知相关接口
 paths:
 
   /verifications/sendCode:
@@ -592,7 +594,7 @@ paths:
           schema:
             type: integer
             description: 可使用以下值进行筛选:0=不应用任何筛选条件,1=返回我点赞过的帖子,2=返回我评论过的帖子,3=返回我收藏过的帖子
-            enum: [ 0, 1, 2, 3]
+            enum: [ 0, 1, 2, 3 ]
             default: 0
       responses:
         200:
@@ -1507,6 +1509,51 @@ paths:
                   message:
                     type: string
                     description: 错误信息
+
+  /notifications:
+    get:
+      summary: 获取通知列表
+      tags:
+        - 通知
+      parameters:
+        - name: type
+          in: query
+          description: |
+            通知类型 (0: 交互类, 1: 状态类, 2: 礼物类, 3: 系统通知类)
+          required: true
+          schema:
+            type: integer
+            example: 0
+        - name: page
+          in: query
+          description: 分页页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 每页通知数量
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        '200':
+          description: 成功响应
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/InteractionNotification'
+                    - $ref: '#/components/schemas/StatusNotification'
+                    - $ref: '#/components/schemas/GiftNotification'
+                    - $ref: '#/components/schemas/SystemNotification'
 components:
   responses:
     Unauthorized:
@@ -1632,5 +1679,168 @@ components:
           description: 评论ID
 
           example: f460e1ee-6c54-4b01-90e6-d701748f0852
+
+    InteractionNotification:
+      type: object
+      required:
+        - userAvatar
+        - userId
+        - interactionType
+        - interactionTime
+      properties:
+        userAvatar:
+          type: string
+          description: 其他用户的头像 URL
+          example: /order/xxx.png
+        userId:
+          type: string
+          description: 其他用户的 ID
+          example: user123
+        userName:
+          type: string
+          description: 其他用户的用户名
+          example: John Doe
+        interactionType:
+          type: integer
+          description: |
+            交互类型 (0: 点赞, 1: 评论, 2: 分享, 3: 收藏)
+          example: 0
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+        interactionTime:
+          type: integer
+          description: 交互发生的时间 (精确到秒的 UNIX 时间戳)
+          example: 1629876543
+        postImage:
+          type: string
+          description: 相关帖子的照片列表中的第一张照片的 URL（可选）
+          example: /order/xxx.png
+        readStatus:
+          type: integer
+          description: |
+            通知的已读状态 (0: 未读, 1: 已读, 默认值: 0)
+          example: 0
+          enum:
+            - 0
+            - 1
+          default: 0
+
+    StatusNotification:
+      type: object
+      required:
+        - userAvatar
+        - userId
+        - statusType
+        - statusTime
+      properties:
+        userAvatar:
+          type: string
+          description: 其他用户的头像 URL
+          example: /order/xxx.png
+        userId:
+          type: string
+          description: 其他用户的 ID
+          example: user123
+        userName:
+          type: string
+          description: 其他用户的用户名
+          example: John Doe
+        statusType:
+          type: integer
+          description: |
+            状态类型 (0: 关注, 1: 访问主页)
+          example: 0
+          enum:
+            - 0
+            - 1
+          default: 0
+        statusTime:
+          type: integer
+          description: 状态发生的时间 (精确到秒的 UNIX 时间戳)
+          example: 1629876543
+        readStatus:
+          type: integer
+          description: |
+            通知的已读状态 (0: 未读, 1: 已读, 默认值: 0)
+          example: 0
+          enum:
+            - 0
+            - 1
+          default: 0
+
+    GiftNotification:
+      type: object
+      required:
+        - userAvatar
+        - userId
+        - giftQuantity
+        - giftName
+        - giftTime
+      properties:
+        userAvatar:
+          type: string
+          description: 其他用户的头像 URL
+          example: /order/xxx.png
+        userId:
+          type: string
+          description: 其他用户的 ID
+          example: user123
+        userName:
+          type: string
+          description: 其他用户的用户名
+          example: John Doe
+        giftQuantity:
+          type: integer
+          description: 礼物数量
+          example: 3
+        giftName:
+          type: string
+          description: 礼物名称
+          example: Flower Bouquet
+        giftTime:
+          type: integer
+          description: 送礼的时间 (精确到秒的 UNIX 时间戳)
+          example: 1629876543
+        readStatus:
+          type: integer
+          description: |
+            通知的已读状态 (0: 未读, 1: 已读, 默认值: 0)
+          example: 0
+          enum:
+            - 0
+            - 1
+          default: 0
+
+    SystemNotification:
+      type: object
+      required:
+        - notificationTitle
+        - notificationContent
+        - notificationTime
+      properties:
+        notificationTitle:
+          type: string
+          description: 通知标题
+          example: 系统更新通知
+        notificationContent:
+          type: string
+          description: 通知内容
+          example: 新版本已发布，请更新应用以享受最新功能。
+        notificationTime:
+          type: integer
+          description: 通知发布时间 (精确到秒的 UNIX 时间戳)
+          example: 1629876543
+        readStatus:
+          type: integer
+          description: |
+            通知的已读状态 (0: 未读, 1: 已读, 默认值: 0)
+          example: 0
+          enum:
+            - 0
+            - 1
+          default: 0
 security:
   - JWTAuth: [ ]
