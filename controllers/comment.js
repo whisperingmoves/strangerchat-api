@@ -120,11 +120,11 @@ const getCommentReplies = async (req, res, next) => {
         const replies = await Comment.find({ parentId: commentId })
             .skip((page - 1) * pageSize)
             .limit(pageSize)
-            .populate('author', 'userId avatar username')
+            .populate('author', 'id avatar username')
             .exec();
 
         const formattedReplies = replies.map(reply => ({
-            userId: reply.author.userId,
+            userId: reply.author.id,
             avatar: reply.author.avatar,
             username: reply.author.username,
             createTime: Math.floor(reply.createdAt.getTime() / 1000),

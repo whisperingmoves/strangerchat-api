@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Post = require('../models/Post')
+const Comment = require('../models/Comment');
 
 const uploadPost = async (req, res, next) => {
     try {
@@ -222,6 +224,53 @@ const sharePost = async (req, res, next) => {
     }
 };
 
+const getPostDetails = async (req, res, next) => {
+    const { postId } = req.params;
+
+    try {
+        // 验证 postId 是否是有效的 ObjectId
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        const post = await Post.findById(postId)
+            .populate('author', 'id avatar username')
+            .populate('likes', 'id')
+            .populate('collects', 'id')
+            .exec();
+
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
+        const isLiked = post.likes.some(like => like.userId.toString() === req.user.userId);
+        const isCollected = post.collects.some(collect => collect.userId.toString() === req.user.userId);
+
+        const commentCount = await Comment.countDocuments({ post: postId });
+
+        const postDetails = {
+            authorId: post.author.id,
+            authorAvatar: post.author.avatar,
+            authorName: post.author.username,
+            createTime: Math.floor(post.createdAt.getTime() / 1000),
+            isFollowed: 0, // 填充当前登录用户是否已关注作者的逻辑
+            images: post.images,
+            content: post.content,
+            city: post.city,
+            likeCount: post.likes.length,
+            commentCount: commentCount,
+            shareCount: post.shares.length,
+            postId: post.id,
+            isLiked: isLiked ? 1 : 0,
+            isCollected: isCollected ? 1 : 0
+        };
+
+        res.status(200).json(postDetails);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadPost,
     createPost,
@@ -229,4 +278,5 @@ module.exports = {
     likePost,
     collectPost,
     sharePost,
+    getPostDetails,
 }

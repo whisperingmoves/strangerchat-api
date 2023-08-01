@@ -296,4 +296,93 @@ describe('Posts API', () => {
                 });
         });
     });
+
+    describe('GET /posts/:postId', () => {
+        let postId;
+
+        before(async () => {
+            // 创建一个测试帖子
+            const createPostResponse = await chai.request(app)
+                .post('/posts')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    content: 'Test post',
+                    city: '北京',
+                    longitude: '116.4074',
+                    latitude: '39.9042',
+                    images: [
+                        "/uploads/xxx1.png",
+                        "/uploads/xxx2.png"
+                    ],
+                    visibility: 0,
+                    atUsers: ["user1", "user2"]
+                });
+
+            postId = createPostResponse.body.postId;
+        });
+
+        it('should get post details', done => {
+            chai.request(app)
+                .get(`/posts/${postId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('authorId');
+                    res.body.should.have.property('authorAvatar');
+                    res.body.should.have.property('createTime');
+                    res.body.should.have.property('content');
+                    res.body.should.have.property('postId');
+                    res.body.should.have.property('likeCount');
+                    res.body.should.have.property('commentCount');
+                    res.body.should.have.property('shareCount');
+                    res.body.should.have.property('isLiked');
+                    res.body.should.have.property('isCollected');
+
+                    // 验证可能不会返回的非必填字段
+                    if (res.body.hasOwnProperty('authorName')) {
+                        res.body.authorName.should.be.a('string');
+                    }
+                    if (res.body.hasOwnProperty('isFollowed')) {
+                        res.body.isFollowed.should.be.a('number');
+                    }
+                    if (res.body.hasOwnProperty('images')) {
+                        res.body.images.should.be.an('array');
+                    }
+                    if (res.body.hasOwnProperty('city')) {
+                        res.body.city.should.be.a('string');
+                    }
+
+                    done();
+                });
+        });
+
+        it('should return 404 if post does not exist', done => {
+            chai.request(app)
+                .get(`/posts/nonExistentPostId`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+
+        it('should return 404 if postId is invalid', done => {
+            chai.request(app)
+                .get('/posts/invalidPostId')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get(`/posts/${postId}`)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });

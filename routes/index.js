@@ -32,6 +32,7 @@ router.post('/posts/:postId/like', auth, postController.likePost);
 router.post('/posts/:postId/collect', auth, postController.collectPost);
 router.post('/posts/:postId/share', auth, postController.sharePost);
 router.post('/posts/:postId/comment', auth, commentController.createComment);
+router.get('/posts/:postId', auth, postController.getPostDetails);
 
 // 评论路由
 router.delete('/comments/:commentId', auth, commentController.deleteComment);
