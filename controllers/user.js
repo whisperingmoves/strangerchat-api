@@ -190,9 +190,67 @@ const getFollowingUsers = async (req, res, next) => {
     }
 };
 
+const getFollowers = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+        const skip = (page - 1) * pageSize;
+        const keyword = req.query.keyword;
+        const userId = req.user.userId;
+
+        const query = User.find({ following: userId }, { avatar: 1, username: 1 })
+            .sort({ createdAt: -1 });
+
+        if (keyword) {
+            query.where('username', new RegExp(keyword, 'i'));
+        }
+
+        const users = await query
+            .skip(skip)
+            .limit(pageSize)
+            .lean()
+            .exec();
+
+        const userIds = users.map((user) => user._id);
+
+        const latestPosts = await Post.aggregate([
+            {
+                $match: { author: { $in: userIds } }
+            },
+            {
+                $sort: { createdAt: -1 }
+            },
+            {
+                $group: {
+                    _id: '$author',
+                    latestPost: { $first: '$content' }
+                }
+            }
+        ]);
+
+        const latestPostsMap = new Map(latestPosts.map((post) => [post._id.toString(), post.latestPost]));
+
+        const formattedUsers = users.map((user) => {
+            const { _id, avatar, username } = user;
+            const latestPostContent = latestPostsMap.get(_id.toString());
+            return {
+                userId: _id,
+                userAvatar: avatar,
+                username,
+                latestPostContent
+            };
+        });
+
+        res.status(200).json(formattedUsers);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     register,
     uploadAvatar,
     followUser,
     getFollowingUsers,
+    getFollowers,
 }
