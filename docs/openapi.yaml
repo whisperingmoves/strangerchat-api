@@ -2008,6 +2008,69 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /users/following:
+    get:
+      summary: 获取我关注的用户列表
+      tags:
+        - 用户
+      description: 获取当前用户关注的用户列表，支持分页和模糊查询。
+      parameters:
+        - name: page
+          in: query
+          description: 分页页码，从1开始。
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 分页大小，默认每页10条。
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+        - name: keyword
+          in: query
+          description: 用户名关键词。
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取用户列表
+          content:
+            application/json:
+              schema:
+                type: array
+                description: 用户列表
+                items:
+                  type: object
+                  required:
+                    - userId
+                    - userAvatar
+                  properties:
+                    userId:
+                      type: string
+                      description: 用户id
+                      example: "612f8c4b241cd1002208d7c8"
+                    userAvatar:
+                      type: string
+                      description: 用户头像url，形如/order/xxx.png
+                      example: "/order/123.png"
+                    username:
+                      type: string
+                      description: 用户名
+                      example: "张三"
+                    latestPostContent:
+                      type: string
+                      description: 用户最新的帖子文字内容，最多100个字符，多出的字符用省略号代替
+                      example: "这是一条最新的帖子内容"
 components:
   responses:
     Unauthorized:
