@@ -16,6 +16,7 @@ const userController = require('../controllers/user');
 const postController = require('../controllers/post');
 const commentController = require('../controllers/comment');
 const storyController = require('../controllers/story');
+const interactionNotificationController = require('../controllers/interactionNotification');
 
 // 验证码路由
 router.post('/verifications/sendCode', verificationController.sendVerificationCode);
@@ -49,5 +50,8 @@ router.get('/posts/:postId/comments', auth, commentController.getPostComments);
 router.delete('/comments/:commentId', auth, commentController.deleteComment);
 router.post('/comments/:commentId/like', auth, commentController.likeComment);
 router.get('/comments/:commentId/replies', auth, commentController.getCommentReplies);
+
+// 通知路由
+router.get('/notifications/interaction', auth, interactionNotificationController.getInteractionNotifications);
 
 module.exports = router;

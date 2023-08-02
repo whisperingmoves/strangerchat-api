@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
+const InteractionNotification = require('../models/InteractionNotification');
 
 const createComment = async (req, res, next) => {
     const { content, parentId } = req.body;
@@ -12,6 +13,12 @@ const createComment = async (req, res, next) => {
     }
 
     try {
+        // 查询帖子对象
+        const post = await Post.findById(postId).populate('author');
+        if (!post) {
+            return res.status(404).json({ message: '帖子不存在' });
+        }
+
         // 创建评论对象
         const comment = new Comment({
             content,
@@ -21,6 +28,16 @@ const createComment = async (req, res, next) => {
         });
 
         await comment.save();
+
+        // 创建交互类通知
+        const notification = new InteractionNotification({
+            toUser: post.author,
+            user: req.user.userId,
+            interactionType: parentId ? 5 : 1, // 根据是否是回复评论来设置交互类型
+            post: postId,
+            comment: comment._id,
+        });
+        await notification.save();
 
         res.status(200).json({ commentId: comment.id }); // 返回新增评论的ID
     } catch (err) {
@@ -65,7 +82,7 @@ const likeComment = async (req, res, next) => {
         }
 
         // 查找评论
-        const comment = await Comment.findById(commentId);
+        const comment = await Comment.findById(commentId).populate('author');
 
         if (!comment) {
             return res.status(404).json({ message: '评论不存在' });
@@ -79,6 +96,16 @@ const likeComment = async (req, res, next) => {
             }
 
             comment.likes.push(userId);
+
+            // 创建交互类通知 (评论点赞)
+            const notification = new InteractionNotification({
+                toUser: comment.author._id,
+                user: userId,
+                interactionType: 4, // 交互类型: 评论点赞
+                post: comment.post,
+                comment: commentId,
+            });
+            await notification.save();
         }
         // 取消点赞操作
         else if (operation === 0) {
@@ -88,6 +115,15 @@ const likeComment = async (req, res, next) => {
             }
 
             comment.likes = comment.likes.filter(like => like.toString() !== userId);
+
+            // 查找并删除对应的交互类通知
+            await InteractionNotification.findOneAndDelete({
+                toUser: comment.author._id,
+                user: userId,
+                interactionType: 4, // 交互类型: 评论点赞
+                post: comment.post,
+                comment: commentId,
+            });
         }
         // 无效的操作类型
         else {

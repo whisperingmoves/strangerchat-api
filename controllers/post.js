@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Post = require('../models/Post')
 const Comment = require('../models/Comment');
 const User = require('../models/User');
+const InteractionNotification = require('../models/InteractionNotification');
 
 const uploadPost = async (req, res, next) => {
     try {
@@ -131,11 +132,30 @@ const likePost = async (req, res, next) => {
                 return res.status(400).json({ message: '帖子已经被点赞过' });
             }
             post.likes.push(userId);
+
+            // 创建交互类通知
+            if (post.author.toString() !== userId) { // 避免给自己发通知
+                const notification = new InteractionNotification({
+                    toUser: post.user,
+                    user: userId,
+                    interactionType: 0, // 给帖子点赞
+                    post: postId,
+                });
+                await notification.save();
+            }
         } else if (action === '0') {
             if (!isLiked) {
                 return res.status(400).json({ message: '帖子未被点赞，无法取消点赞' });
             }
             post.likes.pull(userId);
+
+            // 删除交互类通知
+            await InteractionNotification.deleteOne({
+                toUser: post.user,
+                user: userId,
+                interactionType: 0,
+                post: postId,
+            });
         } else {
             return res.status(400).json({ message: '无效的点赞操作' });
         }
@@ -154,7 +174,7 @@ const collectPost = async (req, res, next) => {
 
     try {
         // 检查帖子是否存在
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).populate('author');
         if (!post) {
             return res.status(404).json({ message: '帖子不存在' });
         }
@@ -171,11 +191,30 @@ const collectPost = async (req, res, next) => {
                 return res.status(400).json({ message: '帖子已经被收藏过' });
             }
             post.collects.push(userId);
+
+            // 创建交互类通知 (收藏帖子)
+            const notification = new InteractionNotification({
+                toUser: post.author._id,
+                user: userId,
+                interactionType: 3, // 交互类型: 收藏帖子
+                post: postId,
+            });
+            await notification.save();
+
         } else if (operation === 0) {
             if (!isCollected) {
                 return res.status(400).json({ message: '帖子未被收藏，无法取消收藏' });
             }
             post.collects.pull(userId);
+
+            // 删除交互类通知 (收藏帖子)
+            await InteractionNotification.deleteOne({
+                toUser: post.author._id,
+                user: userId,
+                interactionType: 3, // 交互类型: 收藏帖子
+                post: postId,
+            });
+
         } else {
             return res.status(400).json({ message: '无效的收藏操作' });
         }
@@ -194,13 +233,13 @@ const sharePost = async (req, res, next) => {
 
     try {
         // 检查帖子是否存在
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).populate('author');
         if (!post) {
             return res.status(404).json({ message: '帖子不存在' });
         }
 
         // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
-        // const userId = req.user.userId;
+        const userId = req.user.userId;
 
         // 检查分享平台的有效性
         if (![1, 2, 3].includes(sharePlatform)) {
@@ -215,6 +254,15 @@ const sharePost = async (req, res, next) => {
 
         // 将分享记录添加到帖子的shares数组中
         post.shares.push(shareRecord);
+
+        // 创建交互类通知 (分享帖子)
+        const notification = new InteractionNotification({
+            toUser: post.author._id,
+            user: userId,
+            interactionType: 2, // 交互类型: 分享帖子
+            post: postId,
+        });
+        await notification.save();
 
         // 保存帖子
         await post.save();
