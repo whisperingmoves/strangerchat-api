@@ -136,7 +136,7 @@ const likePost = async (req, res, next) => {
             // 创建交互类通知
             if (post.author.toString() !== userId) { // 避免给自己发通知
                 const notification = new InteractionNotification({
-                    toUser: post.user,
+                    toUser: post.author,
                     user: userId,
                     interactionType: 0, // 给帖子点赞
                     post: postId,
@@ -151,7 +151,7 @@ const likePost = async (req, res, next) => {
 
             // 删除交互类通知
             await InteractionNotification.deleteOne({
-                toUser: post.user,
+                toUser: post.author,
                 user: userId,
                 interactionType: 0,
                 post: postId,
