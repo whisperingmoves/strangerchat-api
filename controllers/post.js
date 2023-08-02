@@ -294,6 +294,7 @@ const getPostDetails = async (req, res, next) => {
 
         const isLiked = post.likes.some(like => like.userId.toString() === req.user.userId);
         const isCollected = post.collects.some(collect => collect.userId.toString() === req.user.userId);
+        const isFollowed = await User.findOne({_id: req.user.userId, following: post.author.id}).countDocuments().exec();
 
         const commentCount = await Comment.countDocuments({ post: postId });
 
@@ -306,7 +307,7 @@ const getPostDetails = async (req, res, next) => {
             authorAvatar: post.author.avatar,
             authorName: post.author.username,
             createTime: Math.floor(post.createdAt.getTime() / 1000),
-            isFollowed: 0, // 填充当前登录用户是否已关注作者的逻辑
+            isFollowed: isFollowed ? 1 : 0,
             images: post.images,
             content: post.content,
             city: post.city,
@@ -418,6 +419,7 @@ const getLatestPosts = async (req, res, next) => {
         const formattedPosts = await Promise.all(
             posts.map(async (post) => {
                 const commentCount = await Comment.countDocuments({ post: post.id }).exec();
+                const isFollowed = await User.findOne({_id: req.user.userId, following: post.author.id}).countDocuments().exec();
 
                 return {
                     authorId: post.author.id,
@@ -431,7 +433,7 @@ const getLatestPosts = async (req, res, next) => {
                     commentCount: commentCount,
                     postId: post.id,
                     isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
-                    isFollowed: 0,
+                    isFollowed: isFollowed ? 1 : 0,
                 };
             })
         );
@@ -513,6 +515,9 @@ const getRecommendedPosts = async (req, res, next) => {
             commentCounts[comment._id.toString()] = comment.count;
         });
 
+        const followedAuthors = await User.findById(userId, 'following').lean();
+        const followedAuthorIds = followedAuthors.following;
+
         const recommendedPosts = posts.map(post => {
             return {
                 authorId: post.author.id,
@@ -525,7 +530,7 @@ const getRecommendedPosts = async (req, res, next) => {
                 commentCount: commentCounts[post._id.toString()] || 0,
                 postId: post.id,
                 isLiked: post.likes.includes(userId) ? 1 : 0,
-                isFollowed: 0, // 暂时写死为0
+                isFollowed: followedAuthorIds.includes(post.author.id) ? 1 : 0,
             };
         });
 
@@ -541,7 +546,8 @@ const getFollowedUsersPosts = async (req, res, next) => {
     pageSize = parseInt(pageSize, 10);
 
     try {
-        const followedUserIds = [];
+        const currentUser = await User.findById(req.user.userId);
+        const followedUserIds = currentUser.following;
 
         const posts = await Post.find({ author: { $in: followedUserIds } })
             .sort({ createdAt: -1 })
