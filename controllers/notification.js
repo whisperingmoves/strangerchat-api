@@ -231,3 +231,32 @@ exports.getSystemNotifications = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.markSystemNotificationAsRead = async (req, res, next) => {
+    const { notificationId } = req.params;
+
+    try {
+        // 验证 notificationId 是否是有效的 ObjectId
+        if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+            return res.status(404).json({ message: '系统类通知不存在' });
+        }
+
+        // 检查系统类通知是否存在
+        const notification = await SystemNotification.findById(notificationId);
+        if (!notification) {
+            return res.status(404).json({ message: '系统类通知不存在' });
+        }
+
+        // 检查当前用户是否有权限标记该通知为已读
+        if (notification.toUser.toString() !== req.user.userId) {
+            return res.status(403).json({ message: '无权限标记该通知为已读' });
+        }
+
+        notification.readStatus = 1; // 将通知标记为已读
+        await notification.save();
+
+        res.json({});
+    } catch (err) {
+        next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+    }
+};

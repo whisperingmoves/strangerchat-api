@@ -4,6 +4,7 @@ const {beforeEach, describe } = require('mocha');
 const app = require('../../app');
 const StatusNotification = require('../../models/StatusNotification');
 const GiftNotification = require('../../models/GiftNotification');
+const SystemNotification = require('../../models/SystemNotification');
 
 chai.use(chaiHttp);
 chai.should();
@@ -694,6 +695,108 @@ describe('Notifications API', () => {
                 .request(app)
                 .get('/notifications/system')
                 .query({ page: 1, pageSize: 10 })
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
+
+    describe('PATCH /notifications/system/:notificationId/read', () => {
+        let notificationId;
+        let notificationToken;
+        let notificationUserId;
+        let otherToken;
+        let otherUserId;
+
+        before(async () => {
+            // 获取通知用户的token和userId
+            notificationToken = token;
+            notificationUserId = userId;
+
+            // 获取另一个用户的token
+            const registerResponse = await chai.request(app)
+                .post('/users/register')
+                .send({
+                    mobile: '135' + Math.floor(Math.random() * 1000000000),
+                    gender: 'female',
+                    birthday: "2000-01-01",
+                    avatar: 'avatar.png',
+                });
+
+            otherToken = registerResponse.body.token;
+            otherUserId = registerResponse.body.userId;
+
+            // 以另一个用户的身份生成系统类通知
+            const notification = await SystemNotification.create({
+                toUser: notificationUserId,
+                notificationTitle: '测试系统类通知',
+                notificationContent: '这是一条测试系统类通知',
+            });
+
+            if (!notification) {
+                throw new Error('产生系统类通知失败');
+            }
+
+            // 获取第一个系统类通知的 ID
+            const notificationResponse = await chai.request(app)
+                .get('/notifications/system')
+                .query({ page: 1, pageSize: 10 })
+                .set('Authorization', `Bearer ${notificationToken}`);
+
+            if (notificationResponse.body.length === 0) {
+                throw new Error('没有系统类通知');
+            }
+
+            notificationId = notificationResponse.body[0].notificationId;
+        });
+
+        it('should mark system notification as read', done => {
+            chai.request(app)
+                .patch(`/notifications/system/${notificationId}/read`)
+                .set('Authorization', `Bearer ${notificationToken}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+
+                    // 检查系统类通知是否被标记为已读
+                    chai.request(app)
+                        .get('/notifications/system')
+                        .query({ page: 1, pageSize: 10 })
+                        .set('Authorization', `Bearer ${notificationToken}`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            const notification = res.body.find(n => n.notificationId === notificationId);
+                            chai.expect(notification.readStatus).to.equal(1);
+                            done();
+                        });
+                });
+        });
+
+        it('should return 404 if system notification does not exist', done => {
+            chai.request(app)
+                .patch(`/notifications/system/123456/read`)
+                .set('Authorization', `Bearer ${notificationToken}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.have.property('message').equal('系统类通知不存在');
+                    done();
+                });
+        });
+
+        it('should return 403 if user does not have permission to mark system notification as read', done => {
+            chai.request(app)
+                .patch(`/notifications/system/${notificationId}/read`)
+                .set('Authorization', `Bearer ${otherToken}`)
+                .end((err, res) => {
+                    res.should.have.status(403);
+                    res.body.should.have.property('message').equal('无权限标记该通知为已读');
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .patch(`/notifications/system/${notificationId}/read`)
                 .end((err, res) => {
                     res.should.have.status(401);
                     done();
