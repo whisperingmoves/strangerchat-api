@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const {beforeEach, describe } = require('mocha');
 const app = require('../../app');
 const StatusNotification = require('../../models/StatusNotification');
+const GiftNotification = require('../../models/GiftNotification');
 
 chai.use(chaiHttp);
 chai.should();
@@ -549,6 +550,109 @@ describe('Notifications API', () => {
             chai.request(app)
                 .get('/notifications/gift')
                 .query({ page: 1, pageSize: 10 })
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
+
+    describe('PATCH /notifications/gift/:notificationId/read', () => {
+        let notificationId;
+        let notificationToken;
+        let notificationUserId;
+        let otherToken;
+        let otherUserId;
+
+        before(async () => {
+            // 获取通知用户的token和userId
+            notificationToken = token;
+            notificationUserId = userId;
+
+            // 获取另一个用户的token
+            const registerResponse = await chai.request(app)
+                .post('/users/register')
+                .send({
+                    mobile: '135' + Math.floor(Math.random() * 1000000000),
+                    gender: 'female',
+                    birthday: "2000-01-01",
+                    avatar: 'avatar.png',
+                });
+
+            otherToken = registerResponse.body.token;
+            otherUserId = registerResponse.body.userId;
+
+            // 以另一个用户的身份生成礼物类通知
+            const notification = await GiftNotification.create({
+                toUser: notificationUserId,
+                user: otherUserId,
+                giftQuantity: 1,
+                giftName: "礼物",
+            });
+
+            if (!notification) {
+                throw new Error('产生礼物类通知失败');
+            }
+
+            // 获取第一个礼物类通知的 ID
+            const notificationResponse = await chai.request(app)
+                .get('/notifications/gift')
+                .query({ page: 1, pageSize: 10 })
+                .set('Authorization', `Bearer ${notificationToken}`);
+
+            if (notificationResponse.body.length === 0) {
+                throw new Error('没有礼物类通知');
+            }
+
+            notificationId = notificationResponse.body[0].notificationId;
+        });
+
+        it('should mark gift notification as read', done => {
+            chai.request(app)
+                .patch(`/notifications/gift/${notificationId}/read`)
+                .set('Authorization', `Bearer ${notificationToken}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+
+                    // 检查礼物类通知是否被标记为已读
+                    chai.request(app)
+                        .get('/notifications/gift')
+                        .query({ page: 1, pageSize: 10 })
+                        .set('Authorization', `Bearer ${notificationToken}`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            const notification = res.body.find(n => n.notificationId === notificationId);
+                            chai.expect(notification.readStatus).to.equal(1);
+                            done();
+                        });
+                });
+        });
+
+        it('should return 404 if gift notification does not exist', done => {
+            chai.request(app)
+                .patch(`/notifications/gift/123456/read`)
+                .set('Authorization', `Bearer ${notificationToken}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.should.have.property('message').equal('礼物类通知不存在');
+                    done();
+                });
+        });
+
+        it('should return 403 if user does not have permission to mark gift notification as read', done => {
+            chai.request(app)
+                .patch(`/notifications/gift/${notificationId}/read`)
+                .set('Authorization', `Bearer ${otherToken}`)
+                .end((err, res) => {
+                    res.should.have.status(403);
+                    res.body.should.have.property('message').equal('无权限标记该通知为已读');
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .patch(`/notifications/gift/${notificationId}/read`)
                 .end((err, res) => {
                     res.should.have.status(401);
                     done();
