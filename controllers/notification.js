@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const InteractionNotification = require('../models/InteractionNotification');
 const StatusNotification = require('../models/StatusNotification');
+const GiftNotification = require('../models/GiftNotification');
 
 exports.getInteractionNotifications = async (req, res, next) => {
     try {
@@ -133,5 +134,40 @@ exports.markStatusNotificationAsRead = async (req, res, next) => {
         res.json({});
     } catch (err) {
         next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+    }
+};
+
+exports.getGiftNotifications = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+        const skip = (page - 1) * pageSize;
+
+        const userId = req.user.userId;
+
+        const notifications = await GiftNotification.find({ toUser: userId })
+            .populate('user', 'id username avatar')
+            .sort({ giftTime: -1 })
+            .skip(skip)
+            .limit(pageSize);
+
+        const formattedNotifications = notifications.map(notification => {
+            const { id, giftQuantity, giftName, giftTime, readStatus, user } = notification;
+            const { avatar } = user;
+            return {
+                notificationId: id,
+                userAvatar: avatar,
+                userId: user.id,
+                userName: user.username,
+                giftQuantity,
+                giftName,
+                giftTime: Math.floor(giftTime.getTime() / 1000),
+                readStatus: readStatus ? 1 : 0,
+            };
+        });
+
+        res.status(200).json(formattedNotifications);
+    } catch (error) {
+        next(error);
     }
 };

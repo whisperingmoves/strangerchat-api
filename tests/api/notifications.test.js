@@ -512,4 +512,47 @@ describe('Notifications API', () => {
                 });
         });
     });
+
+    describe('GET /notifications/gift', () => {
+        it('should get gift notifications list', done => {
+            chai.request(app)
+                .get('/notifications/gift')
+                .set('Authorization', `Bearer ${token}`)
+                .query({ page: 1, pageSize: 10 })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+
+                    res.body.forEach(notification => {
+                        notification.should.have.property('notificationId');
+                        notification.should.have.property('userAvatar');
+                        notification.should.have.property('userId');
+                        notification.should.have.property('giftQuantity');
+                        notification.should.have.property('giftName');
+                        notification.should.have.property('giftTime');
+
+                        if (notification.hasOwnProperty('userName')) {
+                            notification.userName.should.be.a('string');
+                        }
+
+                        notification.giftQuantity.should.be.a('number');
+                        notification.giftName.should.be.a('string');
+                        notification.giftTime.should.be.a('number');
+                        notification.readStatus.should.be.within(0, 1);
+                    });
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get('/notifications/gift')
+                .query({ page: 1, pageSize: 10 })
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });
