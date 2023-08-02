@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const InteractionNotification = require('../models/InteractionNotification');
 const StatusNotification = require('../models/StatusNotification');
 const GiftNotification = require('../models/GiftNotification');
+const SystemNotification = require('../models/SystemNotification');
 
 exports.getInteractionNotifications = async (req, res, next) => {
     try {
@@ -198,5 +199,35 @@ exports.markGiftNotificationAsRead = async (req, res, next) => {
         res.json({});
     } catch (err) {
         next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+    }
+};
+
+exports.getSystemNotifications = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+        const skip = (page - 1) * pageSize;
+
+        const userId = req.user.userId;
+
+        const notifications = await SystemNotification.find({ toUser: userId })
+            .sort({ notificationTime: -1 })
+            .skip(skip)
+            .limit(pageSize);
+
+        const formattedNotifications = notifications.map((notification) => {
+            const { id, notificationTitle, notificationContent, notificationTime, readStatus } = notification;
+            return {
+                notificationId: id,
+                notificationTitle,
+                notificationContent,
+                notificationTime: Math.floor(notificationTime.getTime() / 1000),
+                readStatus: readStatus ? 1 : 0,
+            };
+        });
+
+        res.status(200).json(formattedNotifications);
+    } catch (error) {
+        next(error);
     }
 };

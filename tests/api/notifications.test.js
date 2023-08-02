@@ -659,4 +659,45 @@ describe('Notifications API', () => {
                 });
         });
     });
+
+    describe('GET /notifications/system', () => {
+        it('should get system notifications list', (done) => {
+            chai
+                .request(app)
+                .get('/notifications/system')
+                .set('Authorization', `Bearer ${token}`)
+                .query({ page: 1, pageSize: 10 })
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+
+                    res.body.forEach((notification) => {
+                        notification.should.have.property('notificationId');
+                        notification.should.have.property('notificationTitle');
+                        notification.should.have.property('notificationContent');
+                        notification.should.have.property('notificationTime');
+                        notification.should.have.property('readStatus');
+
+                        notification.notificationId.should.be.a('string');
+                        notification.notificationTitle.should.be.a('string');
+                        notification.notificationContent.should.be.a('string');
+                        notification.notificationTime.should.be.a('number');
+                        notification.readStatus.should.be.within(0, 1);
+                    });
+
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', (done) => {
+            chai
+                .request(app)
+                .get('/notifications/system')
+                .query({ page: 1, pageSize: 10 })
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
 });

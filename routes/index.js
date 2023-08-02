@@ -58,5 +58,6 @@ router.get('/notifications/status', auth, notificationController.getStatusNotifi
 router.patch('/notifications/status/:notificationId/read', auth, notificationController.markStatusNotificationAsRead);
 router.get('/notifications/gift', auth, notificationController.getGiftNotifications);
 router.patch('/notifications/gift/:notificationId/read', auth, notificationController.markGiftNotificationAsRead);
+router.get('/notifications/system', auth, notificationController.getSystemNotifications);
 
 module.exports = router;
