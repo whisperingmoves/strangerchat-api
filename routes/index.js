@@ -27,6 +27,7 @@ router.post('/users/register', userController.register);
 router.post('/uploadAvatar', uploadAvatar.single('avatar'), userController.uploadAvatar);
 router.get('/users/me/posts', auth, postController.getMyPosts);
 router.get('/users/me/posts/:postId', auth, postController.getMyPostDetails);
+router.post('/users/:userId/follow', auth, userController.followUser);
 
 // 故事路由
 router.get('/stories', auth, storyController.getStoryList);

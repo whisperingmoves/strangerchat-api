@@ -889,6 +889,42 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
+  /users/{userId}/follow:
+    post:
+      summary: 关注用户/取消关注
+      tags:
+        - 用户
+      parameters:
+        - name: userId
+          in: path
+          description: 被关注用户的ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "e69b9f6d-4e7a-4a1a-9e4c-4f4f4428ad9e"
+        - name: action
+          in: query
+          description: 关注操作，取值为1（关注）或0（取消关注）
+          required: true
+          schema:
+            type: integer
+            enum: [ 0, 1 ]
+            example: 1
+      responses:
+        '200':
+          description: 成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /posts/{postId}/comment:
     post:
       summary: 评论帖子/回复评论

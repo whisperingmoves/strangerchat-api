@@ -7,6 +7,24 @@ chai.use(chaiHttp);
 chai.should();
 
 describe('Users API', () => {
+    let token;
+
+    beforeEach(async () => {
+        // 生成随机的手机号
+        const mobile = '135' + Math.floor(Math.random() * 1000000000);
+
+        // 注册用户并获取token
+        const registerResponse = await chai.request(app)
+            .post('/users/register')
+            .send({
+                mobile: mobile,
+                gender: 'male',
+                birthday: "2023-07-30",
+                avatar: 'avatar.png',
+            });
+
+        token = registerResponse.body.token;
+    });
 
     describe('POST /users/register', () => {
 
@@ -58,5 +76,61 @@ describe('Users API', () => {
         });
 
     })
+
+    describe('POST /users/:userId/follow', () => {
+        let followedUserId;
+
+        beforeEach(async () => {
+            // 创建一个测试用户
+            const createUserResponse = await chai.request(app)
+                .post('/users/register')
+                .send({
+                    mobile: '135' + Math.floor(Math.random() * 1000000000),
+                    gender: 'male',
+                    birthday: "2023-07-30",
+                    avatar: 'avatar.png',
+                });
+
+            followedUserId = createUserResponse.body.userId;
+        });
+
+        it('should follow user when action is 1', done => {
+            chai.request(app)
+                .post(`/users/${followedUserId}/follow?action=1`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+        });
+
+        it('should unfollow user when action is 0', done => {
+            // 首先关注用户
+            chai.request(app)
+                .post(`/users/${followedUserId}/follow?action=1`)
+                .set('Authorization', `Bearer ${token}`)
+                .end(() => {
+                    // 然后取消关注
+                    chai.request(app)
+                        .post(`/users/${followedUserId}/follow?action=0`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            done();
+                        });
+                });
+        });
+
+        it('should return an error when trying to unfollow a user not followed', done => {
+            chai.request(app)
+                .post(`/users/${followedUserId}/follow?action=0`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.have.property('message').equal('用户未被关注，无法取消关注');
+                    done();
+                });
+        });
+    });
 
 })

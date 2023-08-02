@@ -27,6 +27,7 @@ const schema = new mongoose.Schema({
             index: '2dsphere'
         }
     },
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -36,5 +37,22 @@ const schema = new mongoose.Schema({
 schema.virtual('id').get(function () {
     return this._id.toHexString();
 });
+
+schema.methods.followUser = async function (userId) {
+    if (this.following.indexOf(userId) === -1) {
+        this.following.push(userId);
+        this.followingCount++;
+        await this.save();
+    }
+};
+
+schema.methods.unfollowUser = async function (userId) {
+    const index = this.following.indexOf(userId);
+    if (index !== -1) {
+        this.following.splice(index, 1);
+        this.followingCount--;
+        await this.save();
+    }
+};
 
 module.exports = mongoose.model('User', schema);
