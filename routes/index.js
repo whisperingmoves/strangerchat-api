@@ -54,5 +54,7 @@ router.get('/comments/:commentId/replies', auth, commentController.getCommentRep
 // 通知路由
 router.get('/notifications/interaction', auth, notificationController.getInteractionNotifications);
 router.patch('/notifications/interaction/:notificationId/read', auth, notificationController.markInteractionNotificationAsRead);
+router.get('/notifications/status', auth, notificationController.getStatusNotifications);
+router.patch('/notifications/status/:notificationId/read', auth, notificationController.markStatusNotificationAsRead);
 
 module.exports = router;
