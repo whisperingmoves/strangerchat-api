@@ -2088,6 +2088,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FollowUser'
+
+  /users/friends:
+    get:
+      summary: 获取互相关注的用户列表
+      tags:
+        - 用户
+      description: 获取当前用户和其互相关注的用户列表，支持分页和模糊查询。
+      parameters:
+        - name: page
+          in: query
+          description: 分页页码，从1开始。
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 分页大小，默认每页10条。
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+        - name: keyword
+          in: query
+          description: 用户名关键词。
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取用户列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowUser'
 components:
   responses:
     Unauthorized:
