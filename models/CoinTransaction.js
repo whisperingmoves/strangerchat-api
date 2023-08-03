@@ -32,4 +32,8 @@ const coinTransactionSchema = new mongoose.Schema({
     },
 });
 
+coinTransactionSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
 module.exports = mongoose.model('CoinTransaction', coinTransactionSchema);
