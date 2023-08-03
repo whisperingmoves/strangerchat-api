@@ -71,5 +71,6 @@ router.patch('/notifications/system/:notificationId/read', auth, notificationCon
 
 // 礼物路由
 router.get('/gifts', auth, giftController.getGiftList);
+router.post('/gifts/send', auth, giftController.sendGift);
 
 module.exports = router;

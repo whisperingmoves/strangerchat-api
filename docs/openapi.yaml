@@ -2351,6 +2351,50 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /gifts/send:
+    post:
+      summary: 向指定用户赠送指定数量的指定礼物
+      tags:
+        - 礼物
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - receiverId
+                - giftId
+                - quantity
+              properties:
+                receiverId:
+                  type: string
+                  description: 接收礼物的用户 ID
+                  example: "user001"
+                giftId:
+                  type: string
+                  description: 礼物 ID
+                  example: "gift001"
+                quantity:
+                  type: integer
+                  description: 赠送数量
+                  example: 3
+                  minimum: 1
+                  maximum: 100
+      responses:
+        200:
+          description: 成功赠送礼物
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
