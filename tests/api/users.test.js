@@ -674,4 +674,70 @@ describe('Users API', () => {
             res.body.should.have.property('message').that.equals('请先登录');
         });
     });
+
+    describe('GET /users/:userId', () => {
+        let otherUserId;
+        let otherToken;
+
+        before(async () => {
+            // 创建一个测试用户
+            const createUserResponse = await chai.request(app)
+                .post('/users/register')
+                .send({
+                    mobile: '135' + Math.floor(Math.random() * 1000000000),
+                    gender: 'male',
+                    birthday: '2000-01-01',
+                    avatar: 'https://example.com/avatar.png'
+                });
+
+            otherUserId = createUserResponse.body.userId;
+            otherToken = createUserResponse.body.token;
+
+            // 修改用户资料设置用户名和城市
+            await chai.request(app)
+                .patch('/users/profile')
+                .set('Authorization', `Bearer ${otherToken}`)
+                .send({
+                    username: 'testUser',
+                    city: 'New York',
+                });
+        });
+
+
+        it('should get user details', done => {
+            chai.request(app)
+                .get(`/users/${otherUserId}`)
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('avatar');
+                    res.body.should.have.property('username', 'testUser');
+                    res.body.should.have.property('city');
+                    res.body.should.have.property('followingCount');
+                    res.body.should.have.property('followersCount');
+
+                    done();
+                });
+        });
+
+        it('should return 404 if user does not exist', done => {
+            chai.request(app)
+                .get('/users/nonExistentUserId')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+
+        it('should return 404 if userId is invalid', done => {
+            chai.request(app)
+                .get('/users/invalidUserId')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done();
+                });
+        });
+    });
 })

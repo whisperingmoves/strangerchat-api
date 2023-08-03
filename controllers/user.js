@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Post = require('../models/Post');
 const StatusNotification = require('../models/StatusNotification');
@@ -397,6 +398,37 @@ const updateUserProfile = async (req, res, next) => {
     }
 };
 
+const getUserDetails = async (req, res, next) => {
+    const { userId } = req.params;
+
+    try {
+        // 验证 userId 是否是有效的 ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(404).json({ message: '用户不存在' });
+        }
+
+        const user = await User.findById(userId)
+            .select('avatar username city followingCount followersCount')
+            .exec();
+
+        if (!user) {
+            return res.status(404).json({ message: '用户不存在' });
+        }
+
+        const userDetails = {
+            avatar: user.avatar,
+            username: user.username,
+            city: user.city,
+            followingCount: user.followingCount,
+            followersCount: user.followersCount
+        };
+
+        res.status(200).json(userDetails);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     register,
     uploadAvatar,
@@ -406,4 +438,5 @@ module.exports = {
     getFriends,
     performCheckin,
     updateUserProfile,
+    getUserDetails,
 }
