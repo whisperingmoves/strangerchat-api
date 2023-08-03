@@ -423,6 +423,17 @@ const getUserDetails = async (req, res, next) => {
             followersCount: user.followersCount
         };
 
+        // 如果当前登录用户不是该用户，则创建通知
+        if (req.user.userId !== userId) {
+            const statusNotification = new StatusNotification({
+                toUser: userId,
+                user: req.user.userId,
+                statusType: 1 // 访问主页状态类型
+            });
+
+            await statusNotification.save();
+        }
+
         res.status(200).json(userDetails);
     } catch (err) {
         next(err);
