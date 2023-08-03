@@ -51,6 +51,13 @@ const createPost = async (req, res, next) => {
             type: 'Point',
             coordinates: [parseFloat(longitude), parseFloat(latitude)],
         };
+        // 更新帖子作者的经度和纬度
+        const author = await User.findById(req.user.userId);
+        author.location = {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+        };
+        await author.save();
     }
 
     // 添加可选的帖子照片列表
