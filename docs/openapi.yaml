@@ -2184,6 +2184,46 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /users/profile:
+    patch:
+      summary: 修改用户资料
+      tags:
+        - 用户
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  description: 新的头像 URL
+                  example: "/order/xxx.png"
+                username:
+                  type: string
+                  description: 新的用户名
+                  example: "John Doe"
+                  minLength: 1
+                  maxLength: 30
+                city:
+                  type: string
+                  description: 新的所在城市
+                  example: "New York"
+                  maxLength: 50
+      responses:
+        200:
+          description: 用户资料修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

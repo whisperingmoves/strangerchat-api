@@ -625,4 +625,53 @@ describe('Users API', () => {
                 });
         });
     });
+
+    describe('PATCH /users/profile', () => {
+        it('should update user profile', async () => {
+            const res = await chai.request(app)
+                .patch('/users/profile')
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    avatar: 'new_avatar.png',
+                    username: 'John Doe',
+                    city: 'New York',
+                });
+
+            res.should.have.status(200);
+            res.body.should.have.property('message').that.equals('用户资料修改成功');
+
+            const updatedUser = await User.findById(userId);
+
+            updatedUser.avatar.should.equal('new_avatar.png');
+            updatedUser.username.should.equal('John Doe');
+            updatedUser.city.should.equal('New York');
+        });
+
+        it('should ignore empty fields', async () => {
+            const res = await chai.request(app)
+                .patch('/users/profile')
+                .set('Authorization', `Bearer ${token}`)
+                .send({});
+
+            res.should.have.status(200);
+            res.body.should.have.property('message').that.equals('用户资料修改成功');
+
+            const updatedUser = await User.findById(userId);
+
+            updatedUser.avatar.should.equal('avatar.png');
+        });
+
+        it('should return 401 if user is not authenticated', async () => {
+            const res = await chai.request(app)
+                .patch('/users/profile')
+                .send({
+                    avatar: 'new_avatar.png',
+                    username: 'John Doe',
+                    city: 'New York',
+                });
+
+            res.should.have.status(401);
+            res.body.should.have.property('message').that.equals('请先登录');
+        });
+    });
 })

@@ -360,6 +360,43 @@ const performCheckin = async (req, res, next) => {
     }
 };
 
+const updateUserProfile = async (req, res, next) => {
+    const { avatar, username, city } = req.body;
+    const userId = req.user.userId; // 从请求中获取用户 ID
+
+    // 查找用户
+    let user;
+    try {
+        user = await User.findById(userId);
+    } catch (err) {
+        return next(err);
+    }
+
+    // 如果找不到用户，返回 404 错误
+    if (!user) {
+        return res.status(404).json({ message: '用户不存在' });
+    }
+
+    // 更新用户资料
+    if (avatar) {
+        user.avatar = avatar;
+    }
+    if (username) {
+        user.username = username;
+    }
+    if (city) {
+        user.city = city;
+    }
+
+    // 保存用户资料
+    try {
+        await user.save();
+        res.json({ message: '用户资料修改成功' });
+    } catch (err) {
+        return next(err);
+    }
+};
+
 module.exports = {
     register,
     uploadAvatar,
@@ -368,4 +405,5 @@ module.exports = {
     getFollowers,
     getFriends,
     performCheckin,
+    updateUserProfile,
 }
