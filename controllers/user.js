@@ -306,6 +306,60 @@ const getFriends = async (req, res, next) => {
     }
 };
 
+const performCheckin = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        const user = await User.findById(userId);
+
+        // 获取当前日期
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // 检查上次签到日期是否是昨天
+        const lastCheckDate = user.lastCheckDate;
+        const isYesterday = lastCheckDate && lastCheckDate.getTime() === today.getTime() - 86400000;
+
+        // 如果是昨天签到的，连续签到天数 +1，否则重置连续签到天数
+        let checkedDays = user.checkedDays;
+        if (isYesterday) {
+            checkedDays++;
+        } else {
+            checkedDays = 1;
+        }
+
+        // 根据连续签到天数计算奖励金币数
+        let coinReward = 0;
+        if (checkedDays === 1) {
+            coinReward = 10;
+        } else if (checkedDays === 2) {
+            coinReward = 15;
+        } else if (checkedDays === 3) {
+            coinReward = 30;
+        } else if (checkedDays === 4) {
+            coinReward = 50;
+        } else if (checkedDays === 5) {
+            coinReward = 70;
+        } else if (checkedDays === 6) {
+            coinReward = 100;
+        } else if (checkedDays === 7) {
+            coinReward = 200;
+            checkedDays = 0; // 连续签到七天，重置连续签到天数
+        }
+
+        // 更新用户签到信息
+        user.checkedDays = checkedDays;
+        user.lastCheckDate = today;
+        user.coinBalance += coinReward;
+        await user.save();
+
+        res.status(200).json({
+            checkedDays: checkedDays
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     register,
     uploadAvatar,
@@ -313,4 +367,5 @@ module.exports = {
     getFollowingUsers,
     getFollowers,
     getFriends,
+    performCheckin,
 }

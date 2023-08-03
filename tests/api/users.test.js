@@ -10,10 +10,11 @@ chai.should();
 describe('Users API', () => {
     let token;
     let userId;
+    let mobile;
 
     beforeEach(async () => {
         // 生成随机的手机号
-        const mobile = '135' + Math.floor(Math.random() * 1000000000);
+        mobile = '135' + Math.floor(Math.random() * 1000000000);
 
         // 注册用户并获取token
         const registerResponse = await chai.request(app)
@@ -540,6 +541,87 @@ describe('Users API', () => {
                     });
 
                     done();
+                });
+        });
+    });
+
+    describe('POST /users/checkin/check', () => {
+        let token;
+        let mobile;
+
+        beforeEach(async () => {
+            // 创建一个测试用户
+            mobile = '135' + Math.floor(Math.random() * 1000000000);
+            const res = await chai.request(app)
+                .post('/users/register')
+                .send({
+                    mobile: mobile,
+                    gender: 'male',
+                    birthday: "2023-07-30",
+                    avatar: 'avatar.png',
+                });
+
+            // 保存用户的userId和token
+            token = res.body.token;
+        });
+
+        it('should check in successfully and return checked days', (done) => {
+            chai.request(app)
+                .post('/users/checkin/check')
+                .set('Authorization', `Bearer ${token}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('object');
+                    res.body.should.have.property('checkedDays').that.is.a('number').within(0, 7);
+                    done();
+                });
+        });
+
+        it('should reset checked days after seven consecutive check-ins', async () => {
+            let user = await User.findOne({ mobile: mobile });
+            user.checkedDays = 6;
+            user.lastCheckDate = new Date(new Date().getTime() - 86400000);
+            user.lastCheckDate.setHours(0, 0, 0, 0)
+            await user.save();
+
+            chai.request(app)
+                .post('/users/checkin/check')
+                .set('Authorization', `Bearer ${token}`)
+                .end(async (err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('object');
+                    res.body.should.have.property('checkedDays').that.is.equal(0);
+
+                    // 检查数据库中的连续签到天数和上次签到日期是否已经重置
+                    user = await User.findOne({ mobile: mobile });
+                    user.checkedDays.should.be.equal(0);
+                    // 获取当前日期
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    user.lastCheckDate.should.eql(today);
+                });
+        });
+
+        it('should give correct coin rewards for consecutive check-ins', async () => {
+            let user = await User.findOne({ mobile: mobile });
+            user.checkedDays = 5;
+            user.coinBalance = 100;
+            user.lastCheckDate = new Date(new Date().getTime() - 86400000);
+            user.lastCheckDate.setHours(0, 0, 0, 0)
+            await user.save();
+
+            chai.request(app)
+                .post('/users/checkin/check')
+                .set('Authorization', `Bearer ${token}`)
+                .end(async (err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('object');
+                    res.body.should.have.property('checkedDays').that.is.equal(6);
+
+                    // 检查数据库中的连续签到天数和金币余额是否更新正确
+                    user = await User.findOne({ mobile: mobile });
+                    user.checkedDays.should.be.equal(6);
+                    user.coinBalance.should.be.equal(200);
                 });
         });
     });
