@@ -18,6 +18,7 @@ const commentController = require('../controllers/comment');
 const storyController = require('../controllers/story');
 const notificationController = require('../controllers/notification');
 const giftController = require('../controllers/gift');
+const coinProductController = require('../controllers/coinProduct');
 
 // 验证码路由
 router.post('/verifications/sendCode', verificationController.sendVerificationCode);
@@ -73,5 +74,8 @@ router.patch('/notifications/system/:notificationId/read', auth, notificationCon
 // 礼物路由
 router.get('/gifts', auth, giftController.getGiftList);
 router.post('/gifts/send', auth, giftController.sendGift);
+
+// 商品路由
+router.get('/products/coins', auth, coinProductController.getCoinProductList);
 
 module.exports = router;

@@ -19,6 +19,8 @@ tags:
     description: 通知相关接口
   - name: 礼物
     description: 礼物相关接口
+  - name: 商品
+    description: 商品相关接口
 paths:
 
   /verifications/sendCode:
@@ -2457,6 +2459,84 @@ paths:
                       description: 送礼者的头像 URL
                       example: "avatar1.jpg"
                       maxLength: 255
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/coins:
+    get:
+      summary: 获取金币商品列表
+      tags:
+        - 商品
+      parameters:
+        - in: query
+          name: page
+          description: 页码，从 1 开始，默认为 1
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+            default: 1
+        - in: query
+          name: pageSize
+          description: 每页显示的记录数，默认为 10
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 10
+            default: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: 金币商品列表
+                items:
+                  type: object
+                  required:
+                    - id
+                    - coins
+                    - price
+                    - currency
+                  properties:
+                    id:
+                      type: string
+                      description: 商品 ID
+                      example: "coin001"
+                    coins:
+                      type: integer
+                      description: 商品包含的金币数量
+                      example: 1000
+                      minimum: 1
+                      maximum: 100000
+                    originalPrice:
+                      type: integer
+                      description: 商品原价，单位是分
+                      example: 1000
+                      minimum: 1
+                      maximum: 10000000
+                    price:
+                      type: integer
+                      description: 商品现价，单位是分
+                      example: 900
+                      minimum: 1
+                      maximum: 10000000
+                    currency:
+                      type: string
+                      description: 商品价格使用的货币代码，例如 CNY、USD、EUR 等
+                      example: "CNY"
+                      maxLength: 10
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
