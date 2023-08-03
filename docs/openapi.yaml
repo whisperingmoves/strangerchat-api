@@ -913,17 +913,17 @@ paths:
             enum: [ 0, 1 ]
             example: 1
       responses:
-        '200':
+        200:
           description: 成功
-        '400':
+        400:
           $ref: '#/components/responses/BadRequest'
-        '401':
+        401:
           $ref: '#/components/responses/Unauthorized'
-        '403':
+        403:
           $ref: '#/components/responses/Forbidden'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-        '500':
+        500:
           $ref: '#/components/responses/InternalServerError'
 
   /posts/{postId}/comment:
@@ -1567,7 +1567,7 @@ paths:
             maximum: 100
             example: 10
       responses:
-        '200':
+        200:
           description: 成功响应
           content:
             application/json:
@@ -1699,7 +1699,7 @@ paths:
             maximum: 100
             example: 10
       responses:
-        '200':
+        200:
           description: 成功响应
           content:
             application/json:
@@ -1814,7 +1814,7 @@ paths:
             maximum: 100
             example: 10
       responses:
-        '200':
+        200:
           description: 成功响应
           content:
             application/json:
@@ -1929,7 +1929,7 @@ paths:
             maximum: 100
             example: 10
       responses:
-        '200':
+        200:
           description: 成功响应
           content:
             application/json:
@@ -2414,7 +2414,7 @@ paths:
             example: 1
             default: 0
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
@@ -2459,15 +2459,15 @@ paths:
                       description: 送礼者的头像 URL
                       example: "avatar1.jpg"
                       maxLength: 255
-        '400':
+        400:
           $ref: '#/components/responses/BadRequest'
-        '401':
+        401:
           $ref: '#/components/responses/Unauthorized'
-        '403':
+        403:
           $ref: '#/components/responses/Forbidden'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-        '500':
+        500:
           $ref: '#/components/responses/InternalServerError'
 
   /products/coins:
@@ -2495,7 +2495,7 @@ paths:
             example: 10
             default: 10
       responses:
-        '200':
+        200:
           description: OK
           content:
             application/json:
@@ -2505,12 +2505,12 @@ paths:
                 items:
                   type: object
                   required:
-                    - id
+                    - productId
                     - coins
                     - price
                     - currency
                   properties:
-                    id:
+                    productId:
                       type: string
                       description: 商品 ID
                       example: "coin001"
@@ -2537,15 +2537,55 @@ paths:
                       description: 商品价格使用的货币代码，例如 CNY、USD、EUR 等
                       example: "CNY"
                       maxLength: 10
-        '400':
+        400:
           $ref: '#/components/responses/BadRequest'
-        '401':
+        401:
           $ref: '#/components/responses/Unauthorized'
-        '403':
+        403:
           $ref: '#/components/responses/Forbidden'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-        '500':
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/coins/{productId}/buy:
+    post:
+      summary: 购买金币商品
+      tags:
+        - 商品
+      parameters:
+        - in: path
+          name: productId
+          description: 金币商品 ID
+          required: true
+          schema:
+            type: string
+            example: "coin001"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receipt:
+                  type: string
+                  description: 第三方支付服务回调的凭据
+                  example: "eyJhbGciOiAiUlMyNTYiLCAidHlwIjogIkpXVCJ9..."
+              required:
+                - receipt
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:

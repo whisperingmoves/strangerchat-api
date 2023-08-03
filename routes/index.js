@@ -77,5 +77,6 @@ router.post('/gifts/send', auth, giftController.sendGift);
 
 // 商品路由
 router.get('/products/coins', auth, coinProductController.getCoinProductList);
+router.post('/products/coins/:productId/buy', auth, coinProductController.buyCoinProduct);
 
 module.exports = router;
