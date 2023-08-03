@@ -2,6 +2,7 @@ const CoinProduct = require('../models/CoinProduct');
 const CoinTransaction = require('../models/CoinTransaction');
 const User = require('../models/User');
 const PaymentService = require('../services/PaymentService');
+const SystemNotification = require('../models/SystemNotification');
 const mongoose = require("mongoose");
 
 const getCoinProductList = async (req, res, next) => {
@@ -72,6 +73,16 @@ const buyCoinProduct = async (req, res, next) => {
         const user = await User.findById(userId);
         user.coinBalance += coinCount;
         await user.save();
+
+        // 创建系统类通知
+        const systemNotificationData = {
+            toUser: userId,
+            notificationTitle: '购买成功',
+            notificationContent: `您已成功购买${coinCount}枚金币`,
+            readStatus: 0,
+        };
+        const systemNotification = new SystemNotification(systemNotificationData);
+        await systemNotification.save();
 
         res.status(200).json({ message: '购买成功' });
     } catch (error) {
