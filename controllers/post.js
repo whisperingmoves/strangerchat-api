@@ -482,6 +482,14 @@ const getRecommendedPosts = async (req, res, next) => {
                 },
             },
         };
+        // 更新当前用户模型的经度和纬度
+        const userId = req.user.userId;
+        const user = await User.findById(userId);
+        user.location = {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+        };
+        await user.save();
     } else {
         const userId = req.user.userId;
         try {
