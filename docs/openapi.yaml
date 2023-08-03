@@ -17,6 +17,8 @@ tags:
     description: 评论相关接口
   - name: 通知
     description: 通知相关接口
+  - name: 礼物
+    description: 礼物相关接口
 paths:
 
   /verifications/sendCode:
@@ -2273,6 +2275,72 @@ paths:
                     description: 关注 ta 的用户数量
                     example: 20
                     default: 0
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /gifts:
+    get:
+      summary: 获取礼物列表
+      tags:
+        - 礼物
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+      responses:
+        200:
+          description: 成功获取礼物列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - image
+                    - name
+                    - value
+                  properties:
+                    id:
+                      type: string
+                      description: 礼物 ID
+                      example: "gift001"
+                    image:
+                      type: string
+                      description: 礼物图片 URL
+                      example: "/order/gift001.png"
+                    name:
+                      type: string
+                      description: 礼物名称
+                      example: "热气球"
+                      maxLength: 50
+                    value:
+                      type: integer
+                      description: 礼物价值（金币数）
+                      example: 100
+                      minimum: 1
+                      maximum: 10000
         400:
           $ref: '#/components/responses/BadRequest'
         401:

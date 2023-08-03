@@ -17,6 +17,7 @@ const postController = require('../controllers/post');
 const commentController = require('../controllers/comment');
 const storyController = require('../controllers/story');
 const notificationController = require('../controllers/notification');
+const giftController = require('../controllers/gift');
 
 // 验证码路由
 router.post('/verifications/sendCode', verificationController.sendVerificationCode);
@@ -67,5 +68,8 @@ router.get('/notifications/gift', auth, notificationController.getGiftNotificati
 router.patch('/notifications/gift/:notificationId/read', auth, notificationController.markGiftNotificationAsRead);
 router.get('/notifications/system', auth, notificationController.getSystemNotifications);
 router.patch('/notifications/system/:notificationId/read', auth, notificationController.markSystemNotificationAsRead);
+
+// 礼物路由
+router.get('/gifts', auth, giftController.getGiftList);
 
 module.exports = router;
