@@ -2395,6 +2395,78 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /users/me/gifts/received:
+    get:
+      summary: 获取当前登录用户收礼的统计信息
+      tags:
+        - 用户
+      parameters:
+        - in: query
+          name: range
+          description: 时间范围，0 表示全部时间，1 表示近一周，2 表示近一个月
+          required: false
+          schema:
+            type: integer
+            enum: [ 0, 1, 2 ]
+            example: 1
+            default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: 礼物数量和排名信息数组
+                items:
+                  type: object
+                  required:
+                    - userId
+                    - count
+                    - currentRanking
+                    - diff
+                    - avatar
+                  properties:
+                    userId:
+                      type: string
+                      description: 送礼者的用户 ID
+                      example: "60f1d8be4f3c5f1c20a11e40"
+                    count:
+                      type: integer
+                      description: 送礼者在指定时间范围内送给当前用户的礼物数量
+                      example: 10
+                      minimum: 0
+                      maximum: 1000
+                    currentRanking:
+                      type: integer
+                      description: 送礼者在指定时间范围内送给当前用户的礼物排名，排名越高表示送的礼物越多
+                      example: 1
+                      minimum: 1
+                    diff:
+                      type: integer
+                      description: 送礼者在指定时间范围内送给当前用户的礼物排名变化情况，正数表示排名上升，负数表示排名下降
+                      example: 0
+                    username:
+                      type: string
+                      description: 送礼者的用户名
+                      example: "user1"
+                      maxLength: 50
+                    avatar:
+                      type: string
+                      description: 送礼者的头像 URL
+                      example: "avatar1.jpg"
+                      maxLength: 255
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

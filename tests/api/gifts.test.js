@@ -4,6 +4,7 @@ const {it, beforeEach, describe} = require('mocha');
 const app = require('../../app');
 const Gift = require('../../models/Gift');
 const User = require('../../models/User');
+const GiftHistory = require('../../models/GiftHistory');
 const {expect} = require("chai");
 
 chai.use(chaiHttp);
@@ -207,6 +208,129 @@ describe('Gifts API', () => {
                     giftId: gift1.id,
                     quantity: 1,
                 })
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    done();
+                });
+        });
+    });
+
+    describe('GET /users/me/gifts/received', () => {
+        let sender1, sender2, gift1, gift2;
+
+        beforeEach(async () => {
+            // 创建测试送礼用户1
+            sender1 = await User.create({
+                mobile: '135' + Math.floor(Math.random() * 1000000000),
+                gender: 'male',
+                birthday: new Date('1990-01-01'),
+                avatar: 'avatar1.png',
+                giftsSent: 0,
+                username: 'sender1',
+                city: 'Shanghai',
+                followingCount: 0,
+                followersCount: 0,
+                visitorsCount: 0,
+                freeHeatsLeft: 3,
+                coinBalance: 1000,
+                checkedDays: 0,
+                lastCheckDate: null,
+                location: {
+                    type: 'Point',
+                    coordinates: [121.4737, 31.2304],
+                },
+                following: [],
+            });
+
+            // 创建测试送礼用户2
+            sender2 = await User.create({
+                mobile: '136' + Math.floor(Math.random() * 1000000000),
+                gender: 'female',
+                birthday: new Date('1995-01-01'),
+                avatar: 'avatar2.png',
+                giftsSent: 0,
+                username: 'sender2',
+                city: 'Beijing',
+                followingCount: 0,
+                followersCount: 0,
+                visitorsCount: 0,
+                freeHeatsLeft: 3,
+                coinBalance: 1000,
+                checkedDays: 0,
+                lastCheckDate: null,
+                location: {
+                    type: 'Point',
+                    coordinates: [116.4074, 39.9042],
+                },
+                following: [],
+            });
+
+            // 创建两个测试礼物
+            gift1 = await Gift.create({
+                image: '/gifts/gift1.png',
+                name: '礼物1',
+                value: 100,
+            });
+            gift2 = await Gift.create({
+                image: '/gifts/gift2.png',
+                name: '礼物2',
+                value: 200,
+            });
+
+            // 为当前登录用户接收礼物
+            await User.updateOne(
+                { _id: userId },
+                { $set: { giftsReceived: 5 } }
+            );
+        });
+
+        it('should return received gift stats successfully', done => {
+            // 为测试送礼用户1送礼
+            GiftHistory.create({
+                sender: sender1.id,
+                receiver: userId,
+                gift: gift1.id,
+                quantity: 5,
+            }).then(() => {
+                chai.request(app)
+                    .get('/users/me/gifts/received')
+                    .set('Authorization', `Bearer ${token}`)
+                    .query({ range: 1 })
+                    .end(async (err, res) => {
+                        res.should.have.status(200);
+                        const stats = res.body;
+                        expect(stats).to.be.an('array').with.lengthOf(1);
+                        const senderStats = stats[0];
+                        expect(senderStats.userId).to.equal(sender1.id);
+                        expect(senderStats.count).to.equal(5);
+                        expect(senderStats.currentRanking).to.equal(1);
+                        expect(senderStats.diff).to.equal(0);
+                        expect(senderStats.username).to.equal(sender1.username);
+                        expect(senderStats.avatar).to.equal(sender1.avatar);
+                        done();
+                    });
+            }).catch(err => {
+                done(err);
+            });
+        });
+
+        it('should return empty array if no gifts received', done => {
+            chai.request(app)
+                .get('/users/me/gifts/received')
+                .set('Authorization', `Bearer ${token}`)
+                .query({ range: 0 })
+                .end(async (err, res) => {
+                    res.should.have.status(200);
+                    const stats = res.body;
+                    expect(stats).to.be.an('array').with.lengthOf(0);
+                    done();
+                });
+        });
+
+        it('should return 401 if user is not authenticated', done => {
+            chai.request(app)
+                .get('/users/me/gifts/received')
+                .query({ range: 1 })
                 .end((err, res) => {
                     res.should.have.status(401);
                     done();

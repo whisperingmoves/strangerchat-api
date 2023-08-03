@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const GiftHistory = require('./GiftHistory');
 
-const schema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     mobile: {
         type: String,
         required: true,
@@ -36,11 +37,11 @@ const schema = new mongoose.Schema({
     }
 });
 
-schema.virtual('id').get(function () {
+userSchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
 
-schema.methods.followUser = async function (userId) {
+userSchema.methods.followUser = async function (userId) {
     if (this.following.indexOf(userId) === -1) {
         this.following.push(userId);
         this.followingCount++;
@@ -48,7 +49,7 @@ schema.methods.followUser = async function (userId) {
     }
 };
 
-schema.methods.unfollowUser = async function (userId) {
+userSchema.methods.unfollowUser = async function (userId) {
     const index = this.following.indexOf(userId);
     if (index !== -1) {
         this.following.splice(index, 1);
@@ -57,4 +58,46 @@ schema.methods.unfollowUser = async function (userId) {
     }
 };
 
-module.exports = mongoose.model('User', schema);
+userSchema.methods.getReceivedGiftStats = async function(startDate, endDate) {
+    const userId = this._id;
+    const currentRankings = this.receivedGiftRankings || [];
+
+    // 获取当前用户在指定时间范围内收到礼物的数量和排名信息
+    const result = await GiftHistory.getReceivedGiftCount(userId, startDate, endDate);
+    const userIds = result.map(item => item._id);
+    const userInfo = await this.constructor.getUserInfo(userIds);
+    const stats = result.map((item, index) => {
+        const currentRanking = currentRankings.find(ranking => String(ranking.userId) === String(item._id)) || {};
+        const lastRanking = currentRanking.lastRanking || index + 1;
+        const diff = lastRanking - (index + 1);
+        return {
+            userId: item._id,
+            count: item.count,
+            currentRanking: index + 1,
+            diff,
+            username: userInfo[item._id].username,
+            avatar: userInfo[item._id].avatar,
+        };
+    });
+
+    // 更新当前用户在指定时间范围内的排名信息
+    const newRankings = stats.map(item => ({ userId: item.userId, lastRanking: item.currentRanking }));
+    this.receivedGiftRankings = newRankings;
+    await this.save();
+
+    return stats;
+};
+
+userSchema.statics.getUserInfo = async function(userIds) {
+    const users = await this.find({ _id: { $in: userIds } }, { _id: 1, username: 1, avatar: 1 });
+    const userInfo = users.reduce((acc, user) => {
+        acc[user._id] = {
+            username: user.username,
+            avatar: user.avatar,
+        };
+        return acc;
+    }, {});
+    return userInfo;
+};
+
+module.exports = mongoose.model('User', userSchema);

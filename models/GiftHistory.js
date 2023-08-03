@@ -31,4 +31,30 @@ giftHistorySchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
 
+giftHistorySchema.statics.getReceivedGiftCount = async function(userId, startDate, endDate) {
+    return await this.aggregate([
+        {
+            $match: {
+                receiver: mongoose.Types.ObjectId(userId),
+                createdAt: {
+                    $gte: startDate,
+                    $lte: endDate,
+                },
+            },
+        },
+        {
+            $group: {
+                _id: '$sender',
+                count: {$sum: '$quantity'},
+            },
+        },
+        {
+            $sort: {count: -1},
+        },
+        {
+            $limit: 7,
+        },
+    ]);
+};
+
 module.exports = mongoose.model('GiftHistory', giftHistorySchema);

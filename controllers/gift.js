@@ -3,6 +3,7 @@ const User = require('../models/User');
 const GiftHistory = require('../models/GiftHistory');
 const GiftNotification = require('../models/GiftNotification');
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 const getGiftList = async (req, res, next) => {
     try {
@@ -97,7 +98,35 @@ const sendGift = async (req, res, next) => {
     }
 };
 
+const getReceivedGiftStats = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        const { range } = req.query;
+        let startDate, endDate;
+
+        switch (range) {
+            case '2':
+                startDate = moment().subtract(1, 'month').startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+                break;
+            case '1':
+                startDate = moment().subtract(1, 'week').startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+                break;
+            default:
+                startDate = moment(user.createdAt).startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+        }
+
+        const stats = await user.getReceivedGiftStats(startDate, endDate);
+        res.json(stats);
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     getGiftList,
     sendGift,
+    getReceivedGiftStats,
 };

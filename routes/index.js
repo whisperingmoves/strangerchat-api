@@ -34,6 +34,7 @@ router.get('/users/followers', auth, userController.getFollowers);
 router.get('/users/friends', auth, userController.getFriends);
 router.post('/users/checkin/check', auth, userController.performCheckin);
 router.patch('/users/profile', auth, userController.updateUserProfile)
+router.get('/users/me/gifts/received', auth, giftController.getReceivedGiftStats);
 router.get('/users/:userId', auth, userController.getUserDetails)
 
 // 故事路由
