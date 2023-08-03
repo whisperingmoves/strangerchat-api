@@ -34,7 +34,13 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    receivedGiftRankings: [
+        {
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            lastRanking: Number,
+        },
+    ],
 });
 
 userSchema.virtual('id').get(function () {
