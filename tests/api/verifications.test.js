@@ -1,6 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const {it, before, beforeEach, describe} = require('mocha');
+const {it, beforeEach, describe} = require('mocha');
 const app = require('../../app');
 
 chai.use(chaiHttp);
@@ -57,7 +57,7 @@ describe('Verifications API', () => {
                     birthday: "2023-07-30",
                     avatar: 'avatar.png',
                 })
-                .then(res => {
+                .then(() => {
 
                     // 再使用已注册的手机号来测试验证接口
 
@@ -72,13 +72,49 @@ describe('Verifications API', () => {
 
                             res.body.should.have.property('token');
                             res.body.should.have.property('userId');
+                            res.body.should.have.property('gender');
+                            res.body.should.have.property('birthday');
+                            res.body.should.have.property('avatar');
 
+                            res.body.token.should.be.a('string');
                             res.body.userId.should.be.a('string');
+                            res.body.gender.should.be.a('string').to.be.oneOf(['male', 'female']);
+                            res.body.birthday.should.be.a('string').to.match(/^\d{4}-\d{2}-\d{2}$/);
+                            res.body.avatar.should.be.a('string');
 
-                            res.body.should.have.property('gender')
-                                .and.to.be.oneOf(['male', 'female']);
+                            // 验证可能不返回的字段
+                            if (res.body.hasOwnProperty('checkedDays')) {
+                                res.body.checkedDays.should.be.a('number').to.be.within(0, 7);
+                            }
+                            if (res.body.hasOwnProperty('lastCheckDate')) {
+                                res.body.lastCheckDate.should.be.a('number');
+                            }
 
-                            // ... 其它用户信息的断言
+                            // 验证其他可能不返回的字段
+                            if (res.body.hasOwnProperty('giftsReceived')) {
+                                res.body.giftsReceived.should.be.a('number');
+                            }
+                            if (res.body.hasOwnProperty('username')) {
+                                res.body.username.should.be.a('string');
+                            }
+                            if (res.body.hasOwnProperty('city')) {
+                                res.body.city.should.be.a('string');
+                            }
+                            if (res.body.hasOwnProperty('followingCount')) {
+                                res.body.followingCount.should.be.a('number');
+                            }
+                            if (res.body.hasOwnProperty('followersCount')) {
+                                res.body.followersCount.should.be.a('number');
+                            }
+                            if (res.body.hasOwnProperty('visitorsCount')) {
+                                res.body.visitorsCount.should.be.a('number');
+                            }
+                            if (res.body.hasOwnProperty('freeHeatsLeft')) {
+                                res.body.freeHeatsLeft.should.be.a('number');
+                            }
+                            if (res.body.hasOwnProperty('coinBalance')) {
+                                res.body.coinBalance.should.be.a('number');
+                            }
 
                             done();
                         })

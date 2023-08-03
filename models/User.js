@@ -15,8 +15,10 @@ const schema = new mongoose.Schema({
     followingCount: { type: Number, default: 0 },
     followersCount: { type: Number, default: 0 },
     visitorsCount: { type: Number, default: 0 },
-    freeHeatsLeft: { type: Number, default: 0},
+    freeHeatsLeft: { type: Number, default: 3},
     coinBalance: { type: Number, default: 0 },
+    checkedDays: { type: Number, default: 0 }, // 连续签到的天数
+    lastCheckDate: { type: Date }, // 上次签到的日期
     location: {
         type: {
             type: String,

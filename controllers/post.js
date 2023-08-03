@@ -88,20 +88,36 @@ const heatPost = async (req, res, next) => {
             return res.status(404).json({ message: '帖子不存在' });
         }
 
-        // 更新加热次数
+        // 检查用户是否存在
+        const userId = req.user.userId; // 假设通过验证的用户存储在req.user.userId中
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: '用户不存在' });
+        }
+
+        // 检查免费加热次数
         if (action === '1') {
-            post.heatCount += 1;
+            if (user.freeHeatsLeft === 0) {
+                return res.status(400).json({ message: '没有免费加热次数了' });
+            }
+            user.freeHeatsLeft -= 1;
         } else if (action === '0') {
-            if (post.heatCount > 0) {
-                post.heatCount -= 1;
-            } else {
+            if (post.heatCount === 0) {
                 return res.status(400).json({ message: '帖子未被加热，无法取消加热' });
             }
+            user.freeHeatsLeft += 1;
         } else {
             return res.status(400).json({ message: '无效的加热操作' });
         }
 
-        await post.save();
+        // 更新加热次数
+        if (action === '1') {
+            post.heatCount += 1;
+        } else if (action === '0') {
+            post.heatCount -= 1;
+        }
+
+        await Promise.all([user.save(), post.save()]);
 
         res.json({});
     } catch (err) {

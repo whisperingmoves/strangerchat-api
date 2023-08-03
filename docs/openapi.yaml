@@ -39,16 +39,13 @@ paths:
         200:
           description: 发送成功
         400:
-          description: 发送失败
-          content:
-            application/json:
-              schema:
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    description: 错误信息
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /verifications/verifyCode:
     post:
@@ -131,21 +128,29 @@ paths:
                   coinBalance:
                     type: integer
                     description: 金币余额
-
+                  checkedDays:
+                    type: integer
+                    format: int32
+                    minimum: 0
+                    maximum: 7
+                    description: 连续签到的天数
+                    example: 4
+                    default: 0
+                  lastCheckDate:
+                    type: integer
+                    format: unix timestamp
+                    description: 上次签到的日期
+                    example: 1578518245
         201:
           description: 验证成功但是手机号未注册,需要进入注册流程
-
         400:
-          description: 验证码错误
-          content:
-            application/json:
-              schema:
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    description: 错误信息
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /users/register:
     post:
@@ -200,18 +205,14 @@ paths:
                   userId:
                     type: string
                     description: 用户ID
-
         400:
-          description: 注册失败
-          content:
-            application/json:
-              schema:
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    description: 错误信息
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /uploadAvatar:
     post:
@@ -246,18 +247,14 @@ paths:
                   url:
                     type: string
                     description: 头像URL
-
         400:
-          description: 上传失败
-          content:
-            application/json:
-              schema:
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    description: 错误信息
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /stories:
     get:
@@ -1533,18 +1530,14 @@ paths:
                   url:
                     type: string
                     description: 照片URL
-
         400:
-          description: 上传失败
-          content:
-            application/json:
-              schema:
-                required:
-                  - message
-                properties:
-                  message:
-                    type: string
-                    description: 错误信息
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /notifications/interaction:
     get:
@@ -2042,12 +2035,22 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        200:
           description: 成功获取用户列表
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FollowUser'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /users/followers:
     get:
@@ -2082,12 +2085,22 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        200:
           description: 成功获取用户列表
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FollowUser'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 
   /users/friends:
     get:
@@ -2122,12 +2135,55 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        200:
           description: 成功获取用户列表
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FollowUser'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/checkin/check:
+    post:
+      summary: 执行签到
+      tags:
+        - 用户
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - checkedDays
+                properties:
+                  checkedDays:
+                    type: integer
+                    format: int32
+                    minimum: 0
+                    maximum: 7
+                    description: 连续签到的天数
+                    example: 4
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
@@ -2135,123 +2191,97 @@ components:
       content:
         application/json:
           schema:
-            type: object
+            required:
+              - message
             properties:
               message:
                 type: string
+                description: 错误信息
 
     BadRequest:
       description: 错误的请求
       content:
         application/json:
           schema:
-            type: object
+            required:
+              - message
             properties:
               message:
                 type: string
+                description: 错误信息
 
     Forbidden:
       description: 禁止访问
       content:
         application/json:
           schema:
-            type: object
+            required:
+              - message
             properties:
               message:
                 type: string
+                description: 错误信息
 
     NotFound:
       description: 找不到页面
       content:
         application/json:
           schema:
-            type: object
+            required:
+              - message
             properties:
               message:
                 type: string
+                description: 错误信息
 
     InternalServerError:
       description: 内部服务器错误
       content:
         application/json:
           schema:
-            type: object
+            required:
+              - message
             properties:
               message:
                 type: string
+                description: 错误信息
   schemas:
     Comment:
-
       type: object
-
       required:
-
         - userId
-
         - avatar
-
         - createTime
-
         - content
-
         - commentId
-
       properties:
-
         userId:
-
           type: string
-
           format: uuid
-
           description: 用户ID
-
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
-
         avatar:
-
           type: string
-
           format: url
-
           description: 用户头像
-
           example: /uploads/avatar.png
-
         username:
-
           type: string
-
           description: 用户名
-
           example: 小明
-
         createTime:
-
           type: integer
-
           format: unix timestamp
-
           description: 评论创建时间
-
           example: 1578518245
-
         content:
-
           type: string
-
           description: 评论内容
-
           example: 这个帖子真好看!
-
         commentId:
-
           type: string
-
           format: uuid
-
           description: 评论ID
-
           example: f460e1ee-6c54-4b01-90e6-d701748f0852
     FollowUser:
       type: array

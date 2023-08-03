@@ -51,18 +51,40 @@ const verifyVerificationCode = async (req, res) => {
             await user.save();
         }
 
-        // 返回响应
-        res.json({ token, ...user.toObject(), userId: user.id });
+        // 格式化 birthday 字段
+        const formattedBirthday = user.birthday ? user.birthday.toISOString().split('T')[0] : undefined;
+
+        // 格式化 lastCheckDate 字段为精确到秒的 UNIX 时间戳
+        const formattedLastCheckDate = user.lastCheckDate ? Math.floor(user.lastCheckDate.getTime() / 1000) : undefined;
+
+        // 返回响应，包括 checkedDays、lastCheckDate 和 formattedBirthday 字段
+        res.json({
+            token,
+            userId: user.id,
+            gender: user.gender,
+            birthday: formattedBirthday,
+            avatar: user.avatar,
+            giftsReceived: user.giftsReceived,
+            username: user.username,
+            city: user.city,
+            followingCount: user.followingCount,
+            followersCount: user.followersCount,
+            visitorsCount: user.visitorsCount,
+            freeHeatsLeft: user.freeHeatsLeft,
+            coinBalance: user.coinBalance,
+            checkedDays: user.checkedDays,
+            lastCheckDate: formattedLastCheckDate
+        });
     } else {
         // 用户不存在
         res.status(201).json({});
     }
 }
 
-function checkMobile(mobile) {
-    const re = /^1[3-9]\d{9}$/;
-    return re.test(mobile);
-}
+// function checkMobile(mobile) {
+//     const re = /^1[3-9]\d{9}$/;
+//     return re.test(mobile);
+// }
 
 function sendMessage(mobile, code) {
     console.log('向' + mobile + '发送短信验证码' + code);
