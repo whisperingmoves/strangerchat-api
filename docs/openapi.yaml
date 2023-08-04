@@ -2219,6 +2219,14 @@ paths:
                   description: 新的所在城市名称
                   example: "New York"
                   maxLength: 50
+                longitude:
+                  type: string
+                  format: float
+                  description: 经度
+                latitude:
+                  type: string
+                  format: float
+                  description: 纬度
       responses:
         200:
           description: 用户资料修改成功

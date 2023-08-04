@@ -362,7 +362,7 @@ const performCheckin = async (req, res, next) => {
 };
 
 const updateUserProfile = async (req, res, next) => {
-    const { avatar, username, city } = req.body;
+    const { avatar, username, city, longitude, latitude } = req.body;
     const userId = req.user.userId; // 从请求中获取用户 ID
 
     // 查找用户
@@ -388,11 +388,17 @@ const updateUserProfile = async (req, res, next) => {
     if (city) {
         user.city = city;
     }
+    if (longitude && latitude) {
+        user.location = {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)]
+        };
+    }
 
     // 保存用户资料
     try {
         await user.save();
-        res.json({ message: '用户资料修改成功' });
+        res.sendStatus(200)
     } catch (err) {
         return next(err);
     }

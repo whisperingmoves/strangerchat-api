@@ -638,7 +638,6 @@ describe('Users API', () => {
                 });
 
             res.should.have.status(200);
-            res.body.should.have.property('message').that.equals('用户资料修改成功');
 
             const updatedUser = await User.findById(userId);
 
@@ -654,7 +653,6 @@ describe('Users API', () => {
                 .send({});
 
             res.should.have.status(200);
-            res.body.should.have.property('message').that.equals('用户资料修改成功');
 
             const updatedUser = await User.findById(userId);
 
