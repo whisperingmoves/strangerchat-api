@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const http = require('http');
+const socketIo = require('socket.io');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const config = require('./config');
@@ -7,11 +9,16 @@ const routes = require('./routes');
 const Post = require('./models/Post');
 const User = require('./models/User');
 const errorMiddleware = require('./middlewares/error');
+const socketAuthMiddleware = require('./middlewares/socketAuth');
+const sockets = require('./sockets');
 
 // 模块定义
 const swaggerDocument = YAML.load('./docs/openapi.yaml');
+const userIdSocketMap = {};
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
 mongoose.connect(config.dbUrl, {
     useNewUrlParser: true,
@@ -39,7 +46,15 @@ app.use(routes);
 
 app.use(errorMiddleware);
 
-app.listen(config.port, () => {
+// socket.io鉴权
+io.use(socketAuthMiddleware);
+
+// socket.io控制器
+io.on('connect', (socket) => {
+    sockets(socket, userIdSocketMap);
+});
+
+server.listen(config.port, () => {
     console.log(`Server running on port ${config.port}...`)
 });
 
