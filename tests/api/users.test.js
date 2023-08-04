@@ -635,6 +635,8 @@ describe('Users API', () => {
                     avatar: 'new_avatar.png',
                     username: 'John Doe',
                     city: 'New York',
+                    longitude: '40.7128',
+                    latitude: '-74.0060'
                 });
 
             res.should.have.status(200);
@@ -644,6 +646,8 @@ describe('Users API', () => {
             updatedUser.avatar.should.equal('new_avatar.png');
             updatedUser.username.should.equal('John Doe');
             updatedUser.city.should.equal('New York');
+            updatedUser.location.coordinates[0].should.equal(40.7128);
+            updatedUser.location.coordinates[1].should.equal(-74.0060);
         });
 
         it('should ignore empty fields', async () => {
@@ -666,6 +670,8 @@ describe('Users API', () => {
                     avatar: 'new_avatar.png',
                     username: 'John Doe',
                     city: 'New York',
+                    longitude: '40.7128',
+                    latitude: '-74.0060'
                 });
 
             res.should.have.status(401);
