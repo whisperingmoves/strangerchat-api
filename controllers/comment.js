@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
 const InteractionNotification = require('../models/InteractionNotification');
+const pushUnreadNotificationsCount = require('../sockets/pushUnreadNotificationsCount');
 
 const createComment = async (req, res, next) => {
     const { content, parentId } = req.body;
@@ -31,13 +32,15 @@ const createComment = async (req, res, next) => {
 
         // 创建交互类通知
         const notification = new InteractionNotification({
-            toUser: post.author,
+            toUser: post.author._id,
             user: req.user.userId,
             interactionType: parentId ? 5 : 1, // 根据是否是回复评论来设置交互类型
             post: postId,
             comment: comment._id,
         });
         await notification.save();
+
+        await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
 
         res.status(200).json({ commentId: comment.id }); // 返回新增评论的ID
     } catch (err) {
@@ -106,6 +109,8 @@ const likeComment = async (req, res, next) => {
                 comment: commentId,
             });
             await notification.save();
+
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), comment.author._id.toString());
         }
         // 取消点赞操作
         else if (operation === 0) {

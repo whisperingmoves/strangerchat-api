@@ -2853,7 +2853,6 @@ components:
             required:
               - userId
               - avatarUrl
-              - distance
             properties:
               userId:
                 type: string

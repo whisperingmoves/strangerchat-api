@@ -3,6 +3,7 @@ const CoinTransaction = require('../models/CoinTransaction');
 const User = require('../models/User');
 const PaymentService = require('../services/PaymentService');
 const SystemNotification = require('../models/SystemNotification');
+const pushUnreadNotificationsCount = require('../sockets/pushUnreadNotificationsCount');
 const mongoose = require("mongoose");
 
 const getCoinProductList = async (req, res, next) => {
@@ -83,6 +84,8 @@ const buyCoinProduct = async (req, res, next) => {
         };
         const systemNotification = new SystemNotification(systemNotificationData);
         await systemNotification.save();
+
+        await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), userId);
 
         res.status(200).json({ message: '购买成功' });
     } catch (error) {

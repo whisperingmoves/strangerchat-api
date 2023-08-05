@@ -3,6 +3,9 @@ const Post = require('../models/Post')
 const Comment = require('../models/Comment');
 const User = require('../models/User');
 const InteractionNotification = require('../models/InteractionNotification');
+const pushNearestUsers = require("../sockets/pushNearestUsers");
+const pushUnreadNotificationsCount = require('../sockets/pushUnreadNotificationsCount');
+const {processUsersWithLocation} = require("./helper");
 
 const uploadPost = async (req, res, next) => {
     try {
@@ -165,6 +168,8 @@ const likePost = async (req, res, next) => {
                     post: postId,
                 });
                 await notification.save();
+
+                await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author.toString());
             }
         } else if (action === '0') {
             if (!isLiked) {
@@ -223,6 +228,8 @@ const collectPost = async (req, res, next) => {
                 post: postId,
             });
             await notification.save();
+
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
 
         } else if (operation === 0) {
             if (!isCollected) {
@@ -286,6 +293,8 @@ const sharePost = async (req, res, next) => {
             post: postId,
         });
         await notification.save();
+
+        await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
 
         // 保存帖子
         await post.save();
@@ -490,6 +499,15 @@ const getRecommendedPosts = async (req, res, next) => {
             coordinates: [parseFloat(longitude), parseFloat(latitude)],
         };
         await user.save();
+        // 更新用户的位置信息后，调用相应的处理函数
+        const io = req.app.get('io');
+        const userIdSocketMap = req.app.get('userIdSocketMap');
+        pushNearestUsers(io, userIdSocketMap, userId)
+            .then()
+            .catch(err => console.error("pushNearestUsers error: ", err));
+        processUsersWithLocation(io, userIdSocketMap, userId)
+            .then()
+            .catch(err => console.error("processUsersWithLocation error: ", err));
     } else {
         const userId = req.user.userId;
         try {

@@ -12,7 +12,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
                 userId: user.id,
                 avatarUrl: user.avatar,
                 username: user.username,
-                distance: null,
+                distance: undefined,
             }));
             if (userIdSocketMap[userId]) {
                 userIdSocketMap[userId].forEach(socketId => {

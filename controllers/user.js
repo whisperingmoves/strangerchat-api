@@ -4,6 +4,9 @@ const Post = require('../models/Post');
 const StatusNotification = require('../models/StatusNotification');
 const {sign} = require("jsonwebtoken");
 const config = require('../config');
+const {processUsersWithEmptyLocation, processAllOnlineUsers, processUsersWithLocation} = require("./helper");
+const pushNearestUsers = require('../sockets/pushNearestUsers');
+const pushUnreadNotificationsCount = require('../sockets/pushUnreadNotificationsCount');
 
 const register = async (req, res, next) => {
     const { mobile, gender, birthday, avatar, longitude, latitude } = req.body;
@@ -34,6 +37,19 @@ const register = async (req, res, next) => {
 
         // 生成JWT token
         const token = sign({ userId: user.id }, config.jwtSecret);
+
+        // 更新用户的位置信息后，调用相应的处理函数
+        const io = req.app.get('io');
+        const userIdSocketMap = req.app.get('userIdSocketMap');
+        if (!user.location || !user.location.coordinates) {
+            processUsersWithEmptyLocation(io, userIdSocketMap, user.id)
+                .then()
+                .catch(err => console.error("processUsersWithEmptyLocation error: ", err));
+        } else {
+            processAllOnlineUsers(io, userIdSocketMap, user.id)
+                .then()
+                .catch(err => console.error("processAllOnlineUsers error: ", err));
+        }
 
         res.json({
             token,
@@ -104,6 +120,8 @@ const followUser = async (req, res, next) => {
                     statusType: 0, // 关注用户
                 });
                 await notification.save();
+
+                await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), followedUser.id);
             }
         } else if (action === '0') {
             // 检查被关注用户是否未被关注
@@ -398,6 +416,19 @@ const updateUserProfile = async (req, res, next) => {
     // 保存用户资料
     try {
         await user.save();
+
+        // 更新用户的位置信息后，调用相应的处理函数
+        if (longitude && latitude) {
+            const io = req.app.get('io');
+            const userIdSocketMap = req.app.get('userIdSocketMap');
+            pushNearestUsers(io, userIdSocketMap, userId)
+                .then()
+                .catch(err => console.error("pushNearestUsers error: ", err));
+            processUsersWithLocation(io, userIdSocketMap, user.id)
+                .then()
+                .catch(err => console.error("processUsersWithLocation error: ", err));
+        }
+
         res.sendStatus(200)
     } catch (err) {
         return next(err);
@@ -438,6 +469,8 @@ const getUserDetails = async (req, res, next) => {
             });
 
             await statusNotification.save();
+
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), userId);
         }
 
         res.status(200).json(userDetails);

@@ -4,6 +4,7 @@ const GiftHistory = require('../models/GiftHistory');
 const GiftNotification = require('../models/GiftNotification');
 const mongoose = require("mongoose");
 const moment = require("moment");
+const pushUnreadNotificationsCount = require('../sockets/pushUnreadNotificationsCount');
 
 const getGiftList = async (req, res, next) => {
     try {
@@ -91,6 +92,8 @@ const sendGift = async (req, res, next) => {
             giftName: gift.name,
         });
         await notification.save();
+
+        await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), receiverId);
 
         res.json({});
     } catch (err) {

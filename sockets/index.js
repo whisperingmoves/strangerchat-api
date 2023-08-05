@@ -2,6 +2,7 @@ const User = require('../models/User');
 const pushNearestUsers = require('./pushNearestUsers');
 const pushOnlineUsers = require('./pushOnlineUsers');
 const pushUnreadNotificationsCount = require('./pushUnreadNotificationsCount');
+const {processOnlineUsers} = require("../controllers/helper");
 
 module.exports = (io, socket, userIdSocketMap) => {
     console.log(`Socket connected: ${socket.id}`);
@@ -22,9 +23,18 @@ module.exports = (io, socket, userIdSocketMap) => {
             console.error(error);
         });
 
-    pushNearestUsers(io, userIdSocketMap, userId).then();
-    pushOnlineUsers(io, userIdSocketMap, userId).then();
-    pushUnreadNotificationsCount(io, userIdSocketMap, userId).then();
+    pushNearestUsers(io, userIdSocketMap, userId)
+        .then()
+        .catch(err => console.error("pushNearestUsers error:", err));
+    pushOnlineUsers(io, userIdSocketMap, userId)
+        .then()
+        .catch(err => console.error("pushOnlineUsers error:", err));
+    pushUnreadNotificationsCount(io, userIdSocketMap, userId)
+        .then()
+        .catch(err => console.error("pushUnreadNotificationsCount error:", err));
+    processOnlineUsers(io, userIdSocketMap, userId)
+        .then()
+        .catch(err => console.error("processOnlineUsers error:", err));
 
     socket.on('disconnect', () => {
         console.log(`Socket disconnected: ${socket.id}`);
@@ -44,6 +54,10 @@ module.exports = (io, socket, userIdSocketMap) => {
                     console.error(error);
                 });
             delete userIdSocketMap[userId];
+
+            processOnlineUsers(io, userIdSocketMap, userId)
+                .then()
+                .catch(err => console.error("processOnlineUsers error:", err));
         }
     });
 };
