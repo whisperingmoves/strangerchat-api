@@ -10,7 +10,7 @@ const User = require('../../models/User');
 chai.use(chaiHttp);
 chai.should();
 
-describe('WebSocket Authentication', () => {
+describe('Auth Socket', () => {
     let token;
     let socket;
     let mobile;

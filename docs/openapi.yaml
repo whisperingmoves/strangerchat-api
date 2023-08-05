@@ -2677,7 +2677,7 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
-  /socket:
+  /socket.io:
     get:
       summary: 连接到 WebSocket
       responses:

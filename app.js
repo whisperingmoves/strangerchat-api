@@ -20,6 +20,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+app.set('io', io);
+app.set('userIdSocketMap', userIdSocketMap);
+
 mongoose.connect(config.dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -51,7 +54,7 @@ io.use(socketAuthMiddleware);
 
 // socket.io控制器
 io.on('connect', (socket) => {
-    sockets(socket, userIdSocketMap);
+    sockets(io, socket, userIdSocketMap);
 });
 
 server.listen(config.port, () => {
