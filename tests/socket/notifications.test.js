@@ -21,6 +21,7 @@ describe('Notifications Socket', () => {
     let user;
     let nearbyUsers = [];
     let otherUser;
+    let otherToken;
     let postId;
 
     beforeEach(async () => {
@@ -52,7 +53,7 @@ describe('Notifications Socket', () => {
 
             // 注册另一个用户并保存结果
             const otherUserMobile = '135' + Math.floor(Math.random() * 1000000000);
-            await chai
+            const registerOtherRes = await chai
                 .request(app)
                 .post('/users/register')
                 .send({
@@ -61,6 +62,8 @@ describe('Notifications Socket', () => {
                     birthday: '1995-01-01',
                     avatar: 'avatar2.png',
                 });
+
+            otherToken = registerOtherRes.body.token;
 
             otherUser = await User.findOne({ mobile: otherUserMobile });
 
@@ -285,6 +288,55 @@ describe('Notifications Socket', () => {
             .catch((err) => {
                 done(err);
             });
+    });
+
+    it('should receive unread notifications count via WebSocket after liking a post', (done) => {
+        // 创建带有认证信息的 WebSocket 连接
+        const socket = ioClient(`http://localhost:${config.port}`, {
+            auth: {
+                token: token,
+            },
+        });
+
+        // 标记是否已经接收到第一个未读通知数消息
+        let firstUnreadMessageReceived = false;
+
+        // 监听连接成功事件
+        socket.on('connect', () => {
+            // 监听 WebSocket 推送消息
+            socket.on('notifications', (message) => {
+                // 只处理未读通知数消息
+                if (message.type !== 2) {
+                    return;
+                }
+
+                // 忽略第一个消息
+                if (!firstUnreadMessageReceived) {
+                    firstUnreadMessageReceived = true;
+                    return;
+                }
+
+                // 对推送的消息进行断言
+                chai.expect(message).to.deep.equal({
+                    type: 2,
+                    data: {
+                        count: 1,
+                    },
+                });
+
+                done();
+            });
+
+            // 在连接成功后，调用给帖子点赞的接口
+            chai.request(app)
+                .post(`/posts/${postId}/like?action=1`)
+                .set('Authorization', `Bearer ${otherToken}`)
+                .end((likeErr) => {
+                    if (likeErr) {
+                        done(likeErr);
+                    }
+                });
+        });
     });
 
     afterEach(async () => {
