@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Post = require('../models/Post');
 const StatusNotification = require('../models/StatusNotification');
+const ChatConversation = require('../models/ChatConversation');
 const {sign} = require("jsonwebtoken");
 const config = require('../config');
 const {processUsersWithEmptyLocation, processAllOnlineUsers, processUsersWithLocation} = require("./helper");
@@ -194,14 +195,29 @@ const getFollowingUsers = async (req, res, next) => {
 
         const latestPostsMap = new Map(latestPosts.map((post) => [post._id.toString(), post.latestPost]));
 
+        // 查询当前用户和关注用户之间的聊天会话
+        const conversationMap = new Map();
+        const conversations = await ChatConversation.find({
+            $or: [
+                { userId1: userId, userId2: { $in: userIds } },
+                { userId1: { $in: userIds }, userId2: userId }
+            ]
+        });
+        conversations.forEach(conversation => {
+            const otherUserId = conversation.userId1.toString() === userId ? conversation.userId2.toString() : conversation.userId1.toString();
+            conversationMap.set(otherUserId, conversation.id);
+        });
+
         const formattedUsers = users.map((user) => {
             const { _id, avatar, username } = user;
             const latestPostContent = latestPostsMap.get(_id.toString());
+            const conversationId = conversationMap.get(_id.toString());
             return {
                 userId: _id,
                 userAvatar: avatar,
                 username,
-                latestPostContent
+                latestPostContent,
+                conversationId: conversationId || undefined
             };
         });
 
@@ -251,14 +267,29 @@ const getFollowers = async (req, res, next) => {
 
         const latestPostsMap = new Map(latestPosts.map((post) => [post._id.toString(), post.latestPost]));
 
+        // 查询当前用户和关注我的用户之间的聊天会话
+        const conversationMap = new Map();
+        const conversations = await ChatConversation.find({
+            $or: [
+                { userId1: { $in: userIds }, userId2: userId },
+                { userId1: userId, userId2: { $in: userIds } }
+            ]
+        });
+        conversations.forEach(conversation => {
+            const otherUserId = conversation.userId1.toString() === userId ? conversation.userId2.toString() : conversation.userId1.toString();
+            conversationMap.set(otherUserId, conversation.id);
+        });
+
         const formattedUsers = users.map((user) => {
             const { _id, avatar, username } = user;
             const latestPostContent = latestPostsMap.get(_id.toString());
+            const conversationId = conversationMap.get(_id.toString());
             return {
                 userId: _id,
                 userAvatar: avatar,
                 username,
-                latestPostContent
+                latestPostContent,
+                conversationId: conversationId || undefined
             };
         });
 
@@ -310,14 +341,29 @@ const getFriends = async (req, res, next) => {
 
         const latestPostsMap = new Map(latestPosts.map((post) => [post._id.toString(), post.latestPost]));
 
+        // 查询当前用户和互相关注的用户之间的聊天会话
+        const conversationMap = new Map();
+        const conversations = await ChatConversation.find({
+            $or: [
+                { userId1: { $in: userIds }, userId2: userId },
+                { userId1: userId, userId2: { $in: userIds } }
+            ]
+        });
+        conversations.forEach(conversation => {
+            const otherUserId = conversation.userId1.toString() === userId ? conversation.userId2.toString() : conversation.userId1.toString();
+            conversationMap.set(otherUserId, conversation.id);
+        });
+
         const formattedUsers = users.map((user) => {
             const { _id, avatar, username } = user;
             const latestPostContent = latestPostsMap.get(_id.toString());
+            const conversationId = conversationMap.get(_id.toString());
             return {
                 userId: _id,
                 userAvatar: avatar,
                 username,
-                latestPostContent
+                latestPostContent,
+                conversationId: conversationId || undefined
             };
         });
 

@@ -3,6 +3,7 @@ const Post = require('../models/Post')
 const Comment = require('../models/Comment');
 const User = require('../models/User');
 const InteractionNotification = require('../models/InteractionNotification');
+const ChatConversation = require('../models/ChatConversation');
 const pushNearestUsers = require("../sockets/pushNearestUsers");
 const pushUnreadNotificationsCount = require('../sockets/pushUnreadNotificationsCount');
 const {processUsersWithLocation} = require("./helper");
@@ -10,7 +11,7 @@ const {processUsersWithLocation} = require("./helper");
 const uploadPost = async (req, res, next) => {
     try {
         if (!req.file) {
-            return res.status(400).json({ message: '请选择文件上传' });
+            return res.status(400).json({message: '请选择文件上传'});
         }
 
         const image = req.file;
@@ -22,7 +23,7 @@ const uploadPost = async (req, res, next) => {
 
         const url = '/uploads/posts/' + fileName;
 
-        res.json({ url });
+        res.json({url});
 
     } catch (err) {
         next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
@@ -30,11 +31,11 @@ const uploadPost = async (req, res, next) => {
 };
 
 const createPost = async (req, res, next) => {
-    const { content, city, longitude, latitude, images, visibility, atUsers } = req.body;
+    const {content, city, longitude, latitude, images, visibility, atUsers} = req.body;
 
     // 校验参数
     if (!content) {
-        return res.status(400).json({ message: '请填写帖子内容' });
+        return res.status(400).json({message: '请填写帖子内容'});
     }
 
     // 生成帖子对象
@@ -81,43 +82,43 @@ const createPost = async (req, res, next) => {
     try {
         await post.save();
 
-        res.json({ postId: post.id });
+        res.json({postId: post.id});
     } catch (err) {
         next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
     }
 };
 
 const heatPost = async (req, res, next) => {
-    const { postId } = req.params;
-    const { action } = req.query;
+    const {postId} = req.params;
+    const {action} = req.query;
 
     try {
         // 检查帖子是否存在
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         // 检查用户是否存在
         const userId = req.user.userId; // 假设通过验证的用户存储在req.user.userId中
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: '用户不存在' });
+            return res.status(404).json({message: '用户不存在'});
         }
 
         // 检查免费加热次数
         if (action === '1') {
             if (user.freeHeatsLeft === 0) {
-                return res.status(400).json({ message: '没有免费加热次数了' });
+                return res.status(400).json({message: '没有免费加热次数了'});
             }
             user.freeHeatsLeft -= 1;
         } else if (action === '0') {
             if (post.heatCount === 0) {
-                return res.status(400).json({ message: '帖子未被加热，无法取消加热' });
+                return res.status(400).json({message: '帖子未被加热，无法取消加热'});
             }
             user.freeHeatsLeft += 1;
         } else {
-            return res.status(400).json({ message: '无效的加热操作' });
+            return res.status(400).json({message: '无效的加热操作'});
         }
 
         // 更新加热次数
@@ -136,14 +137,14 @@ const heatPost = async (req, res, next) => {
 };
 
 const likePost = async (req, res, next) => {
-    const { postId } = req.params;
-    const { action } = req.query;
+    const {postId} = req.params;
+    const {action} = req.query;
 
     try {
         // 检查帖子是否存在
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
@@ -155,7 +156,7 @@ const likePost = async (req, res, next) => {
         // 根据操作进行点赞或取消点赞
         if (action === '1') {
             if (isLiked) {
-                return res.status(400).json({ message: '帖子已经被点赞过' });
+                return res.status(400).json({message: '帖子已经被点赞过'});
             }
             post.likes.push(userId);
 
@@ -173,7 +174,7 @@ const likePost = async (req, res, next) => {
             }
         } else if (action === '0') {
             if (!isLiked) {
-                return res.status(400).json({ message: '帖子未被点赞，无法取消点赞' });
+                return res.status(400).json({message: '帖子未被点赞，无法取消点赞'});
             }
             post.likes.pull(userId);
 
@@ -187,7 +188,7 @@ const likePost = async (req, res, next) => {
 
             await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author.toString());
         } else {
-            return res.status(400).json({ message: '无效的点赞操作' });
+            return res.status(400).json({message: '无效的点赞操作'});
         }
 
         await post.save();
@@ -199,14 +200,14 @@ const likePost = async (req, res, next) => {
 };
 
 const collectPost = async (req, res, next) => {
-    const { postId } = req.params;
-    const { operation } = req.body;
+    const {postId} = req.params;
+    const {operation} = req.body;
 
     try {
         // 检查帖子是否存在
         const post = await Post.findById(postId).populate('author');
         if (!post) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
@@ -218,7 +219,7 @@ const collectPost = async (req, res, next) => {
         // 根据操作进行收藏或取消收藏
         if (operation === 1) {
             if (isCollected) {
-                return res.status(400).json({ message: '帖子已经被收藏过' });
+                return res.status(400).json({message: '帖子已经被收藏过'});
             }
             post.collects.push(userId);
 
@@ -235,7 +236,7 @@ const collectPost = async (req, res, next) => {
 
         } else if (operation === 0) {
             if (!isCollected) {
-                return res.status(400).json({ message: '帖子未被收藏，无法取消收藏' });
+                return res.status(400).json({message: '帖子未被收藏，无法取消收藏'});
             }
             post.collects.pull(userId);
 
@@ -249,7 +250,7 @@ const collectPost = async (req, res, next) => {
 
             await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
         } else {
-            return res.status(400).json({ message: '无效的收藏操作' });
+            return res.status(400).json({message: '无效的收藏操作'});
         }
 
         await post.save();
@@ -261,14 +262,14 @@ const collectPost = async (req, res, next) => {
 };
 
 const sharePost = async (req, res, next) => {
-    const { postId } = req.params;
-    const { sharePlatform } = req.body;
+    const {postId} = req.params;
+    const {sharePlatform} = req.body;
 
     try {
         // 检查帖子是否存在
         const post = await Post.findById(postId).populate('author');
         if (!post) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
@@ -276,7 +277,7 @@ const sharePost = async (req, res, next) => {
 
         // 检查分享平台的有效性
         if (![1, 2, 3].includes(sharePlatform)) {
-            return res.status(400).json({ message: '无效的分享平台' });
+            return res.status(400).json({message: '无效的分享平台'});
         }
 
         // 创建分享记录
@@ -309,12 +310,12 @@ const sharePost = async (req, res, next) => {
 };
 
 const getPostDetails = async (req, res, next) => {
-    const { postId } = req.params;
+    const {postId} = req.params;
 
     try {
         // 验证 postId 是否是有效的 ObjectId
         if (!mongoose.Types.ObjectId.isValid(postId)) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         const post = await Post.findById(postId)
@@ -324,18 +325,31 @@ const getPostDetails = async (req, res, next) => {
             .exec();
 
         if (!post) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         const isLiked = post.likes.some(like => like.userId.toString() === req.user.userId);
         const isCollected = post.collects.some(collect => collect.userId.toString() === req.user.userId);
-        const isFollowed = await User.findOne({_id: req.user.userId, following: post.author.id}).countDocuments().exec();
+        const isFollowed = await User.findOne({
+            _id: req.user.userId,
+            following: post.author.id
+        }).countDocuments().exec();
 
-        const commentCount = await Comment.countDocuments({ post: postId });
+        const commentCount = await Comment.countDocuments({post: postId});
 
         // 将帖子的浏览次数加1
         post.viewsCount += 1;
         await post.save();
+
+        // 查询当前用户和帖子作者之间的聊天会话
+        const conversation = await ChatConversation.findOne({
+            $or: [
+                { userId1: req.user.userId, userId2: post.author.id },
+                { userId1: post.author.id, userId2: req.user.userId }
+            ]
+        });
+
+        const conversationId = conversation ? conversation.id : undefined;
 
         const postDetails = {
             authorId: post.author.id,
@@ -351,7 +365,8 @@ const getPostDetails = async (req, res, next) => {
             shareCount: post.shares.length,
             postId: post.id,
             isLiked: isLiked ? 1 : 0,
-            isCollected: isCollected ? 1 : 0
+            isCollected: isCollected ? 1 : 0,
+            conversationId,
         };
 
         res.status(200).json(postDetails);
@@ -373,21 +388,21 @@ const getHotPosts = async (req, res, next) => {
             },
             {
                 $addFields: {
-                    commentCount: { $size: '$comments' },
+                    commentCount: {$size: '$comments'},
                     hotIndex: {
                         $sum: [
                             '$heatCount',
                             '$viewsCount',
-                            { $size: '$likes' },
-                            { $size: '$collects' },
-                            { $size: '$shares' },
-                            { $size: '$comments' },
+                            {$size: '$likes'},
+                            {$size: '$collects'},
+                            {$size: '$shares'},
+                            {$size: '$comments'},
                         ],
                     },
                 },
             },
-            { $sort: { hotIndex: -1 } },
-            { $limit: 7 },
+            {$sort: {hotIndex: -1}},
+            {$limit: 7},
             {
                 $lookup: {
                     from: 'users',
@@ -400,9 +415,9 @@ const getHotPosts = async (req, res, next) => {
                 $project: {
                     postId: '$_id',
                     userId: '$author',
-                    content: { $substr: ['$content', 0, 100] },
+                    content: {$substr: ['$content', 0, 100]},
                     hotIndex: 1,
-                    username: { $arrayElemAt: ['$user.username', 0] },
+                    username: {$arrayElemAt: ['$user.username', 0]},
                 },
             },
         ]);
@@ -422,7 +437,7 @@ const getHotPosts = async (req, res, next) => {
 };
 
 const getLatestPosts = async (req, res, next) => {
-    let { keyword, page = '1', pageSize = '10', filter = '0' } = req.query;
+    let {keyword, page = '1', pageSize = '10', filter = '0'} = req.query;
     page = parseInt(page);
     pageSize = parseInt(pageSize);
     filter = parseInt(filter);
@@ -431,17 +446,17 @@ const getLatestPosts = async (req, res, next) => {
         const query = {};
 
         if (keyword) {
-            query.content = { $regex: keyword, $options: 'i' };
+            query.content = {$regex: keyword, $options: 'i'};
         }
 
         if (filter === 1) {
             query.likes = req.user.userId;
         } else if (filter === 2) {
-            const commentedPostIds = await Comment.distinct('post', { author: req.user.userId }).exec();
-            query._id = { $in: commentedPostIds };
+            const commentedPostIds = await Comment.distinct('post', {author: req.user.userId}).exec();
+            query._id = {$in: commentedPostIds};
         } else if (filter === 3) {
-            const favoritedPostIds = await Post.distinct('_id', { collects: req.user.userId }).exec();
-            query._id = { $in: favoritedPostIds };
+            const favoritedPostIds = await Post.distinct('_id', {collects: req.user.userId}).exec();
+            query._id = {$in: favoritedPostIds};
         }
 
         const posts = await Post.find(query)
@@ -453,8 +468,20 @@ const getLatestPosts = async (req, res, next) => {
 
         const formattedPosts = await Promise.all(
             posts.map(async (post) => {
-                const commentCount = await Comment.countDocuments({ post: post.id }).exec();
-                const isFollowed = await User.findOne({_id: req.user.userId, following: post.author.id}).countDocuments().exec();
+                const commentCount = await Comment.countDocuments({post: post.id}).exec();
+                const isFollowed = await User.findOne({
+                    _id: req.user.userId,
+                    following: post.author.id
+                }).countDocuments().exec();
+
+                const conversation = await ChatConversation.findOne({
+                    $or: [
+                        {userId1: req.user.userId, userId2: post.author.id},
+                        {userId1: post.author.id, userId2: req.user.userId}
+                    ]
+                });
+
+                const conversationId = conversation ? conversation.id : undefined;
 
                 return {
                     authorId: post.author.id,
@@ -469,6 +496,7 @@ const getLatestPosts = async (req, res, next) => {
                     postId: post.id,
                     isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
                     isFollowed: isFollowed ? 1 : 0,
+                    conversationId,
                 };
             })
         );
@@ -480,7 +508,7 @@ const getLatestPosts = async (req, res, next) => {
 };
 
 const getRecommendedPosts = async (req, res, next) => {
-    let { page = "1", pageSize = "10", longitude, latitude } = req.query;
+    let {page = "1", pageSize = "10", longitude, latitude} = req.query;
     page = parseInt(page, 10);
     pageSize = parseInt(pageSize, 10);
     const query = {};
@@ -553,11 +581,11 @@ const getRecommendedPosts = async (req, res, next) => {
         const postIds = posts.map(post => post._id);
 
         const comments = await Comment.aggregate([
-            { $match: { post: { $in: postIds } } },
+            {$match: {post: {$in: postIds}}},
             {
                 $group: {
                     _id: '$post',
-                    count: { $sum: 1 },
+                    count: {$sum: 1},
                 },
             },
         ]);
@@ -570,21 +598,32 @@ const getRecommendedPosts = async (req, res, next) => {
         const followedAuthors = await User.findById(userId, 'following').lean();
         const followedAuthorIds = followedAuthors.following;
 
-        const recommendedPosts = posts.map(post => {
-            return {
-                authorId: post.author.id,
-                authorAvatar: post.author.avatar,
-                authorName: post.author.username,
-                images: post.images,
-                content: post.content,
-                city: post.city,
-                likeCount: post.likes.length,
-                commentCount: commentCounts[post._id.toString()] || 0,
-                postId: post.id,
-                isLiked: post.likes.includes(userId) ? 1 : 0,
-                isFollowed: followedAuthorIds.includes(post.author.id) ? 1 : 0,
-            };
-        });
+        const recommendedPosts = await Promise.all(
+            posts.map(async (post) => {
+                const conversation = await ChatConversation.findOne({
+                    $or: [
+                        {userId1: req.user.userId, userId2: post.author.id},
+                        {userId1: post.author.id, userId2: req.user.userId}
+                    ]
+                });
+
+                const conversationId = conversation ? conversation.id : undefined;
+
+                return {
+                    authorId: post.author.id,
+                    authorAvatar: post.author.avatar,
+                    authorName: post.author.username,
+                    images: post.images,
+                    content: post.content,
+                    city: post.city,
+                    likeCount: post.likes.length,
+                    commentCount: commentCounts[post._id.toString()] || 0,
+                    postId: post.id,
+                    isLiked: post.likes.includes(userId) ? 1 : 0,
+                    isFollowed: followedAuthorIds.includes(post.author.id) ? 1 : 0,
+                    conversationId,
+                };
+            }));
 
         res.status(200).json(recommendedPosts);
     } catch (err) {
@@ -593,7 +632,7 @@ const getRecommendedPosts = async (req, res, next) => {
 };
 
 const getFollowedUsersPosts = async (req, res, next) => {
-    let { page = "1", pageSize = "10" } = req.query;
+    let {page = "1", pageSize = "10"} = req.query;
     page = parseInt(page, 10);
     pageSize = parseInt(pageSize, 10);
 
@@ -601,8 +640,8 @@ const getFollowedUsersPosts = async (req, res, next) => {
         const currentUser = await User.findById(req.user.userId);
         const followedUserIds = currentUser.following;
 
-        const posts = await Post.find({ author: { $in: followedUserIds } })
-            .sort({ createdAt: -1 })
+        const posts = await Post.find({author: {$in: followedUserIds}})
+            .sort({createdAt: -1})
             .skip((page - 1) * pageSize)
             .limit(pageSize)
             .populate('author', 'id avatar username')
@@ -611,8 +650,8 @@ const getFollowedUsersPosts = async (req, res, next) => {
         const postIds = posts.map((post) => post._id);
 
         const commentCounts = await Comment.aggregate([
-            { $match: { post: { $in: postIds } } },
-            { $group: { _id: '$post', count: { $sum: 1 } } },
+            {$match: {post: {$in: postIds}}},
+            {$group: {_id: '$post', count: {$sum: 1}}},
         ]);
 
         const commentCountsMap = new Map();
@@ -620,24 +659,36 @@ const getFollowedUsersPosts = async (req, res, next) => {
             commentCountsMap.set(count._id.toString(), count.count);
         });
 
-        const formattedPosts = posts.map((post) => {
-            const postId = post._id.toString();
-            const commentCount = commentCountsMap.has(postId) ? commentCountsMap.get(postId) : 0;
+        const formattedPosts = await Promise.all(
+            posts.map(async (post) => {
+                const postId = post._id.toString();
+                const commentCount = commentCountsMap.has(postId) ? commentCountsMap.get(postId) : 0;
 
-            return {
-                authorId: post.author.id,
-                authorAvatar: post.author.avatar,
-                authorName: post.author.username,
-                createTime: Math.floor(post.createdAt.getTime() / 1000),
-                images: post.images,
-                content: post.content,
-                city: post.city,
-                likeCount: post.likes.length,
-                commentCount: commentCount,
-                postId: postId,
-                isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
-            };
-        });
+                const conversation = await ChatConversation.findOne({
+                    $or: [
+                        {userId1: req.user.userId, userId2: post.author.id},
+                        {userId1: post.author.id, userId2: req.user.userId}
+                    ]
+                });
+
+                const conversationId = conversation ? conversation.id : undefined;
+
+                return {
+                    authorId: post.author.id,
+                    authorAvatar: post.author.avatar,
+                    authorName: post.author.username,
+                    createTime: Math.floor(post.createdAt.getTime() / 1000),
+                    images: post.images,
+                    content: post.content,
+                    city: post.city,
+                    likeCount: post.likes.length,
+                    commentCount: commentCount,
+                    postId: postId,
+                    isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
+                    conversationId,
+                };
+            })
+        );
 
         res.status(200).json(formattedPosts);
     } catch (err) {
@@ -646,14 +697,14 @@ const getFollowedUsersPosts = async (req, res, next) => {
 };
 
 const getMyPosts = async (req, res, next) => {
-    let { page = '1', pageSize = '10' } = req.query;
+    let {page = '1', pageSize = '10'} = req.query;
     page = parseInt(page);
     pageSize = parseInt(pageSize);
     const userId = req.user.userId;
 
     try {
-        const posts = await Post.find({ author: userId })
-            .sort({ createdAt: -1 })
+        const posts = await Post.find({author: userId})
+            .sort({createdAt: -1})
             .skip((page - 1) * pageSize)
             .limit(pageSize)
             .exec();
@@ -675,27 +726,27 @@ const getMyPosts = async (req, res, next) => {
 };
 
 const getMyPostDetails = async (req, res, next) => {
-    const { postId } = req.params;
+    const {postId} = req.params;
     const userId = req.user.userId; // 当前登录用户的ID
 
     try {
         // 验证 postId 是否是有效的 ObjectId
         if (!mongoose.Types.ObjectId.isValid(postId)) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
-        const post = await Post.findOne({ _id: postId, author: userId })
+        const post = await Post.findOne({_id: postId, author: userId})
             .populate('author', 'id avatar username')
             .populate('likes', 'id')
             .exec();
 
         if (!post) {
-            return res.status(404).json({ message: '帖子不存在' });
+            return res.status(404).json({message: '帖子不存在'});
         }
 
         const isLiked = post.likes.some(like => like.userId.toString() === userId);
 
-        const commentCount = await Comment.countDocuments({ post: postId });
+        const commentCount = await Comment.countDocuments({post: postId});
 
         const postDetails = {
             createTime: Math.floor(post.createdAt.getTime() / 1000),

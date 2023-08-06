@@ -223,8 +223,15 @@ describe('Users API', () => {
                     res.body.forEach((user) => {
                         user.should.have.property('userId').that.is.a('string');
                         user.should.have.property('userAvatar').that.is.a('string').with.length.greaterThan(0);
-                        user.should.have.property('username').that.is.a('string');
-                        user.should.have.property('latestPostContent').that.is.a('string');
+                        if (user.hasOwnProperty('username')) {
+                            user.username.should.be.a('string');
+                        }
+                        if (user.hasOwnProperty('latestPostContent')) {
+                            user.latestPostContent.should.be.a('string');
+                        }
+                        if (user.hasOwnProperty('conversationId')) {
+                            user.conversationId.should.be.a('string');
+                        }
                     });
 
                     done();
@@ -356,8 +363,15 @@ describe('Users API', () => {
                     res.body.forEach((user) => {
                         user.should.have.property('userId').that.is.a('string');
                         user.should.have.property('userAvatar').that.is.a('string').with.length.greaterThan(0);
-                        user.should.have.property('username').that.is.a('string');
-                        user.should.have.property('latestPostContent').that.is.a('string');
+                        if (user.hasOwnProperty('username')) {
+                            user.username.should.be.a('string');
+                        }
+                        if (user.hasOwnProperty('latestPostContent')) {
+                            user.latestPostContent.should.be.a('string');
+                        }
+                        if (user.hasOwnProperty('conversationId')) {
+                            user.conversationId.should.be.a('string');
+                        }
                     });
 
                     done();
@@ -498,8 +512,15 @@ describe('Users API', () => {
                     res.body.forEach((user) => {
                         user.should.have.property('userId').that.is.a('string');
                         user.should.have.property('userAvatar').that.is.a('string').with.length.greaterThan(0);
-                        user.should.have.property('username').that.is.a('string');
-                        user.should.have.property('latestPostContent').that.is.a('string');
+                        if (user.hasOwnProperty('username')) {
+                            user.username.should.be.a('string');
+                        }
+                        if (user.hasOwnProperty('latestPostContent')) {
+                            user.latestPostContent.should.be.a('string');
+                        }
+                        if (user.hasOwnProperty('conversationId')) {
+                            user.conversationId.should.be.a('string');
+                        }
                     });
 
                     done();

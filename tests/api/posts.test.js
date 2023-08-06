@@ -351,6 +351,9 @@ describe('Posts API', () => {
                     if (res.body.hasOwnProperty('city')) {
                         res.body.city.should.be.a('string');
                     }
+                    if (res.body.hasOwnProperty('conversationId')) {
+                        res.body.conversationId.should.be.a('string');
+                    }
 
                     done();
                 });
@@ -448,6 +451,10 @@ describe('Posts API', () => {
                         post.commentCount.should.be.a('number');
                         post.isLiked.should.be.within(0, 1);
                         post.isFollowed.should.be.within(0, 1);
+
+                        if (post.hasOwnProperty('conversationId')) {
+                            post.conversationId.should.be.a('string');
+                        }
                     });
 
                     done();
@@ -503,6 +510,10 @@ describe('Posts API', () => {
                         if (post.hasOwnProperty('city')) {
                             post.city.should.be.a('string');
                         }
+
+                        if (post.hasOwnProperty('conversationId')) {
+                            post.conversationId.should.be.a('string');
+                        }
                     });
 
                     done();
@@ -557,6 +568,10 @@ describe('Posts API', () => {
 
                         if (post.hasOwnProperty('city')) {
                             post.city.should.be.a('string');
+                        }
+
+                        if (post.hasOwnProperty('conversationId')) {
+                            post.conversationId.should.be.a('string');
                         }
                     });
 
