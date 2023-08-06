@@ -12,6 +12,7 @@ exports.processUsersWithEmptyLocation = async function (io, userIdSocketMap, cur
 
         if (
             socketIds.length > 0 && // 用户在线
+            user && // 用户存在
             (!user.location || !user.location.coordinates) && // 用户位置为空
             user.id !== currentUserId // 排除目标用户本身
         ) {
@@ -34,6 +35,7 @@ exports.processAllOnlineUsers = async function (io, userIdSocketMap, currentUser
 
         if (
             socketIds.length > 0 && // 用户在线
+            user && // 用户存在
             user.id !== currentUserId // 排除目标用户本身
         ) {
             // 执行特定的操作，例如向用户发送特定的消息
@@ -74,6 +76,7 @@ exports.processOnlineUsers = async function (io, userIdSocketMap, currentUserId)
 
         if (
             socketIds.length > 0 && // 用户在线
+            user && // 用户在线
             user.id !== currentUserId // 排除目标用户本身
         ) {
             // 执行特定的操作，例如向用户发送特定的消息

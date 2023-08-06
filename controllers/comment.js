@@ -31,16 +31,37 @@ const createComment = async (req, res, next) => {
         await comment.save();
 
         // 创建交互类通知
-        const notification = new InteractionNotification({
-            toUser: post.author._id,
-            user: req.user.userId,
-            interactionType: parentId ? 5 : 1, // 根据是否是回复评论来设置交互类型
-            post: postId,
-            comment: comment._id,
-        });
-        await notification.save();
+        let notification = null;
+        if (parentId) {
+            const parentComment = await Comment.findById(parentId).populate('author');
+            if (parentComment) {
+                if (parentComment.author._id.toString() !== req.user.userId) {
+                    notification = new InteractionNotification({
+                        toUser: parentComment.author._id,
+                        user: req.user.userId,
+                        interactionType: 5, // 回复评论的交互类型为5
+                        post: postId,
+                        comment: comment._id,
+                    });
+                    await notification.save();
 
-        await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
+                    await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), parentComment.author._id.toString());
+                }
+            }
+        } else {
+            if (post.author._id.toString() !== req.user.userId) {
+                notification = new InteractionNotification({
+                    toUser: post.author._id,
+                    user: req.user.userId,
+                    interactionType: 1, // 评论帖子的交互类型为1
+                    post: postId,
+                    comment: comment._id,
+                });
+                await notification.save();
+
+                await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
+            }
+        }
 
         res.status(200).json({ commentId: comment.id }); // 返回新增评论的ID
     } catch (err) {
@@ -100,17 +121,19 @@ const likeComment = async (req, res, next) => {
 
             comment.likes.push(userId);
 
-            // 创建交互类通知 (评论点赞)
-            const notification = new InteractionNotification({
-                toUser: comment.author._id,
-                user: userId,
-                interactionType: 4, // 交互类型: 评论点赞
-                post: comment.post,
-                comment: commentId,
-            });
-            await notification.save();
+            // 创建交互类通知 (评论点赞)，但避免给自己创建通知
+            if (comment.author.toString() !== userId) {
+                const notification = new InteractionNotification({
+                    toUser: comment.author._id,
+                    user: userId,
+                    interactionType: 4, // 交互类型: 评论点赞
+                    post: comment.post,
+                    comment: commentId,
+                });
+                await notification.save();
 
-            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), comment.author._id.toString());
+                await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), comment.author._id.toString());
+            }
         }
         // 取消点赞操作
         else if (operation === 0) {
