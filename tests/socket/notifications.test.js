@@ -754,6 +754,64 @@ describe('Notifications Socket', () => {
         });
     });
 
+    it('should receive unread notifications count via WebSocket after following and unfollowing a user', (done) => {
+        // 创建带有认证信息的 WebSocket 连接
+        const socket = ioClient(`http://localhost:${config.port}`, {
+            auth: {
+                token: token,
+            },
+        });
+
+        // 记录未读通知数推送次数
+        let unreadCount = 0;
+
+        // 监听连接成功事件
+        socket.on('connect', () => {
+            // 监听 WebSocket 推送消息
+            socket.on('notifications', (message) => {
+                // 只处理未读通知数消息
+                if (message.type !== 2) {
+                    return;
+                }
+
+                // 忽略第一个消息
+                if (unreadCount === 0) {
+                    unreadCount++;
+                    return;
+                }
+
+                // 根据推送的消息次数进行断言
+                if (unreadCount === 1 && message.type === 2 && message.data.count === 1) {
+                    unreadCount++;
+                } else if (unreadCount === 2 && message.type === 2 && message.data.count === 0) {
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
+            });
+
+            // 在连接成功后，调用关注用户的接口
+            chai.request(app)
+                .post(`/users/${user.id}/follow?action=1`)
+                .set('Authorization', `Bearer ${otherToken}`)
+                .end((followErr) => {
+                    if (followErr) {
+                        done(followErr);
+                    }
+
+                    // 调用取消关注用户的接口
+                    chai.request(app)
+                        .post(`/users/${user.id}/follow?action=0`)
+                        .set('Authorization', `Bearer ${otherToken}`)
+                        .end((unfollowErr) => {
+                            if (unfollowErr) {
+                                done(unfollowErr);
+                            }
+                        });
+                });
+        });
+    });
+
     afterEach(async () => {
         // 关闭 WebSocket 连接
         if (socket.connected) {

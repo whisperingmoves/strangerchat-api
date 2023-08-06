@@ -138,6 +138,8 @@ const followUser = async (req, res, next) => {
                 user: followerId,
                 statusType: 0,
             });
+
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), followedUser.id);
         } else {
             return res.status(400).json({ message: '无效的关注操作' });
         }
