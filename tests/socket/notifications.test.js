@@ -9,6 +9,7 @@ const InteractionNotification = require('../../models/InteractionNotification');
 const StatusNotification = require('../../models/StatusNotification');
 const GiftNotification = require('../../models/GiftNotification');
 const Gift = require('../../models/Gift');
+const CoinProduct = require('../../models/CoinProduct');
 const SystemNotification = require('../../models/SystemNotification');
 const {calculateDistance} = require("../../utils/distanceUtils");
 
@@ -920,6 +921,65 @@ describe('Notifications Socket', () => {
                     }
                 }
             );
+        });
+    });
+
+    it('should receive unread notifications count via WebSocket after purchasing a coin product', (done) => {
+        const socket = ioClient(`http://localhost:${config.port}`, {
+            auth: {
+                token: token,
+            },
+        });
+
+        let unreadCount = 0;
+
+        socket.on('connect', () => {
+            socket.on('notifications', (message) => {
+                if (message.type !== 2) {
+                    return;
+                }
+
+                if (unreadCount === 0) {
+                    unreadCount++;
+                    return;
+                }
+
+                if (unreadCount === 1 && message.type === 2 && message.data.count === 1) {
+                    unreadCount++;
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
+            });
+
+            const coinProduct = new CoinProduct({
+                coins: 100, // 金币数量
+                originalPrice: 10, // 原始价格
+                price: 5, // 购买价格
+                currency: 'USD', // 货币单位
+            });
+
+            coinProduct.save((error, savedProduct) => {
+                if (error) {
+                    done(error);
+                } else {
+                    const coinProductId = savedProduct.id;
+
+                    const purchaseData = {
+                        receipt: 'eyJhbGciOiAiUlMyNTYiLCAidHlwIjogIkpXVCJ9...', // 第三方支付回调凭据
+                    };
+
+                    chai.request(app)
+                        .post(`/products/coins/${coinProductId}/buy`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .send(purchaseData)
+                        .end((error) => {
+                            if (error) {
+                                done(error);
+                            }
+                        });
+                }
+            });
         });
     });
 
