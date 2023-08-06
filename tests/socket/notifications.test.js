@@ -812,6 +812,53 @@ describe('Notifications Socket', () => {
         });
     });
 
+    it('should receive unread notifications count via WebSocket after another user visits the user profile', (done) => {
+        // 创建带有认证信息的 WebSocket 连接
+        const socket = ioClient(`http://localhost:${config.port}`, {
+            auth: {
+                token: token,
+            },
+        });
+
+        // 记录未读通知数推送次数
+        let unreadCount = 0;
+
+        // 监听连接成功事件
+        socket.on('connect', () => {
+            // 监听 WebSocket 推送消息
+            socket.on('notifications', (message) => {
+                // 只处理未读通知数消息
+                if (message.type !== 2) {
+                    return;
+                }
+
+                // 忽略第一个消息
+                if (unreadCount === 0) {
+                    unreadCount++;
+                    return;
+                }
+
+                // 根据推送的消息次数进行断言
+                if (unreadCount === 1 && message.type === 2 && message.data.count === 1) {
+                    unreadCount++;
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
+            });
+
+            // 在连接成功后，访问用户主页
+            chai.request(app)
+                .get(`/users/${user.id}`)
+                .set('Authorization', `Bearer ${otherToken}`)
+                .end((visitErr) => {
+                    if (visitErr) {
+                        done(visitErr);
+                    }
+                });
+        });
+    });
+
     afterEach(async () => {
         // 关闭 WebSocket 连接
         if (socket.connected) {
