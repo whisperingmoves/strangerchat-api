@@ -8,6 +8,7 @@ const User = require('../../models/User');
 const InteractionNotification = require('../../models/InteractionNotification');
 const StatusNotification = require('../../models/StatusNotification');
 const GiftNotification = require('../../models/GiftNotification');
+const Gift = require('../../models/Gift');
 const SystemNotification = require('../../models/SystemNotification');
 const {calculateDistance} = require("../../utils/distanceUtils");
 
@@ -66,6 +67,8 @@ describe('Notifications Socket', () => {
             otherToken = registerOtherRes.body.token;
 
             otherUser = await User.findOne({ mobile: otherUserMobile });
+            otherUser.coinBalance = 100; // 设置金币余额为100
+            await otherUser.save(); // 保存更改
 
             // 发布帖子并保存帖子ID
             const postRes = await chai
@@ -856,6 +859,67 @@ describe('Notifications Socket', () => {
                         done(visitErr);
                     }
                 });
+        });
+    });
+
+    it('should receive unread notifications count via WebSocket after receiving a gift from another user', (done) => {
+        const socket = ioClient(`http://localhost:${config.port}`, {
+            auth: {
+                token: token,
+            },
+        });
+
+        let unreadCount = 0;
+
+        socket.on('connect', () => {
+            socket.on('notifications', (message) => {
+                if (message.type !== 2) {
+                    return;
+                }
+
+                if (unreadCount === 0) {
+                    unreadCount++;
+                    return;
+                }
+
+                if (unreadCount === 1 && message.type === 2 && message.data.count === 1) {
+                    unreadCount++;
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
+            });
+
+            Gift.create(
+                {
+                    image: 'example.jpg',
+                    name: 'Example Gift',
+                    value: 10,
+                },
+                (error, createdGift) => {
+                    if (error) {
+                        done(error);
+                    } else {
+                        const giftId = createdGift.id;
+
+                        const sendGiftData = {
+                            receiverId: user.id,
+                            giftId: giftId,
+                            quantity: 1,
+                        };
+
+                        chai.request(app)
+                            .post('/gifts/send')
+                            .set('Authorization', `Bearer ${otherToken}`)
+                            .send(sendGiftData)
+                            .end((giftErr) => {
+                                if (giftErr) {
+                                    done(giftErr);
+                                }
+                            });
+                    }
+                }
+            );
         });
     });
 
