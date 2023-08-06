@@ -290,7 +290,7 @@ describe('Notifications Socket', () => {
             });
     });
 
-    it('should receive unread notifications count via WebSocket after liking/unliking a post', (done) => {
+    it('should receive unread notifications count via WebSocket after liking and unliking a post', (done) => {
         // 创建带有认证信息的 WebSocket 连接
         const socket = ioClient(`http://localhost:${config.port}`, {
             auth: {
@@ -528,7 +528,7 @@ describe('Notifications Socket', () => {
         });
     });
 
-    it('should receive unread notifications count via WebSocket after liking a comment', (done) => {
+    it('should receive unread notifications count via WebSocket after liking and unliking a comment', (done) => {
         // 创建带有认证信息的 WebSocket 连接
         const socket = ioClient(`http://localhost:${config.port}`, {
             auth: {
@@ -536,8 +536,8 @@ describe('Notifications Socket', () => {
             },
         });
 
-        // 标记是否已经接收到第一个未读通知数消息
-        let firstUnreadMessageReceived = false;
+        // 记录未读通知数推送次数
+        let unreadCount = 0;
 
         // 监听连接成功事件
         socket.on('connect', () => {
@@ -549,20 +549,19 @@ describe('Notifications Socket', () => {
                 }
 
                 // 忽略第一个消息
-                if (!firstUnreadMessageReceived) {
-                    firstUnreadMessageReceived = true;
+                if (unreadCount === 0) {
+                    unreadCount++;
                     return;
                 }
 
-                // 对推送的消息进行断言
-                chai.expect(message).to.deep.equal({
-                    type: 2,
-                    data: {
-                        count: 1,
-                    },
-                });
-
-                done();
+                // 根据推送的消息次数进行断言
+                if (unreadCount === 1 && message.type === 2 && message.data.count === 1) {
+                    unreadCount++;
+                } else if (unreadCount === 2 && message.type === 2 && message.data.count === 0) {
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
             });
 
             // 在连接成功后，调用评论帖子/回复评论的接口
@@ -590,6 +589,19 @@ describe('Notifications Socket', () => {
                             if (likeErr) {
                                 done(likeErr);
                             }
+
+                            // 在点赞成功后，调用取消点赞评论的接口
+                            chai.request(app)
+                                .post(`/comments/${commentId}/like`)
+                                .set('Authorization', `Bearer ${otherToken}`)
+                                .send({
+                                    operation: 0,
+                                })
+                                .end((unlikeErr) => {
+                                    if (unlikeErr) {
+                                        done(unlikeErr);
+                                    }
+                                });
                         });
                 });
         });
@@ -658,6 +670,85 @@ describe('Notifications Socket', () => {
                             if (replyErr) {
                                 done(replyErr);
                             }
+                        });
+                });
+        });
+    });
+
+    it('should receive unread notifications count via WebSocket after receiving a reply to a comment and deleting the reply', (done) => {
+        // 创建带有认证信息的 WebSocket 连接
+        const socket = ioClient(`http://localhost:${config.port}`, {
+            auth: {
+                token: token,
+            },
+        });
+
+        // 记录未读通知数推送次数
+        let unreadCount = 0;
+
+        // 监听连接成功事件
+        socket.on('connect', () => {
+            // 监听 WebSocket 推送消息
+            socket.on('notifications', (message) => {
+                // 只处理未读通知数消息
+                if (message.type !== 2) {
+                    return;
+                }
+
+                // 忽略第一个消息
+                if (unreadCount === 0) {
+                    unreadCount++;
+                    return;
+                }
+
+                // 根据推送的消息次数进行断言
+                if (unreadCount === 1 && message.type === 2 && message.data.count === 1) {
+                    unreadCount++;
+                } else if (unreadCount === 2 && message.type === 2  && message.data.count === 0) {
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
+            });
+
+            // 在连接成功后，调用评论帖子的接口
+            chai.request(app)
+                .post(`/posts/${postId}/comment`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({
+                    content: '这是一条评论',
+                })
+                .end((commentErr, commentRes) => {
+                    if (commentErr) {
+                        done(commentErr);
+                    }
+
+                    const commentId = commentRes.body.commentId;
+
+                    // 使用获取到的评论ID调用回复评论的接口
+                    chai.request(app)
+                        .post(`/posts/${postId}/comment`)
+                        .set('Authorization', `Bearer ${otherToken}`)
+                        .send({
+                            content: '这是一条回复评论',
+                            parentId: commentId, // 将评论的 ID 作为父级评论 ID
+                        })
+                        .end((replyErr, replyRes) => {
+                            if (replyErr) {
+                                done(replyErr);
+                            }
+
+                            const replyId = replyRes.body.commentId;
+
+                            // 使用获取到的回复评论的 ID 调用删除回复评论的接口
+                            chai.request(app)
+                                .delete(`/comments/${replyId}`)
+                                .set('Authorization', `Bearer ${otherToken}`)
+                                .end((deleteErr) => {
+                                    if (deleteErr) {
+                                        done(deleteErr);
+                                    }
+                                });
                         });
                 });
         });
