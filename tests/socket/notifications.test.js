@@ -290,7 +290,7 @@ describe('Notifications Socket', () => {
             });
     });
 
-    it('should receive unread notifications count via WebSocket after liking a post', (done) => {
+    it('should receive unread notifications count via WebSocket after liking/unliking a post', (done) => {
         // 创建带有认证信息的 WebSocket 连接
         const socket = ioClient(`http://localhost:${config.port}`, {
             auth: {
@@ -298,8 +298,8 @@ describe('Notifications Socket', () => {
             },
         });
 
-        // 标记是否已经接收到第一个未读通知数消息
-        let firstUnreadMessageReceived = false;
+        // 记录未读通知数推送次数
+        let unreadCount = 0;
 
         // 监听连接成功事件
         socket.on('connect', () => {
@@ -311,20 +311,19 @@ describe('Notifications Socket', () => {
                 }
 
                 // 忽略第一个消息
-                if (!firstUnreadMessageReceived) {
-                    firstUnreadMessageReceived = true;
+                if (unreadCount === 0) {
+                    unreadCount++;
                     return;
                 }
 
-                // 对推送的消息进行断言
-                chai.expect(message).to.deep.equal({
-                    type: 2,
-                    data: {
-                        count: 1,
-                    },
-                });
-
-                done();
+                // 根据推送的消息次数进行断言
+                if (unreadCount === 1 && message.data.count === 1) {
+                    unreadCount++;
+                } else if (unreadCount === 2 && message.data.count === 0) {
+                    done();
+                } else {
+                    done(new Error('Unexpected unread notifications count or message count'));
+                }
             });
 
             // 在连接成功后，调用给帖子点赞的接口
@@ -335,6 +334,16 @@ describe('Notifications Socket', () => {
                     if (likeErr) {
                         done(likeErr);
                     }
+
+                    // 调用取消帖子点赞的接口
+                    chai.request(app)
+                        .post(`/posts/${postId}/like?action=0`)
+                        .set('Authorization', `Bearer ${otherToken}`)
+                        .end((unlikeErr) => {
+                            if (unlikeErr) {
+                                done(unlikeErr);
+                            }
+                        });
                 });
         });
     });
