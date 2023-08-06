@@ -86,7 +86,25 @@ const deleteComment = async (req, res, next) => {
             return res.status(404).json({ message: '评论不存在或您无权限删除该评论' });
         }
 
+        // 删除评论
         await comment.delete();
+
+        // 删除相关的交互类通知
+        await InteractionNotification.deleteMany({ comment: commentId });
+
+        // 重新推送未读通知数
+        const parentComment = comment.parentId
+            ? await Comment.findById(comment.parentId).populate('author')
+            : null;
+
+        if (parentComment) {
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), parentComment.author._id.toString());
+        } else {
+            const post = await Post.findById(comment.post).populate('author');
+            if (post) {
+                await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
+            }
+        }
 
         res.sendStatus(200);
     } catch (err) {
@@ -152,6 +170,8 @@ const likeComment = async (req, res, next) => {
                 post: comment.post,
                 comment: commentId,
             });
+
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), comment.author._id.toString());
         }
         // 无效的操作类型
         else {

@@ -184,6 +184,8 @@ const likePost = async (req, res, next) => {
                 interactionType: 0,
                 post: postId,
             });
+
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author.toString());
         } else {
             return res.status(400).json({ message: '无效的点赞操作' });
         }
@@ -245,6 +247,7 @@ const collectPost = async (req, res, next) => {
                 post: postId,
             });
 
+            await pushUnreadNotificationsCount(req.app.get('io'), req.app.get('userIdSocketMap'), post.author._id.toString());
         } else {
             return res.status(400).json({ message: '无效的收藏操作' });
         }
