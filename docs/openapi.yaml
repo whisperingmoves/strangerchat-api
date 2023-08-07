@@ -2712,7 +2712,10 @@ paths:
                     - 7
                     - 8
                     - 9
-                  description: | 
+                    - 10
+                    - 11
+                    - 12
+                  description: |
                     消息类型:
                       0表示距离最近用户列表
                       1表示在线用户总数
@@ -2724,9 +2727,13 @@ paths:
                       7表示发送的消息对象
                       8表示已标记为已读的消息对象
                       9表示创建的语音通话记录对象
+                      10表示WebRTC的Offer信令
+                      11表示WebRTC的Answer信令
+                      12表示WebRTC的ICE Candidate信令
                   example: 0
                 data:
                   type: object
+                  description: 当type为10或11时，包含会话描述（SDP）信息，当type为12时，包含候选者信息
                   anyOf:
                     - $ref: '#/components/schemas/nearestUsers'
                     - $ref: '#/components/schemas/onlineUsers'
@@ -2738,6 +2745,8 @@ paths:
                     - $ref: '#/components/schemas/sentMessage'
                     - $ref: '#/components/schemas/markedAsReadMessage'
                     - $ref: '#/components/schemas/voiceCall'
+                    - $ref: '#/components/schemas/webrtcSdp'
+                    - $ref: '#/components/schemas/webrtcCandidate'
       responses:
         200:
           description: 消息推送成功
@@ -2767,7 +2776,10 @@ paths:
                     - 4
                     - 5
                     - 6
-                  description: | 
+                    - 7
+                    - 8
+                    - 9
+                  description: |
                     消息类型:
                       0表示创建聊天会话
                       1表示获取最近的聊天会话列表
@@ -2776,6 +2788,9 @@ paths:
                       4表示发送消息
                       5表示标记消息已读
                       6表示发起语音通话
+                      7表示WebRTC的Offer信令
+                      8表示WebRTC的Answer信令
+                      9表示WebRTC的ICE Candidate信令
                   example: 3
                 data:
                   type: object
@@ -2787,6 +2802,8 @@ paths:
                     - $ref: '#/components/schemas/sendMessage'
                     - $ref: '#/components/schemas/markMessageAsRead'
                     - $ref: '#/components/schemas/initiateVoiceCall'
+                    - $ref: '#/components/schemas/webrtcSdp'
+                    - $ref: '#/components/schemas/webrtcCandidate'
       responses:
         200:
           description: 消息推送成功
@@ -3332,5 +3349,45 @@ components:
           description: 消息的已读状态 (0表示未读, 1表示已读，默认值是0)
           example: 1
           default: 0
+    webrtcSdp:
+      type: object
+      description: WebRTC 会话描述（SDP）
+      required:
+        - opponentUserId
+        - sdp
+      properties:
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "user1"
+        sdp:
+          type: string
+          description: WebRTC会话描述（SDP）
+          example: "v=0..."
+    webrtcCandidate:
+      type: object
+      description: WebRTC ICE候选者信息
+      required:
+        - opponentUserId
+        - candidate
+        - sdpMLineIndex
+        - sdpMid
+      properties:
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "user1"
+        candidate:
+          type: string
+          description: 候选者信息字符串
+          example: "candidate:1234567890..."
+        sdpMLineIndex:
+          type: integer
+          description: ICE候选者的SDP媒体行索引
+          example: 0
+        sdpMid:
+          type: string
+          description: ICE候选者的SDP媒体行标识符
+          example: "audio"
 security:
   - JWTAuth: [ ]

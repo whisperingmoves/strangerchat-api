@@ -10,6 +10,7 @@ const getRecentChatMessages = require('./getRecentChatMessages');
 const sendMessage = require('./sendMessage');
 const markMessageAsRead = require('./markMessageAsRead');
 const initiateVoiceCall = require('./initiateVoiceCall');
+const webrtcSignaling = require('./webrtcSignaling');
 
 module.exports = (io, socket, userIdSocketMap) => {
     console.log(`Socket connected: ${socket.id}`);
@@ -107,6 +108,13 @@ module.exports = (io, socket, userIdSocketMap) => {
                 initiateVoiceCall(io, userIdSocketMap, userId, messageData)
                     .then()
                     .catch(err => console.error("initiateVoiceCall error:", err));
+                break;
+            case 7:
+            case 8:
+            case 9:
+                webrtcSignaling(io, userIdSocketMap, userId, type, messageData)
+                    .then()
+                    .catch(err => console.error("webrtcSignaling error:", err));
                 break;
             default:
                 console.log('Invalid message type');

@@ -1010,6 +1010,118 @@ describe('Messages Socket', () => {
         });
     });
 
+    describe('WebRTC Signaling', () => {
+        it('should receive WebRTC signaling notification on opponent users', (done) => {
+            // WebRTC会话描述（SDP）
+            const sdp = 'v=0...';
+
+            // 候选者信息字符串
+            const candidate = 'candidate:1234567890...';
+
+            // ICE候选者的SDP媒体行索引
+            const sdpMLineIndex = 0;
+
+            // ICE候选者的SDP媒体行标识符
+            const sdpMid = 'audio';
+
+            // 创建带有认证信息的 WebSocket 连接
+            socket = ioClient(`http://localhost:${config.port}`, {
+                auth: {
+                    token: token
+                }
+            });
+
+            // 创建带有其他用户认证信息的 WebSocket 连接
+            otherSocket = ioClient(`http://localhost:${config.port}`, {
+                auth: {
+                    token: otherToken
+                }
+            });
+
+            // 监听连接成功事件
+            socket.on('connect', () => {
+                // 监听 WebSocket 推送消息
+                socket.on('notifications', (message) => {
+                    if (message.type !== 10 && message.type !== 11 && message.type !== 12) {
+                        return;
+                    }
+
+                    if (message.type === 10 || message.type === 11) {
+                        const signal = message.data;
+
+                        // 验证信令对象的结构和属性
+                        chai.expect(signal).to.have.property('opponentUserId');
+                        chai.expect(signal).to.have.property('sdp');
+
+                        // 验证信令对象的属性值
+                        chai.expect(signal.opponentUserId).to.be.a('string');
+                        chai.expect(signal.sdp).to.be.a('string');
+
+                        // 验证信令对象的属性值与预期值是否匹配
+                        chai.expect(signal.opponentUserId).to.equal(otherUser.id);
+                        chai.expect(signal.sdp).to.equal(sdp);
+                    }
+
+                    if (message.type === 12) {
+                        const signal = message.data;
+
+                        // 验证信令对象的结构和属性
+                        chai.expect(signal).to.have.property('opponentUserId');
+                        chai.expect(signal).to.have.property('candidate');
+                        chai.expect(signal).to.have.property('sdpMLineIndex');
+                        chai.expect(signal).to.have.property('sdpMid');
+
+                        // 验证信令对象的属性值
+                        chai.expect(signal.opponentUserId).to.be.a('string');
+                        chai.expect(signal.candidate).to.be.a('string');
+                        chai.expect(signal.sdpMLineIndex).to.be.a('number');
+                        chai.expect(signal.sdpMid).to.be.a('string');
+
+                        // 验证信令对象的属性值与预期值是否匹配
+                        chai.expect(signal.opponentUserId).to.equal(otherUser.id);
+                        chai.expect(signal.candidate).to.equal(candidate);
+                        chai.expect(signal.sdpMLineIndex).to.equal(sdpMLineIndex);
+                        chai.expect(signal.sdpMid).to.equal(sdpMid);
+                    }
+
+                    done();
+                });
+            });
+
+            // 其他用户监听连接成功事件
+            otherSocket.on('connect', () => {
+                // WebRTC的Offer信令
+                otherSocket.emit('messages', {
+                    type: 7,
+                    data: {
+                        opponentUserId: user.id,
+                        sdp,
+                    },
+                });
+
+                // WebRTC的Answer信令
+                otherSocket.emit('messages', {
+                    type: 8,
+                    data: {
+                        opponentUserId: user.id,
+                        sdp,
+                    },
+                });
+
+                // WebRTC的ICE Candidate信令
+                otherSocket.emit('messages', {
+                    type: 9,
+                    data: {
+                        opponentUserId: user.id,
+                        candidate,
+                        sdpMLineIndex,
+                        sdpMid,
+                    },
+                });
+            });
+        });
+    });
+
     afterEach(async () => {
         // 关闭 WebSocket 连接
         if (socket.connected) {
