@@ -72,7 +72,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         };
 
         if (userIdSocketMap[opponentUserId]) {
-            for (const socketId of userIdSocketMap[opponentUserId].socketIds) {
+            for (const socketId of userIdSocketMap[opponentUserId]) {
                 io.to(socketId).emit('notifications', recipientNotification);
             }
         }
