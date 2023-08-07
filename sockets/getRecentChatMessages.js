@@ -22,16 +22,17 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
             return;
         }
 
-        // 创建 MongoDB 游标
-        let messagesCursor = ChatMessage.find({ conversationId })
-            .sort({ sentTime: -1 })
-            .lean()
-            .cursor();
+        // 创建 MongoDB 查询构建器
+        let query = ChatMessage.find({ conversationId })
+            .sort({ sentTime: -1 });
 
         // 如果指定了时间戳，则查询大于等于时间戳的消息
         if (timestamp) {
-            messagesCursor = messagesCursor.where('sentTime').gte(new Date(timestamp * 1000));
+            query = query.where('sentTime').gte(new Date(timestamp * 1000));
         }
+
+        // 创建 MongoDB 游标
+        const messagesCursor = query.lean().cursor();
 
         let batch = [];
         let messageCount = 0;
@@ -42,8 +43,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
             const recentMessage = {
                 messageId,
-                senderUserId: senderId,
-                recipientUserId: recipientId,
+                senderId: senderId,
+                recipientId: recipientId,
                 sentTime: Math.floor(sentTime.getTime() / 1000),
                 content,
                 readStatus

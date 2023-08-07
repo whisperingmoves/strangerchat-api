@@ -450,6 +450,147 @@ describe('Messages Socket', () => {
         });
     });
 
+    describe('Get Recent Chat Messages', () => {
+        it('should receive Messages notification on opponent user', (done) => {
+            // 会话id
+            let conversationId;
+
+            // 消息id
+            let messageId;
+
+            // 最后一条消息的发送时间
+            let lastMessageTime;
+
+            // 最后一条消息的内容
+            let lastMessageContent = 'Hello';
+
+            // 创建带有认证信息的 WebSocket 连接
+            socket = ioClient(`http://localhost:${config.port}`, {
+                auth: {
+                    token: token
+                }
+            });
+
+            // 创建带有其他用户认证信息的 WebSocket 连接
+            otherSocket = ioClient(`http://localhost:${config.port}`, {
+                auth: {
+                    token: otherToken
+                }
+            });
+
+            // 监听连接成功事件
+            socket.on('connect', () => {
+                // 监听 WebSocket 推送消息
+                socket.on('notifications', (message) => {
+                    // 如果是聊天会话对象消息
+                    if (message.type === 3) {
+                        // 验证会话对象的结构和属性
+                        const conversation = message.data;
+                        chai.expect(conversation).to.have.property('conversationId');
+
+                        // 验证会话对象的属性值
+                        chai.expect(conversation.conversationId).to.be.a('string');
+
+                        // 获取会话id
+                        conversationId = conversation.conversationId;
+
+                        // 客户端推送发送消息到服务端
+                        socket.emit('messages', {
+                            type: 4,
+                            data: {
+                                conversationId,
+                                opponentUserId: otherUser.id,
+                                content: lastMessageContent
+                            },
+                        });
+                    }
+                });
+            });
+
+            // 其他用户监听连接成功事件
+            otherSocket.on('connect', () => {
+                // 监听 WebSocket 推送消息
+                otherSocket.on('notifications', (message) => {
+                    if (message.type === 7) {
+                        // 验证消息对象的结构和属性
+                        const messageData = message.data;
+                        chai.expect(messageData).to.have.property('messageId');
+                        chai.expect(messageData).to.have.property('content');
+                        chai.expect(messageData).to.have.property('sentTime');
+
+                        // 验证消息对象的属性值
+                        chai.expect(messageData.messageId).to.be.a('string');
+                        chai.expect(messageData.content).to.be.a('string');
+                        chai.expect(messageData.sentTime).to.be.a('number');
+
+                        // 验证消息对象的属性值与预期值是否匹配
+                        chai.expect(messageData.content).to.equal(lastMessageContent);
+
+                        // 设置最后一条消息的发送时间
+                        lastMessageTime = messageData.sentTime;
+
+                        // 设置消息id
+                        messageId = messageData.messageId;
+
+                        // 客户端推送获取最近的聊天消息列表消息到服务端
+                        otherSocket.emit('messages', {
+                            type: 3,
+                            data: {
+                                conversationId,
+                                timestamp: lastMessageTime
+                            },
+                        });
+
+                        return;
+                    }
+
+                    // 如果是最近的聊天消息列表消息
+                    if (message.type === 6) {
+                        // 验证消息的结构和属性
+                        const messages = message.data;
+                        chai.expect(messages).to.be.an('array').that.is.not.empty;
+
+                        for (const messagesData of messages) {
+                            // 验证消息对象的结构和属性
+                            chai.expect(messagesData).to.have.property('messageId');
+                            chai.expect(messagesData).to.have.property('senderId');
+                            chai.expect(messagesData).to.have.property('recipientId');
+                            chai.expect(messagesData).to.have.property('sentTime');
+                            chai.expect(messagesData).to.have.property('content');
+                            chai.expect(messagesData).to.have.property('readStatus');
+
+                            // 验证消息对象的属性值
+                            chai.expect(messagesData.messageId).to.be.a('string');
+                            chai.expect(messagesData.senderId).to.be.a('string');
+                            chai.expect(messagesData.recipientId).to.be.a('string');
+                            chai.expect(messagesData.sentTime).to.be.a('number');
+                            chai.expect(messagesData.content).to.be.a('string');
+                            chai.expect(messagesData.readStatus).to.be.a('number');
+
+                            // 验证消息对象的属性值与预期值是否匹配
+                            chai.expect(messagesData.messageId).to.equal(messageId);
+                            chai.expect(messagesData.senderId).to.equal(user.id);
+                            chai.expect(messagesData.recipientId).to.equal(otherUser.id);
+                            chai.expect(messagesData.sentTime).to.equal(lastMessageTime);
+                            chai.expect(messagesData.content).to.equal(lastMessageContent);
+                            chai.expect(messagesData.readStatus).to.equal(0);
+                        }
+
+                        done();
+                    }
+                });
+            });
+
+            // 推送创建聊天会话消息到服务端
+            socket.emit('messages', {
+                type: 0,
+                data: {
+                    opponentUserId: otherUser.id,
+                },
+            });
+        });
+    });
+
     afterEach(async () => {
         // 关闭 WebSocket 连接
         if (socket.connected) {
