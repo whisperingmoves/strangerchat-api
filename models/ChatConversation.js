@@ -13,11 +13,9 @@ const chatConversationSchema = new mongoose.Schema({
     },
     lastMessageTime: {
         type: Date,
-        default: Date.now,
     },
     lastMessageContent: {
         type: String,
-        required: true,
     },
 });
 

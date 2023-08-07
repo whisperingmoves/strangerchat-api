@@ -2705,7 +2705,25 @@ paths:
                     - 0
                     - 1
                     - 2
-                  description: 消息类型，0表示nearby_users，1表示online_users，2表示unread_notifications_count
+                    - 3
+                    - 4
+                    - 5
+                    - 6
+                    - 7
+                    - 8
+                    - 9
+                  description: | 
+                    消息类型:
+                      0表示距离最近用户列表
+                      1表示在线用户总数
+                      2表示未读通知总数
+                      3表示创建的聊天会话对象
+                      4表示最近的聊天会话列表
+                      5表示聊天会话的详细信息
+                      6表示最近的聊天消息列表
+                      7表示发送的消息对象
+                      8表示已标记为已读的消息对象
+                      9表示创建的语音通话记录对象
                   example: 0
                 data:
                   type: object
@@ -2713,6 +2731,62 @@ paths:
                     - $ref: '#/components/schemas/nearestUsers'
                     - $ref: '#/components/schemas/onlineUsers'
                     - $ref: '#/components/schemas/unreadNotificationsCount'
+                    - $ref: '#/components/schemas/createdConversation'
+                    - $ref: '#/components/schemas/recentConversations'
+                    - $ref: '#/components/schemas/conversationDetails'
+                    - $ref: '#/components/schemas/recentMessages'
+                    - $ref: '#/components/schemas/sentMessage'
+                    - $ref: '#/components/schemas/markedAsReadMessage'
+                    - $ref: '#/components/schemas/voiceCall'
+      responses:
+        200:
+          description: 消息推送成功
+
+  /messages:
+    post:
+      summary: 客户端主动向服务端推送消息
+      tags:
+        - WebSocket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - data
+              properties:
+                type:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                    - 3
+                    - 4
+                    - 5
+                    - 6
+                  description: | 
+                    消息类型:
+                      0表示创建聊天会话
+                      1表示获取最近的聊天会话列表
+                      2表示获取聊天会话详情
+                      3表示获取最近的聊天消息列表
+                      4表示发送消息
+                      5表示标记消息已读
+                      6表示发起语音通话
+                  example: 3
+                data:
+                  type: object
+                  anyOf:
+                    - $ref: '#/components/schemas/createChatConversation'
+                    - $ref: '#/components/schemas/getRecentChatConversations'
+                    - $ref: '#/components/schemas/getChatConversationDetails'
+                    - $ref: '#/components/schemas/getRecentChatMessages'
+                    - $ref: '#/components/schemas/sendMessage'
+                    - $ref: '#/components/schemas/markMessageAsRead'
+                    - $ref: '#/components/schemas/initiateVoiceCall'
       responses:
         200:
           description: 消息推送成功
@@ -2887,5 +2961,376 @@ components:
           description: 未读通知总数
           example: 5
           minimum: 0
+    createChatConversation:
+      type: object
+      required:
+        - opponentUserId
+      properties:
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "12345"
+    getRecentChatConversations:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          description: 会话时间戳，精确到秒的 UNIX 时间戳
+          example: 1628208000
+    getChatConversationDetails:
+      type: object
+      required:
+        - conversationId
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "abc123"
+    getRecentChatMessages:
+      type: object
+      required:
+        - conversationId
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "abc123"
+        timestamp:
+          type: integer
+          description: 消息时间戳，精确到秒的 UNIX 时间戳
+          example: 1628208000
+    sendMessage:
+      type: object
+      required:
+        - conversationId
+        - opponentUserId
+        - content
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "abc123"
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "12345"
+        content:
+          type: string
+          description: 消息的内容
+          example: "Hello, how are you?"
+    markMessageAsRead:
+      type: object
+      required:
+        - conversationId
+        - messageId
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "abc123"
+        messageId:
+          type: string
+          description: 消息的ID
+          example: "xyz789"
+    initiateVoiceCall:
+      type: object
+      required:
+        - conversationId
+        - opponentUserId
+        - startTime
+        - endTime
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "abc123"
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "12345"
+        startTime:
+          type: integer
+          description: 通话开始时间，精确到秒的 UNIX 时间戳
+          example: 1662028800
+        endTime:
+          type: integer
+          description: 通话结束时间，精确到秒的 UNIX 时间戳
+          example: 1662028900
+    createdConversation:
+      type: object
+      required:
+        - conversationId
+        - opponentUserId
+        - opponentAvatar
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "123456"
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "12345"
+        opponentAvatar:
+          type: string
+          description: 对方用户头像的URL，形如/xxx/xxx.png
+          example: "/avatars/user1.png"
+        opponentUsername:
+          type: string
+          description: 对方用户名
+          example: "Alice"
+        opponentOnlineStatus:
+          type: integer
+          description: 对方用户的在线状态，0表示离线，1表示在线
+          example: 1
+          default: 0
+        opponentDistance:
+          type: number
+          description: 对方用户距离当前用户的距离（以公里为单位）
+          example: 2.5
+    recentConversations:
+      type: array
+      items:
+        type: object
+        required:
+          - conversationId
+          - opponentUserId
+          - opponentAvatar
+          - lastMessageTime
+          - lastMessageContent
+        properties:
+          conversationId:
+            type: string
+            description: 聊天会话的ID
+            example: "123456"
+          opponentUserId:
+            type: string
+            description: 对方用户ID
+            example: "user1"
+          opponentAvatar:
+            type: string
+            description: 对方用户头像的URL，形如/xxx/xxx.png
+            example: "/avatars/user1.png"
+          opponentUsername:
+            type: string
+            description: 对方用户名
+            example: "Alice"
+          opponentOnlineStatus:
+            type: integer
+            description: 对方用户的在线状态，0表示离线，1表示在线
+            example: 1
+            default: 0
+          opponentDistance:
+            type: number
+            description: 对方用户距离当前用户的距离（以公里为单位）
+            example: 2.5
+          lastMessageTime:
+            type: integer
+            description: 最后一条消息的发送时间，精确到秒的UNIX时间戳
+            example: 1627862400
+          lastMessageContent:
+            type: string
+            description: 最后一条消息的内容
+            example: "你好，Alice！"
+          unreadCount:
+            type: integer
+            description: 未读消息的数量
+            example: 3
+            default: 0
+    conversationDetails:
+      type: object
+      required:
+        - conversationId
+        - opponentUserId
+        - opponentAvatar
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "123456"
+        opponentUserId:
+          type: string
+          description: 对方用户ID
+          example: "user1"
+        opponentAvatar:
+          type: string
+          description: 对方用户头像的URL，形如/xxx/xxx.png
+          example: "/avatars/user1.png"
+        opponentUsername:
+          type: string
+          description: 对方用户名
+          example: "Alice"
+        opponentOnlineStatus:
+          type: integer
+          description: 对方用户的在线状态，0表示离线，1表示在线
+          example: 1
+          default: 0
+        opponentDistance:
+          type: number
+          description: 对方用户距离当前用户的距离（以公里为单位）
+          example: 2.5
+        lastMessageTime:
+          type: integer
+          description: 最后一条消息的发送时间，精确到秒的UNIX时间戳
+          example: 1627862400
+        lastMessageContent:
+          type: string
+          description: 最后一条消息的内容
+          example: "你好，Alice！"
+        unreadCount:
+          type: integer
+          description: 未读消息的数量
+          example: 3
+          default: 0
+    recentMessages:
+      type: array
+      items:
+        type: object
+        required:
+          - messageId
+          - senderId
+          - recipientId
+          - sentTime
+          - content
+        properties:
+          messageId:
+            type: string
+            description: 消息的ID
+            example: "msg123"
+          senderId:
+            type: string
+            description: 发送者用户ID
+            example: "user1"
+          recipientId:
+            type: string
+            description: 接受者用户ID
+            example: "user1"
+          sentTime:
+            type: integer
+            description: 消息发送的时间，精确到秒的UNIX时间戳
+            example: 1627862400
+          content:
+            type: string
+            description: 消息的内容
+            example: "你好，Alice！"
+          readStatus:
+            type: integer
+            enum:
+              - 0
+              - 1
+            description: 消息的已读状态 (0表示未读, 1表示已读，默认值是0)
+            example: 1
+            default: 0
+    sentMessage:
+      type: object
+      required:
+        - conversationId
+        - messageId
+        - senderId
+        - recipientId
+        - content
+        - sentTime
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "123456"
+        messageId:
+          type: string
+          description: 消息的ID
+          example: "msg123"
+        senderId:
+          type: string
+          description: 发送者用户ID
+          example: "user1"
+        recipientId:
+          type: string
+          description: 接受者用户ID
+          example: "user1"
+        content:
+          type: string
+          description: 消息的内容
+          example: "Hello, how are you?"
+        sentTime:
+          type: integer
+          description: 消息发送的时间，精确到秒的UNIX时间戳
+          example: 1627862400
+        readStatus:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 消息的已读状态 (0表示未读, 1表示已读，默认值是0)
+          example: 1
+          default: 0
+    markedAsReadMessage:
+      type: object
+      required:
+        - conversationId
+        - messageId
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "123456"
+        messageId:
+          type: string
+          description: 消息的ID
+          example: "msg123"
+        readStatus:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 消息的已读状态 (0表示未读, 1表示已读，默认值是0)
+          example: 1
+          default: 0
+    voiceCall:
+      type: object
+      required:
+        - conversationId
+        - messageId
+        - senderId
+        - recipientId
+        - voiceCallRecordId
+        - startTime
+        - endTime
+      properties:
+        conversationId:
+          type: string
+          description: 聊天会话的ID
+          example: "123456"
+        messageId:
+          type: string
+          description: 消息的ID
+          example: "msg123"
+        senderId:
+          type: string
+          description: 发送者用户ID
+          example: "user1"
+        recipientId:
+          type: string
+          description: 接受者用户ID
+          example: "user1"
+        voiceCallRecordId:
+          type: string
+          description: 通话记录的ID
+          example: "call123"
+        startTime:
+          type: integer
+          description: 通话开始时间，精确到秒的 UNIX 时间戳
+          example: 1662028800
+        endTime:
+          type: integer
+          description: 通话结束时间，精确到秒的 UNIX 时间戳
+          example: 1662028900
+        readStatus:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 消息的已读状态 (0表示未读, 1表示已读，默认值是0)
+          example: 1
+          default: 0
 security:
   - JWTAuth: [ ]

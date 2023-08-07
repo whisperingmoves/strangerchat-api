@@ -13,10 +13,11 @@ const voiceCallRecordSchema = new mongoose.Schema({
     },
     startTime: {
         type: Date,
-        default: Date.now,
+        required: true,
     },
     endTime: {
         type: Date,
+        default: Date.now,
     },
 });
 
