@@ -689,7 +689,7 @@ describe('Messages Socket', () => {
     });
 
     describe('Mark Message As Read', () => {
-        it('should receive marked-read message notification on opponent user', (done) => {
+        it('should receive marked-read message notification on both users', (done) => {
             // 会话id
             let conversationId;
 
@@ -831,6 +831,161 @@ describe('Messages Socket', () => {
                         chai.expect(messageData.conversationId).to.equal(conversationId);
                         chai.expect(messageData.messageId).to.equal(messageId);
                         chai.expect(messageData.readStatus).to.equal(1);
+
+                        otherSocketAssertion = true;
+                    }
+                });
+            });
+
+            // 检查回调的断言状态
+            const intervalId = setInterval(() => {
+                if (socketAssertion && otherSocketAssertion) {
+                    clearInterval(intervalId);
+                    done();
+                }
+            }, 100);
+
+            // 推送创建聊天会话消息到服务端
+            socket.emit('messages', {
+                type: 0,
+                data: {
+                    opponentUserId: otherUser.id,
+                },
+            });
+        });
+    });
+
+    describe('Initiate Voice Call', () => {
+        it('should receive voice call notification on both users', (done) => {
+            // 会话id
+            let conversationId;
+
+            // 通话开始时间
+            let startTime = 1662028800;
+
+            // 通话结束时间
+            let endTime = 1662028900;
+
+            // 创建标志变量来跟踪断言状态
+            let socketAssertion = false;
+            let otherSocketAssertion = false;
+
+            // 创建带有认证信息的 WebSocket 连接
+            socket = ioClient(`http://localhost:${config.port}`, {
+                auth: {
+                    token: token
+                }
+            });
+
+            // 创建带有其他用户认证信息的 WebSocket 连接
+            otherSocket = ioClient(`http://localhost:${config.port}`, {
+                auth: {
+                    token: otherToken
+                }
+            });
+
+            // 监听连接成功事件
+            socket.on('connect', () => {
+                // 监听 WebSocket 推送消息
+                socket.on('notifications', (message) => {
+                    // 如果是聊天会话对象消息
+                    if (message.type === 3) {
+                        // 验证会话对象的结构和属性
+                        const conversation = message.data;
+                        chai.expect(conversation).to.have.property('conversationId');
+
+                        // 验证会话对象的属性值
+                        chai.expect(conversation.conversationId).to.be.a('string');
+
+                        // 获取会话id
+                        conversationId = conversation.conversationId;
+
+                        // 客户端推送发起语音通话到服务端
+                        socket.emit('messages', {
+                            type: 6,
+                            data: {
+                                conversationId,
+                                opponentUserId: otherUser.id,
+                                startTime: startTime,
+                                endTime: endTime,
+                            },
+                        });
+                    }
+
+                    // 如果是创建的语音通话记录对象
+                    if (message.type === 9) {
+                        // 验证消息的结构和属性
+                        const messageData = message.data;
+
+                        // 验证消息对象的结构和属性
+                        chai.expect(messageData).to.have.property('conversationId');
+                        chai.expect(messageData).to.have.property('messageId');
+                        chai.expect(messageData).to.have.property('senderId');
+                        chai.expect(messageData).to.have.property('recipientId');
+                        chai.expect(messageData).to.have.property('voiceCallRecordId');
+                        chai.expect(messageData).to.have.property('startTime');
+                        chai.expect(messageData).to.have.property('endTime');
+                        chai.expect(messageData).to.have.property('readStatus');
+
+                        // 验证消息对象的属性值
+                        chai.expect(messageData.conversationId).to.be.a('string');
+                        chai.expect(messageData.messageId).to.be.a('string');
+                        chai.expect(messageData.senderId).to.be.a('string');
+                        chai.expect(messageData.recipientId).to.be.a('string');
+                        chai.expect(messageData.voiceCallRecordId).to.be.a('string');
+                        chai.expect(messageData.startTime).to.be.a('number');
+                        chai.expect(messageData.endTime).to.be.a('number');
+                        chai.expect(messageData.readStatus).to.be.a('number');
+
+                        // 验证消息对象的属性值与预期值是否匹配
+                        chai.expect(messageData.conversationId).to.equal(conversationId);
+                        chai.expect(messageData.senderId).to.equal(user.id);
+                        chai.expect(messageData.recipientId).to.equal(otherUser.id);
+                        chai.expect(messageData.startTime).to.equal(startTime);
+                        chai.expect(messageData.endTime).to.equal(endTime);
+                        chai.expect(messageData.readStatus).to.equal(0);
+
+                        socketAssertion = true;
+                    }
+                });
+            });
+
+            // 其他用户监听连接成功事件
+            otherSocket.on('connect', () => {
+                // 监听 WebSocket 推送消息
+                otherSocket.on('notifications', (message) => {
+                    // 如果是已创建的语音通话记录对象
+                    if (message.type === 9) {
+                        // 验证消息的结构和属性
+                        const messageData = message.data;
+
+                        // 验证消息对象的结构和属性
+                        chai.expect(messageData).to.have.property('conversationId');
+                        chai.expect(messageData).to.have.property('messageId');
+                        chai.expect(messageData).to.have.property('senderId');
+                        chai.expect(messageData).to.have.property('recipientId');
+                        chai.expect(messageData).to.have.property('voiceCallRecordId');
+                        chai.expect(messageData).to.have.property('startTime');
+                        chai.expect(messageData).to.have.property('endTime');
+                        chai.expect(messageData).to.have.property('readStatus');
+
+                        // 验证消息对象的属性值
+                        chai.expect(messageData.conversationId).to.be.a('string');
+                        chai.expect(messageData.messageId).to.be.a('string');
+                        chai.expect(messageData.senderId).to.be.a('string');
+                        chai.expect(messageData.recipientId).to.be.a('string');
+                        chai.expect(messageData.voiceCallRecordId).to.be.a('string');
+                        chai.expect(messageData.startTime).to.be.a('number');
+                        chai.expect(messageData.endTime).to.be.a('number');
+                        chai.expect(messageData.readStatus).to.be.a('number');
+
+                        // 验证消息对象的属性值与预期值是否匹配
+                        chai.expect(messageData.conversationId).to.equal(conversationId);
+                        chai.expect(messageData.senderId).to.equal(user.id);
+                        chai.expect(messageData.recipientId).to.equal(otherUser.id);
+                        chai.expect(messageData.startTime).to.equal(startTime);
+                        chai.expect(messageData.endTime).to.equal(endTime);
+                        chai.expect(messageData.readStatus).to.equal(0);
 
                         otherSocketAssertion = true;
                     }
