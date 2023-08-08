@@ -18,7 +18,7 @@ module.exports = {
     return code;
   },
   rateLimiter: {
-    maxRequestsPerMinute: process.env.MAX_REQUESTS_PERMINUTE || 100,
+    maxRequestsPerMinute: process.env.MAX_REQUESTS_PER_MINUTE || 100,
     timeWindowInMinutes: process.env.TIME_WINDOW_IN_MINUTES || 1,
   },
   ssl: {

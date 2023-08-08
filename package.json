@@ -9,7 +9,7 @@
     "start": "node app.js",
     "dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 nodemon app.js",
     "test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 mocha tests/**/*.test.js --ignore tests/api/rateLimiter.test.js",
-    "test-rate-limiter": "cross-env NODE_ENV=test MAX_REQUESTS_PERMINUTE=10 TIME_WINDOW_IN_MINUTES=1 NODE_NO_WARNINGS=1 mocha tests/api/rateLimiter.test.js",
+    "test-rate-limiter": "cross-env NODE_ENV=test MAX_REQUESTS_PER_MINUTE=10 TIME_WINDOW_IN_MINUTES=1 NODE_NO_WARNINGS=1 mocha tests/api/rateLimiter.test.js",
     "format": "eslint --fix .",
     "checkmarx": "export CHECKMARX_ENABLED=false && npm audit"
   },
