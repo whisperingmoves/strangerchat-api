@@ -20,4 +20,9 @@ module.exports = {
     maxRequestsPerMinute: process.env.MAX_REQUESTS_PERMINUTE || 10000000,
     timeWindowInMinutes: process.env.TIME_WINDOW_IN_MINUTES || 1,
   },
+  ssl: {
+    on: "off",
+    privateKeyPath: "./certs/private.key",
+    certificatePath: "./certs/certificate.crt",
+  },
 };

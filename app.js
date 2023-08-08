@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const http = require("http");
+const https = require("https");
+const fs = require("fs");
 const socketIo = require("socket.io");
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -19,7 +21,23 @@ const swaggerDocument = YAML.load("./docs/openapi.yaml");
 const userIdSocketMap = {};
 
 const app = express();
-const server = http.createServer(app);
+
+let server;
+
+if (config.ssl.on === "on") {
+  // 读取 SSL 证书和私钥文件
+  const privateKey = fs.readFileSync(config.ssl.privateKeyPath, "utf8");
+  const certificate = fs.readFileSync(config.ssl.certificatePath, "utf8");
+
+  const credentials = { key: privateKey, cert: certificate };
+
+  // 创建 HTTPS 服务器
+  server = https.createServer(credentials, app);
+} else {
+  // 创建 HTTP 服务器
+  server = http.createServer(app);
+}
+
 const io = socketIo(server);
 
 app.set("io", io);

@@ -20,4 +20,9 @@ module.exports = {
     maxRequestsPerMinute: 100,
     timeWindowInMinutes: 1,
   },
+  ssl: {
+    on: "off",
+    privateKeyPath: "./certs/private.key",
+    certificatePath: "./certs/certificate.crt",
+  },
 };
