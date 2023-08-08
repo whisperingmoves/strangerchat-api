@@ -43,7 +43,21 @@ describe("Bundle API", () => {
           res.body.should.have.property("bundleId");
           res.body.bundleId.should.be.a("string");
 
-          done();
+          // 尝试未授权访问
+          chai
+            .request(app)
+            .post("/bundles/publish")
+            .send({
+              url,
+              version: "1.0.0",
+            })
+            .then((res) => {
+              res.should.have.status(401);
+              done();
+            })
+            .catch((err) => {
+              done(err);
+            });
         })
         .catch((err) => {
           done(err);
@@ -122,7 +136,17 @@ describe("Bundle API", () => {
 
                   res.body.url.should.be.equal(url);
 
-                  done();
+                  // 尝试未授权访问
+                  chai
+                    .request(app)
+                    .get("/bundles/refresh")
+                    .then((res) => {
+                      res.should.have.status(401);
+                      done();
+                    })
+                    .catch((err) => {
+                      done(err);
+                    });
                 })
                 .catch((err) => {
                   done(err);
