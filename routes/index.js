@@ -14,11 +14,17 @@ const giftController = require("../controllers/gift");
 const coinProductController = require("../controllers/coinProduct");
 const coinTransactionController = require("../controllers/coinTransaction");
 const bundleController = require("../controllers/bundle");
+const { mkdirSync } = require("fs");
+const { getCurrentDate } = require("../utils/dateUtils");
 
 const router = express.Router();
 
 const uploadAvatarStorage = multer.diskStorage({
-  destination: config.avatarUploadPath, // 设置上传路径
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(config.avatarUploadPath, getCurrentDate()); // 设置上传路径
+    mkdirSync(uploadPath, { recursive: true }); // 创建日期子目录
+    cb(null, uploadPath);
+  },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const fileExt = path.extname(file.originalname);
@@ -27,7 +33,11 @@ const uploadAvatarStorage = multer.diskStorage({
 });
 
 const uploadPostStorage = multer.diskStorage({
-  destination: config.postUploadPath, // 设置上传路径
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(config.postUploadPath, getCurrentDate()); // 设置上传路径
+    mkdirSync(uploadPath, { recursive: true }); // 创建日期子目录
+    cb(null, uploadPath);
+  },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const fileExt = path.extname(file.originalname);
@@ -36,7 +46,11 @@ const uploadPostStorage = multer.diskStorage({
 });
 
 const uploadBundleStorage = multer.diskStorage({
-  destination: config.bundleUploadPath, // 设置上传路径
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(config.bundleUploadPath, getCurrentDate()); // 设置上传路径
+    mkdirSync(uploadPath, { recursive: true }); // 创建日期子目录
+    cb(null, uploadPath);
+  },
   filename: function (req, file, cb) {
     cb(null, file.originalname); // 将保存到服务器的文件名设置为原文件名
   },
