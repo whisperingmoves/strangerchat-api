@@ -10,6 +10,7 @@ const Post = require("./models/Post");
 const User = require("./models/User");
 const errorMiddleware = require("./middlewares/error");
 const socketAuthMiddleware = require("./middlewares/socketAuth");
+const requestLoggerMiddleware = require("./middlewares/requestLogger");
 const sockets = require("./sockets");
 
 // 模块定义
@@ -45,6 +46,7 @@ mongoose.connection.once("open", async () => {
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(express.json());
+app.use(requestLoggerMiddleware);
 
 // 静态文件服务
 app.use("/public", express.static(__dirname + "/public"));
