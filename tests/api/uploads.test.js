@@ -85,37 +85,39 @@ describe("Uploads API", () => {
     it("should upload React Native Bundle file successfully", (done) => {
       const bundlePath = path.join(__dirname, "test.bundle");
       chai
-          .request(app)
-          .post("/uploadBundle")
-          .attach("bundle", fs.createReadStream(bundlePath), { filename: "test.bundle" })
-          .then((res) => {
-            res.should.have.status(200);
-            res.body.should.have.property("url");
-            const urlParts = res.body.url.split("/");
-            const uploadedFilename = urlParts[urlParts.length - 1];
-            uploadedFilename.should.equal("test.bundle");
-            done();
-          })
-          .catch((err) => {
-            done(err);
-          });
+        .request(app)
+        .post("/uploadBundle")
+        .attach("bundle", fs.createReadStream(bundlePath), {
+          filename: "test.bundle",
+        })
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.have.property("url");
+          const urlParts = res.body.url.split("/");
+          const uploadedFilename = urlParts[urlParts.length - 1];
+          uploadedFilename.should.equal("test.bundle");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
     });
 
     it("should return 400 if bundle file is invalid", (done) => {
       chai
-          .request(app)
-          .post("/uploadBundle")
-          .send({
-            // 无效的 bundle 文件字段
-          })
-          .then((res) => {
-            res.should.have.status(400);
-            res.body.should.have.property("message");
-            done();
-          })
-          .catch((err) => {
-            done(err);
-          });
+        .request(app)
+        .post("/uploadBundle")
+        .send({
+          // 无效的 bundle 文件字段
+        })
+        .then((res) => {
+          res.should.have.status(400);
+          res.body.should.have.property("message");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
     });
   });
 });
