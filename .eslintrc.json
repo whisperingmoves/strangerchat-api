@@ -1,0 +1,19 @@
+{
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "plugins": ["prettier", "node"],
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2019,
+    "sourceType": "script"
+  },
+  "rules": {
+    "node/no-unsupported-features/es-syntax": [
+      "error",
+      { "version": ">=12.0.0", "ignores": ["modules"] }
+    ],
+    "no-prototype-builtins": "off"
+  }
+}

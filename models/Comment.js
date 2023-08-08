@@ -1,38 +1,38 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema({
-    content: {
-        type: String,
-        required: true
+  content: {
+    type: String,
+    required: true,
+  },
+  post: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Post",
+    required: true,
+  },
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  parentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Comment",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    post: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post',
-        required: true
-    },
-    author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    parentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment'
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    likes: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    ]
+  ],
 });
 
-commentSchema.virtual('id').get(function () {
-    return this._id.toHexString();
+commentSchema.virtual("id").get(function () {
+  return this._id.toHexString();
 });
 
-module.exports = mongoose.model('Comment', commentSchema);
+module.exports = mongoose.model("Comment", commentSchema);

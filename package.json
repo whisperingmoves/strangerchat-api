@@ -8,7 +8,9 @@
   "scripts": {
     "start": "node app.js",
     "dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 nodemon app.js",
-    "test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 mocha tests/**/*.test.js"
+    "test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 mocha tests/**/*.test.js",
+    "format": "eslint --fix .",
+    "checkmarx": "export CHECKMARX_ENABLED=false && npm audit"
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -24,8 +26,13 @@
     "chai": "^4.3.0",
     "chai-http": "^4.3.0",
     "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-node": "^11.1.0",
     "mocha": "^8.2.1",
     "nodemon": "^2.0.4",
+    "prettier": "^2.4.1",
     "should": "^13.2.3",
     "socket.io-client": "^4.2.0"
   }
