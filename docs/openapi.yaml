@@ -235,7 +235,8 @@ paths:
       summary: 上传头像
       tags:
         - 资源
-      security: [ ]
+      security:
+        - JWTAuth: [ ]
       requestBody:
         content:
           multipart/form-data:
@@ -1557,7 +1558,8 @@ paths:
       summary: 上传帖子照片
       tags:
         - 资源
-      security: [ ]
+      security:
+        - JWTAuth: [ ]
       requestBody:
         content:
           multipart/form-data:
@@ -2903,7 +2905,8 @@ paths:
       summary: 上传 Bundle 文件
       tags:
         - 资源
-      security: [ ]
+      security:
+        - JWTAuth: [ ]
       requestBody:
         content:
           multipart/form-data:

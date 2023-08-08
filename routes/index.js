@@ -3,6 +3,7 @@ const path = require("path");
 const multer = require("multer");
 const config = require("../config");
 const auth = require("../middlewares/auth");
+const uploadAuth = require("../middlewares/uploadAuth");
 const verificationController = require("../controllers/verification");
 const userController = require("../controllers/user");
 const postController = require("../controllers/post");
@@ -57,7 +58,12 @@ router.post(
 
 // 用户路由
 router.post("/users/register", userController.register);
-router.post("/uploadAvatar", uploadAvatar, userController.uploadAvatar);
+router.post(
+  "/uploadAvatar",
+  uploadAuth,
+  uploadAvatar,
+  userController.uploadAvatar
+);
 router.get("/users/me/posts", auth, postController.getMyPosts);
 router.get("/users/me/posts/:postId", auth, postController.getMyPostDetails);
 router.post("/users/:userId/follow", auth, userController.followUser);
@@ -77,7 +83,7 @@ router.get("/users/:userId", auth, userController.getUserDetails);
 router.get("/stories", auth, storyController.getStoryList);
 
 // 帖子路由
-router.post("/uploadPost", uploadPost, postController.uploadPost);
+router.post("/uploadPost", uploadAuth, uploadPost, postController.uploadPost);
 router.post("/posts", auth, postController.createPost);
 router.post("/posts/:postId/heat", auth, postController.heatPost);
 router.post("/posts/:postId/like", auth, postController.likePost);
@@ -162,7 +168,12 @@ router.get(
 );
 
 // Bundle 路由
-router.post("/uploadBundle", uploadBundle, bundleController.uploadBundle);
+router.post(
+  "/uploadBundle",
+  uploadAuth,
+  uploadBundle,
+  bundleController.uploadBundle
+);
 router.post("/bundles/publish", bundleController.publishBundle);
 router.post("/bundles/:bundleId/online", bundleController.onlineBundle);
 router.get("/bundles/refresh", bundleController.refreshBundle);

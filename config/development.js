@@ -26,4 +26,6 @@ module.exports = {
     privateKeyPath: "./certs/private.key",
     certificatePath: "./certs/certificate.crt",
   },
+  jwtUploadSecret: "a-secret-string-for-dev",
+  uploadKey: "7b6aa7fc-33e8-413d-9bf5-65e18becc65e",
 };

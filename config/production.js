@@ -28,4 +28,6 @@ module.exports = {
     privateKeyPath: process.env.PRIVATE_KEY_PATH || "./certs/private.key",
     certificatePath: process.env.CERTIFICATE_PATH || "./certs/certificate.crt",
   },
+  jwtUploadSecret: process.env.JWT_UPLOAD_SECRET || "a long random string",
+  uploadKey: process.env.UPLOAD_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
 };
