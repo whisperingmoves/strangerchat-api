@@ -3026,7 +3026,8 @@ paths:
       summary: Bundle 版本请求
       tags:
         - Bundle
-      security: [ ]
+      security:
+        - JWTAuth: [ ]
       responses:
         200:
           description: 请求成功

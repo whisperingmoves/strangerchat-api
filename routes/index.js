@@ -5,6 +5,7 @@ const config = require("../config");
 const auth = require("../middlewares/auth");
 const uploadAuth = require("../middlewares/uploadAuth");
 const publishBundleAuth = require("../middlewares/publishBundleAuth");
+const refreshBundleAuth = require("../middlewares/refreshBundleAuth");
 const verificationController = require("../controllers/verification");
 const userController = require("../controllers/user");
 const postController = require("../controllers/post");
@@ -195,7 +196,11 @@ router.post(
   bundleController.publishBundle
 );
 router.post("/bundles/:bundleId/online", bundleController.onlineBundle);
-router.get("/bundles/refresh", bundleController.refreshBundle);
+router.get(
+  "/bundles/refresh",
+  refreshBundleAuth,
+  bundleController.refreshBundle
+);
 
 // 其他路由
 router.get("/health", (req, res) => {

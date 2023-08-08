@@ -30,4 +30,6 @@ module.exports = {
   uploadKey: "7b6aa7fc-33e8-413d-9bf5-65e18becc65e",
   jwtPublishBundleSecret: "a-secret-string-for-dev",
   publishBundleKey: "7b6aa7fc-33e8-413d-9bf5-65e18becc65e",
+  jwtRefreshBundleSecret: "a-secret-string-for-dev",
+  refreshBundleKey: "7b6aa7fc-33e8-413d-9bf5-65e18becc65e",
 };

@@ -17,7 +17,10 @@
     "generate-upload-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateUploadToken.js",
     "generate-publish-bundle-token": "node scripts/generatePublishBundleToken.js",
     "generate-publish-bundle-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generatePublishBundleToken.js",
-    "generate-publish-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generatePublishBundleToken.js"
+    "generate-publish-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generatePublishBundleToken.js",
+    "generate-refresh-bundle-token": "node scripts/generateRefreshBundleToken.js",
+    "generate-refresh-bundle-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateRefreshBundleToken.js",
+    "generate-refresh-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateRefreshBundleToken.js"
   },
   "dependencies": {
     "express": "^4.17.1",

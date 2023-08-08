@@ -28,6 +28,8 @@ module.exports = {
   },
   jwtUploadSecret: "a-secret-string-for-test",
   uploadKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
-  jwtPublishBundleSecret: "a-secret-string-for-dev",
-  publishBundleKey: "7b6aa7fc-33e8-413d-9bf5-65e18becc65e",
+  jwtPublishBundleSecret: "a-secret-string-for-test",
+  publishBundleKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
+  jwtRefreshBundleSecret: "a-secret-string-for-test",
+  refreshBundleKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
 };

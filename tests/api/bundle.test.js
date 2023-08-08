@@ -11,12 +11,19 @@ chai.should();
 describe("Bundle API", () => {
   let url = "test.bundle";
   let publishBundleToken;
+  let refreshBundleToken;
 
   beforeEach(() => {
     // 生成发布Bundle专用 JWT Token
     publishBundleToken = jwt.sign(
       { publishBundleKey: config.publishBundleKey },
       config.jwtPublishBundleSecret
+    );
+
+    // 生成Bundle版本请求专用 JWT Token
+    refreshBundleToken = jwt.sign(
+      { refreshBundleKey: config.refreshBundleKey },
+      config.jwtRefreshBundleSecret
     );
   });
 
@@ -106,6 +113,7 @@ describe("Bundle API", () => {
               chai
                 .request(app)
                 .get("/bundles/refresh")
+                .set("Authorization", `Bearer ${refreshBundleToken}`) // 使用 JWT 认证
                 .then((res) => {
                   res.should.have.status(200);
 
