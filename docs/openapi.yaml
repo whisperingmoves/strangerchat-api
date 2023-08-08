@@ -2895,6 +2895,50 @@ paths:
       responses:
         200:
           description: 消息推送成功
+
+  /uploadBundle:
+    post:
+      summary: 上传 React Native Bundle 文件
+      tags:
+        - 资源
+      security: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - bundle
+              properties:
+                bundle:
+                  type: string
+                  format: binary
+                  description: React Native Bundle 文件，以 MD5 作为文件名
+            encoding:
+              bundle:
+                contentType: application/javascript
+      responses:
+        200:
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+                    description: React Native Bundle 文件 URL
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

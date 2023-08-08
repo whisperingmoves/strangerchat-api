@@ -12,6 +12,7 @@ const notificationController = require("../controllers/notification");
 const giftController = require("../controllers/gift");
 const coinProductController = require("../controllers/coinProduct");
 const coinTransactionController = require("../controllers/coinTransaction");
+const bundleController = require("../controllers/bundle");
 
 const router = express.Router();
 
@@ -33,8 +34,16 @@ const uploadPostStorage = multer.diskStorage({
   },
 });
 
+const uploadBundleStorage = multer.diskStorage({
+  destination: config.bundleUploadPath, // 设置上传路径
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // 将保存到服务器的文件名设置为原文件名
+  },
+});
+
 const uploadAvatar = multer({ storage: uploadAvatarStorage }).single("avatar");
 const uploadPost = multer({ storage: uploadPostStorage }).single("post");
+const uploadBundle = multer({ storage: uploadBundleStorage }).single("bundle");
 
 // 验证码路由
 router.post(
@@ -152,6 +161,10 @@ router.get(
   coinTransactionController.getCoinTransactionList
 );
 
+// React Native Bundle路由
+router.post("/uploadBundle", uploadBundle, bundleController.uploadBundle);
+
+// 其他路由
 router.get("/health", (req, res) => {
   res.status(200).send("Server is healthy");
 });

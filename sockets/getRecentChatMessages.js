@@ -69,7 +69,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
         // 向用户推送通知
         if (userIdSocketMap[userId]) {
-          for (const socketId of userIdSocketMap[userId].socketIds) {
+          for (const socketId of userIdSocketMap[userId]) {
             io.to(socketId).emit("notifications", notification);
           }
         }

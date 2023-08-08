@@ -5,6 +5,7 @@ module.exports = {
   verifyCodeExpires: 60,
   avatarUploadPath: "./public/uploads/avatars-test/",
   postUploadPath: "./public/uploads/posts-test/",
+  bundleUploadPath: "./public/uploads/bundles-test/",
   jwtSecret: "a-secret-string-for-test",
   generateVerifyCode() {
     // 生成6位数验证码的函数
