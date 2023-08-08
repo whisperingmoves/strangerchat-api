@@ -1038,6 +1038,10 @@ describe('Messages Socket', () => {
                 }
             });
 
+            // 创建标志变量来跟踪断言状态
+            let firstAssertion = false;
+            let secondAssertion = false;
+
             // 监听连接成功事件
             socket.on('connect', () => {
                 // 监听 WebSocket 推送消息
@@ -1060,6 +1064,8 @@ describe('Messages Socket', () => {
                         // 验证信令对象的属性值与预期值是否匹配
                         chai.expect(signal.opponentUserId).to.equal(otherUser.id);
                         chai.expect(signal.sdp).to.equal(sdp);
+
+                        firstAssertion = true;
                     }
 
                     if (message.type === 12) {
@@ -1082,9 +1088,9 @@ describe('Messages Socket', () => {
                         chai.expect(signal.candidate).to.equal(candidate);
                         chai.expect(signal.sdpMLineIndex).to.equal(sdpMLineIndex);
                         chai.expect(signal.sdpMid).to.equal(sdpMid);
-                    }
 
-                    done();
+                        secondAssertion = true;
+                    }
                 });
             });
 
@@ -1119,6 +1125,14 @@ describe('Messages Socket', () => {
                     },
                 });
             });
+
+            // 检查回调的断言状态
+            const intervalId = setInterval(() => {
+                if (firstAssertion && secondAssertion) {
+                    clearInterval(intervalId);
+                    done();
+                }
+            }, 10);
         });
     });
 

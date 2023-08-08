@@ -72,16 +72,7 @@ const uploadAvatar = async (req, res, next) => {
             return res.status(400).json({message: '请选择文件上传'});
         }
 
-        const avatar = req.file;
-        const fileName = avatar.filename;
-
-        // 保存图片到本地
-        // const targetPath = path.join(config.avatarUploadPath, fileName);
-        // avatar.mv(targetPath);
-
-        const url = '/uploads/avatars/' + fileName;
-
-        res.json({ url });
+        res.json({ url: req.file.path });
 
     } catch(err) {
         next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理

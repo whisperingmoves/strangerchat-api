@@ -45,6 +45,10 @@ mongoose.connection.once('open', async () => {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(express.json());
+
+// 静态文件服务
+app.use('/public', express.static(__dirname + '/public'));
+
 app.use(routes);
 
 app.use(errorMiddleware);

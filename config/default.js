@@ -3,8 +3,8 @@ module.exports = {
     port: process.env.PORT || 3000,
     dbUrl: process.env.MONGO_URL || 'mongodb://localhost/chat',
     verifyCodeExpires: process.env.CODE_EXPIRES || 300, // 验证码有效时间(秒)
-    avatarUploadPath: process.env.AVATAR_UPLOAD_PATH || './uploads/avatars/',
-    postUploadPath: process.env.POST_UPLOAD_PATH || './uploads/posts/',
+    avatarUploadPath: process.env.AVATAR_UPLOAD_PATH || './public/uploads/avatars/',
+    postUploadPath: process.env.POST_UPLOAD_PATH || './public/uploads/posts/',
     jwtSecret: process.env.JWT_SECRET || 'a long random string',
     generateVerifyCode() { // 生成6位数验证码的函数
         let code = '';

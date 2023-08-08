@@ -3,8 +3,8 @@ module.exports = {
     port: 3001,
     dbUrl: 'mongodb://localhost:27018/chat_test',
     verifyCodeExpires: 60,
-    avatarUploadPath: './uploads/avatars-test/',
-    postUploadPath: './uploads/posts-test/',
+    avatarUploadPath: './public/uploads/avatars-test/',
+    postUploadPath: './public/uploads/posts-test/',
     jwtSecret: 'a-secret-string-for-test',
     generateVerifyCode() { // 生成6位数验证码的函数
         let code = '';

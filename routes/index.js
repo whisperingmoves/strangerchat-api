@@ -1,16 +1,8 @@
 const express = require('express');
-const router = express.Router();
+const path = require("path");
 const multer = require('multer');
 const config = require('../config');
-const auth = require('../middlewares/auth')
-
-const uploadAvatar = multer({
-    dest: config.avatarUploadPath // 设置上传路径
-});
-const uploadPost = multer({
-    dest: config.postUploadPath // 设置上传路径
-});
-
+const auth = require('../middlewares/auth');
 const verificationController = require('../controllers/verification');
 const userController = require('../controllers/user');
 const postController = require('../controllers/post');
@@ -21,13 +13,36 @@ const giftController = require('../controllers/gift');
 const coinProductController = require('../controllers/coinProduct');
 const coinTransactionController = require('../controllers/coinTransaction');
 
+const router = express.Router();
+
+const uploadAvatarStorage = multer.diskStorage({
+    destination: config.avatarUploadPath, // 设置上传路径
+    filename: function(req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const fileExt = path.extname(file.originalname);
+        cb(null, uniqueSuffix + fileExt);
+    }
+});
+
+const uploadPostStorage = multer.diskStorage({
+    destination: config.postUploadPath, // 设置上传路径
+    filename: function(req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const fileExt = path.extname(file.originalname);
+        cb(null, uniqueSuffix + fileExt);
+    }
+});
+
+const uploadAvatar = multer({ storage: uploadAvatarStorage }).single('avatar');
+const uploadPost = multer({ storage: uploadPostStorage }).single('post');
+
 // 验证码路由
 router.post('/verifications/sendCode', verificationController.sendVerificationCode);
 router.post('/verifications/verifyCode', verificationController.verifyVerificationCode);
 
 // 用户路由
 router.post('/users/register', userController.register);
-router.post('/uploadAvatar', uploadAvatar.single('avatar'), userController.uploadAvatar);
+router.post('/uploadAvatar', uploadAvatar, userController.uploadAvatar);
 router.get('/users/me/posts', auth, postController.getMyPosts);
 router.get('/users/me/posts/:postId', auth, postController.getMyPostDetails);
 router.post('/users/:userId/follow', auth, userController.followUser);
@@ -43,7 +58,7 @@ router.get('/users/:userId', auth, userController.getUserDetails)
 router.get('/stories', auth, storyController.getStoryList);
 
 // 帖子路由
-router.post('/uploadPost', uploadPost.single('post'), postController.uploadPost);
+router.post('/uploadPost', uploadPost, postController.uploadPost);
 router.post('/posts', auth, postController.createPost);
 router.post('/posts/:postId/heat', auth, postController.heatPost);
 router.post('/posts/:postId/like', auth, postController.likePost);

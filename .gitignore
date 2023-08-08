@@ -10,8 +10,8 @@ logs/*
 !logs/.gitkeep
 
 # Uploads
-uploads/*
-!uploads/.gitkeep
+public/uploads/*
+!public/uploads/.gitkeep
 
 # Database
 chat.db
