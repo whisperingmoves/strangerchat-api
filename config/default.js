@@ -17,4 +17,8 @@ module.exports = {
     }
     return code;
   },
+  rateLimiter: {
+    maxRequestsPerMinute: 100,
+    timeWindowInMinutes: 1,
+  },
 };

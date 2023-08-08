@@ -1,12 +1,15 @@
 const requestLogger = (req, res, next) => {
   const start = new Date();
 
-  // 打印请求信息
-  console.log("--- Request ---");
-  console.log("Method:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("Headers:", req.headers);
-  console.log("Body:", req.body);
+  // 检查环境变量的值
+  if (process.env.NODE_ENV !== "test") {
+    // 打印请求信息
+    console.log("--- Request ---");
+    console.log("Method:", req.method);
+    console.log("URL:", req.originalUrl);
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+  }
 
   // 继续处理请求
   next();
@@ -15,11 +18,14 @@ const requestLogger = (req, res, next) => {
   const end = new Date();
   const duration = end - start;
 
-  // 打印响应信息
-  console.log("--- Response ---");
-  console.log("Status:", res.statusCode);
-  console.log("Headers:", res.getHeaders());
-  console.log("Duration:", duration, "ms");
+  // 检查环境变量的值
+  if (process.env.NODE_ENV !== "test") {
+    // 打印响应信息
+    console.log("--- Response ---");
+    console.log("Status:", res.statusCode);
+    console.log("Headers:", res.getHeaders());
+    console.log("Duration:", duration, "ms");
+  }
 };
 
 module.exports = requestLogger;
