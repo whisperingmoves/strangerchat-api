@@ -12,7 +12,12 @@
     "test-rate-limiter": "cross-env NODE_ENV=test MAX_REQUESTS_PER_MINUTE=10 TIME_WINDOW_IN_MINUTES=1 NODE_NO_WARNINGS=1 mocha tests/api/rateLimiter.test.js",
     "format": "eslint --fix .",
     "checkmarx": "export CHECKMARX_ENABLED=false && npm audit",
-    "generate-upload-token": "node scripts/generateUploadToken.js"
+    "generate-upload-token": "node scripts/generateUploadToken.js",
+    "generate-upload-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateUploadToken.js",
+    "generate-upload-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateUploadToken.js",
+    "generate-publish-bundle-token": "node scripts/generatePublishBundleToken.js",
+    "generate-publish-bundle-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generatePublishBundleToken.js",
+    "generate-publish-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generatePublishBundleToken.js"
   },
   "dependencies": {
     "express": "^4.17.1",

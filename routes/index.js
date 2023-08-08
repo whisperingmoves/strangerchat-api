@@ -4,6 +4,7 @@ const multer = require("multer");
 const config = require("../config");
 const auth = require("../middlewares/auth");
 const uploadAuth = require("../middlewares/uploadAuth");
+const publishBundleAuth = require("../middlewares/publishBundleAuth");
 const verificationController = require("../controllers/verification");
 const userController = require("../controllers/user");
 const postController = require("../controllers/post");
@@ -188,7 +189,11 @@ router.post(
   uploadBundle,
   bundleController.uploadBundle
 );
-router.post("/bundles/publish", bundleController.publishBundle);
+router.post(
+  "/bundles/publish",
+  publishBundleAuth,
+  bundleController.publishBundle
+);
 router.post("/bundles/:bundleId/online", bundleController.onlineBundle);
 router.get("/bundles/refresh", bundleController.refreshBundle);
 

@@ -2951,7 +2951,8 @@ paths:
       summary: 发布 Bundle
       tags:
         - Bundle
-      security: [ ]
+      security:
+        - JWTAuth: [ ]
       requestBody:
         content:
           application/json:

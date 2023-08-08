@@ -30,4 +30,8 @@ module.exports = {
   },
   jwtUploadSecret: process.env.JWT_UPLOAD_SECRET || "a long random string",
   uploadKey: process.env.UPLOAD_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
+  jwtPublishBundleSecret:
+    process.env.JWT_PUBLISH_BUNDLE_SECRET || "a long random string",
+  publishBundleKey:
+    process.env.PUBLISH_BUNDLE_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
 };
