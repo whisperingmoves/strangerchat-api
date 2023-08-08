@@ -25,6 +25,8 @@ tags:
     description: 交易记录相关接口
   - name: WebSocket
     description: WebSocket相关接口
+  - name: Bundle
+    description: Bundle 相关接口
 paths:
 
   /verifications/sendCode:
@@ -2898,7 +2900,7 @@ paths:
 
   /uploadBundle:
     post:
-      summary: 上传 React Native Bundle 文件
+      summary: 上传 Bundle 文件
       tags:
         - 资源
       security: [ ]
@@ -2908,12 +2910,12 @@ paths:
             schema:
               type: object
               required:
-                - bundle
+                - Bundle
               properties:
                 bundle:
                   type: string
                   format: binary
-                  description: React Native Bundle 文件，以 MD5 作为文件名
+                  description: Bundle 文件，以 MD5 作为文件名
             encoding:
               bundle:
                 contentType: application/javascript
@@ -2928,7 +2930,112 @@ paths:
                 properties:
                   url:
                     type: string
-                    description: React Native Bundle 文件 URL
+                    example: "test.bundle"
+                    description: Bundle 文件 URL
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /bundles/publish:
+    post:
+      summary: 发布 Bundle
+      tags:
+        - Bundle
+      security: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - url
+                - version
+              properties:
+                url:
+                  type: string
+                  description: Bundle 文件的 URL
+                  example: "test.bundle"
+                version:
+                  type: string
+                  description: Bundle 的版本号
+                  example: "1.0.0"
+      responses:
+        200:
+          description: Bundle 发布成功
+          content:
+            application/json:
+              schema:
+                required:
+                  - bundleId
+                properties:
+                  bundleId:
+                    type: string
+                    example: 6133a6e2f7dcb80021a7e28a
+                    description: Bundle 的 ID
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /bundles/{bundleId}/online:
+    post:
+      summary: 上线 Bundle
+      tags:
+        - Bundle
+      security: [ ]
+      parameters:
+        - in: path
+          name: bundleId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: Bundle 的 ID
+      responses:
+        200:
+          description: Bundle 上线成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /bundles/refresh:
+    get:
+      summary: Bundle 版本请求
+      tags:
+        - Bundle
+      security: [ ]
+      responses:
+        200:
+          description: 请求成功
+          content:
+            application/json:
+              schema:
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+                    example: "test.bundle"
+                    description: Bundle 文件 URL
         400:
           $ref: '#/components/responses/BadRequest'
         403:

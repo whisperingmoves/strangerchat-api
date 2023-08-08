@@ -82,7 +82,7 @@ describe("Uploads API", () => {
   });
 
   describe("POST /uploadBundle", () => {
-    it("should upload React Native Bundle file successfully", (done) => {
+    it("should upload Bundle file successfully", (done) => {
       const bundlePath = path.join(__dirname, "test.bundle");
       chai
         .request(app)
@@ -103,12 +103,12 @@ describe("Uploads API", () => {
         });
     });
 
-    it("should return 400 if bundle file is invalid", (done) => {
+    it("should return 400 if Bundle file is invalid", (done) => {
       chai
         .request(app)
         .post("/uploadBundle")
         .send({
-          // 无效的 bundle 文件字段
+          // 无效的 Bundle 文件字段
         })
         .then((res) => {
           res.should.have.status(400);

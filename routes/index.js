@@ -161,8 +161,11 @@ router.get(
   coinTransactionController.getCoinTransactionList
 );
 
-// React Native Bundle路由
+// Bundle 路由
 router.post("/uploadBundle", uploadBundle, bundleController.uploadBundle);
+router.post("/bundles/publish", bundleController.publishBundle);
+router.post("/bundles/:bundleId/online", bundleController.onlineBundle);
+router.get("/bundles/refresh", bundleController.refreshBundle);
 
 // 其他路由
 router.get("/health", (req, res) => {
