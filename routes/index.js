@@ -6,6 +6,7 @@ const auth = require("../middlewares/auth");
 const uploadAuth = require("../middlewares/uploadAuth");
 const publishBundleAuth = require("../middlewares/publishBundleAuth");
 const refreshBundleAuth = require("../middlewares/refreshBundleAuth");
+const adminAuth = require("../middlewares/adminAuth");
 const verificationController = require("../controllers/verification");
 const userController = require("../controllers/user");
 const postController = require("../controllers/post");
@@ -195,7 +196,11 @@ router.post(
   publishBundleAuth,
   bundleController.publishBundle
 );
-router.post("/bundles/:bundleId/online", bundleController.onlineBundle);
+router.post(
+  "/bundles/:bundleId/online",
+  adminAuth,
+  bundleController.onlineBundle
+);
 router.get(
   "/bundles/refresh",
   refreshBundleAuth,

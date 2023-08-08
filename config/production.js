@@ -38,4 +38,6 @@ module.exports = {
     process.env.JWT_REFRESH_BUNDLE_SECRET || "a long random string",
   refreshBundleKey:
     process.env.REFRESH_BUNDLE_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
+  jwtAdminSecret: process.env.JWT_ADMIN_SECRET || "a long random string",
+  saltRounds: process.env.SALT_ROUNDS || 14,
 };

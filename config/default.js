@@ -38,4 +38,6 @@ module.exports = {
     process.env.JWT_REFRESH_BUNDLE_SECRET || "a long random string",
   refreshBundleKey:
     process.env.REFRESH_BUNDLE_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
+  jwtAdminSecret: process.env.JWT_ADMIN_SECRET || "a long random string",
+  saltRounds: process.env.SALT_ROUNDS || 14, // 用于指定密码哈希强度的配置参数，它确定了哈希算法中进行迭代的轮数。轮数越高，生成的哈希值越复杂和安全，但也需要更长的计算时间
 };

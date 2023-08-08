@@ -2998,7 +2998,8 @@ paths:
       summary: 上线 Bundle
       tags:
         - Bundle
-      security: [ ]
+      security:
+        - JWTAuth: [ ]
       parameters:
         - in: path
           name: bundleId

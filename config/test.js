@@ -32,4 +32,6 @@ module.exports = {
   publishBundleKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
   jwtRefreshBundleSecret: "a-secret-string-for-test",
   refreshBundleKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
+  jwtAdminSecret: "a-secret-string-for-test",
+  saltRounds: 10,
 };

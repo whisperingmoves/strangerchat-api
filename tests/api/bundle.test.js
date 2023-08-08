@@ -4,6 +4,12 @@ const { it, describe, beforeEach } = require("mocha");
 const app = require("../../app");
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
+const {
+  generateRandomUsername,
+  generateStrongPassword,
+} = require("../../utils/authUtils");
+const bcrypt = require("bcrypt");
+const AdminUser = require("../../models/AdminUser");
 
 chai.use(chaiHttp);
 chai.should();
@@ -12,8 +18,9 @@ describe("Bundle API", () => {
   let url = "test.bundle";
   let publishBundleToken;
   let refreshBundleToken;
+  let adminToken;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // 生成发布Bundle专用 JWT Token
     publishBundleToken = jwt.sign(
       { publishBundleKey: config.publishBundleKey },
@@ -25,6 +32,23 @@ describe("Bundle API", () => {
       { refreshBundleKey: config.refreshBundleKey },
       config.jwtRefreshBundleSecret
     );
+
+    // 生成随机的用户名
+    const username = generateRandomUsername();
+
+    // 生成高强度密码
+    const password = generateStrongPassword();
+
+    // 创建管理员用户
+    const hashedPassword = await bcrypt.hash(password, config.saltRounds);
+    const adminUser = new AdminUser({
+      username: username,
+      password: hashedPassword,
+    });
+    await adminUser.save();
+
+    // 生成管理员用户登录 JWT Token
+    adminToken = jwt.sign({ adminId: adminUser.id }, config.jwtAdminSecret);
   });
 
   describe("POST /bundles/publish", () => {
@@ -86,9 +110,21 @@ describe("Bundle API", () => {
           chai
             .request(app)
             .post(`/bundles/${bundleId}/online`)
+            .set("Authorization", `Bearer ${adminToken}`) // 使用 JWT 认证
             .then((res) => {
               res.should.have.status(200);
-              done();
+
+              // 尝试未授权访问
+              chai
+                .request(app)
+                .post(`/bundles/${bundleId}/online`)
+                .then((res) => {
+                  res.should.have.status(401);
+                  done();
+                })
+                .catch((err) => {
+                  done(err);
+                });
             })
             .catch((err) => {
               done(err);
@@ -121,6 +157,7 @@ describe("Bundle API", () => {
           chai
             .request(app)
             .post(`/bundles/${bundleId}/online`)
+            .set("Authorization", `Bearer ${adminToken}`) // 使用 JWT 认证
             .then((res) => {
               res.should.have.status(200);
 

@@ -20,7 +20,10 @@
     "generate-publish-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generatePublishBundleToken.js",
     "generate-refresh-bundle-token": "node scripts/generateRefreshBundleToken.js",
     "generate-refresh-bundle-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateRefreshBundleToken.js",
-    "generate-refresh-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateRefreshBundleToken.js"
+    "generate-refresh-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateRefreshBundleToken.js",
+    "generate-admin-user": "node scripts/generateAdminUser.js",
+    "generate-admin-user-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateAdminUser.js",
+    "generate-admin-user-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateAdminUser.js"
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -30,7 +33,8 @@
     "swagger-ui-express": "^4.1.6",
     "yamljs": "^0.3.0",
     "moment": "^2.29.1",
-    "socket.io": "^4.1.3"
+    "socket.io": "^4.1.3",
+    "bcrypt": "^5.0.1"
   },
   "devDependencies": {
     "chai": "^4.3.0",
