@@ -89,7 +89,7 @@ describe("Bundle API", () => {
     });
   });
 
-  describe("POST /bundles/{bundleId}/online", () => {
+  describe("POST /admin/bundles/{bundleId}/online", () => {
     it("should bring a bundle online", (done) => {
       chai
         .request(app)
@@ -109,7 +109,7 @@ describe("Bundle API", () => {
 
           chai
             .request(app)
-            .post(`/bundles/${bundleId}/online`)
+            .post(`/admin/bundles/${bundleId}/online`)
             .set("Authorization", `Bearer ${adminToken}`) // 使用 JWT 认证
             .then((res) => {
               res.should.have.status(200);
@@ -117,7 +117,7 @@ describe("Bundle API", () => {
               // 尝试未授权访问
               chai
                 .request(app)
-                .post(`/bundles/${bundleId}/online`)
+                .post(`/admin/bundles/${bundleId}/online`)
                 .then((res) => {
                   res.should.have.status(401);
                   done();
@@ -156,7 +156,7 @@ describe("Bundle API", () => {
 
           chai
             .request(app)
-            .post(`/bundles/${bundleId}/online`)
+            .post(`/admin/bundles/${bundleId}/online`)
             .set("Authorization", `Bearer ${adminToken}`) // 使用 JWT 认证
             .then((res) => {
               res.should.have.status(200);

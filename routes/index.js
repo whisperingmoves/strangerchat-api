@@ -199,7 +199,7 @@ router.post(
   bundleController.publishBundle
 );
 router.post(
-  "/bundles/:bundleId/online",
+  "/admin/bundles/:bundleId/online",
   adminAuth,
   bundleController.onlineBundle
 );

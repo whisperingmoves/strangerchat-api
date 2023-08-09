@@ -26,9 +26,11 @@ tags:
   - name: WebSocket
     description: WebSocket相关接口
   - name: Bundle
-    description: Bundle 相关接口
+    description: Bundle相关接口
   - name: 监控
-    description: 监控 相关接口
+    description: 监控相关接口
+  - name: 后台管理
+    description: 后台管理接口
 paths:
 
   /verifications/sendCode:
@@ -2995,11 +2997,12 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
-  /bundles/{bundleId}/online:
+  /admin/bundles/{bundleId}/online:
     post:
       summary: 上线 Bundle
       tags:
         - Bundle
+        - 后台管理
       security:
         - JWTAuth: [ ]
       parameters:
