@@ -2,7 +2,7 @@ module.exports = {
   env: "development",
   port: 3000,
   dbUrl: "mongodb://localhost:27018/chat_dev",
-  monitorDbUrl: "mongodb://localhost/monitor_dev",
+  monitorDbUrl: "mongodb://localhost:27018/monitor_dev",
   verifyCodeExpires: 60,
   avatarUploadPath: "./public/uploads/avatars-dev/",
   postUploadPath: "./public/uploads/posts-dev/",

@@ -15,12 +15,17 @@ const socketAuthMiddleware = require("./middlewares/socketAuth");
 const requestLoggerMiddleware = require("./middlewares/requestLogger");
 const rateLimiterMiddleware = require("./middlewares/rateLimiter");
 const sockets = require("./sockets");
+const ErrorMonitorService = require("./services/ErrorMonitorService");
 
 // 模块定义
 const swaggerDocument = YAML.load("./docs/openapi.yaml");
 const userIdSocketMap = {};
 
 const app = express();
+
+// 实例化 ErrorMonitoringService 并设置启动时间
+const errorMonitoringService = ErrorMonitorService.getInstance();
+errorMonitoringService.setAppStartTime(new Date());
 
 let server;
 
