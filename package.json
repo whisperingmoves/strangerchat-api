@@ -23,7 +23,10 @@
     "generate-refresh-bundle-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateRefreshBundleToken.js",
     "generate-admin-user": "node scripts/generateAdminUser.js",
     "generate-admin-user-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateAdminUser.js",
-    "generate-admin-user-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateAdminUser.js"
+    "generate-admin-user-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateAdminUser.js",
+    "generate-monitor-token": "node scripts/generateMonitorToken.js",
+    "generate-monitor-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateMonitorToken.js",
+    "generate-monitor-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateMonitorToken.js"
   },
   "dependencies": {
     "express": "^4.17.1",

@@ -2,6 +2,7 @@ module.exports = {
   env: process.env.NODE_ENV || "development",
   port: process.env.PORT || 3000,
   dbUrl: process.env.MONGO_URL || "mongodb://localhost/chat",
+  monitorDbUrl: process.env.MONGO_MONITOR_URL || "mongodb://localhost/monitor",
   verifyCodeExpires: process.env.CODE_EXPIRES || 300, // 验证码有效时间(秒)
   avatarUploadPath:
     process.env.AVATAR_UPLOAD_PATH || "./public/uploads/avatars/",
@@ -40,4 +41,6 @@ module.exports = {
     process.env.REFRESH_BUNDLE_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
   jwtAdminSecret: process.env.JWT_ADMIN_SECRET || "a long random string",
   saltRounds: process.env.SALT_ROUNDS || 14,
+  jwtMonitorSecret: process.env.JWT_MONITOR_SECRET || "a long random string",
+  monitorKey: process.env.MONITOR_KEY || "fd3fe3f6-2a93-47fa-b45d-917db5825314",
 };

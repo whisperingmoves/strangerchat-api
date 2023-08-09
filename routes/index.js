@@ -7,6 +7,7 @@ const uploadAuth = require("../middlewares/uploadAuth");
 const publishBundleAuth = require("../middlewares/publishBundleAuth");
 const refreshBundleAuth = require("../middlewares/refreshBundleAuth");
 const adminAuth = require("../middlewares/adminAuth");
+const monitorAuth = require("../middlewares/monitorAuth");
 const verificationController = require("../controllers/verification");
 const userController = require("../controllers/user");
 const postController = require("../controllers/post");
@@ -17,6 +18,7 @@ const giftController = require("../controllers/gift");
 const coinProductController = require("../controllers/coinProduct");
 const coinTransactionController = require("../controllers/coinTransaction");
 const bundleController = require("../controllers/bundle");
+const errorMonitorController = require("../controllers/errorMonitor");
 const { mkdirSync } = require("fs");
 const { getCurrentDate } = require("../utils/dateUtils");
 
@@ -206,6 +208,9 @@ router.get(
   refreshBundleAuth,
   bundleController.refreshBundle
 );
+
+// 监控路由
+router.post("/monitor/error", monitorAuth, errorMonitorController.monitorError);
 
 // 其他路由
 router.get("/health", (req, res) => {

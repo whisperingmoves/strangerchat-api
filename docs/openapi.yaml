@@ -27,6 +27,8 @@ tags:
     description: WebSocket相关接口
   - name: Bundle
     description: Bundle 相关接口
+  - name: 监控
+    description: 监控 相关接口
 paths:
 
   /verifications/sendCode:
@@ -3042,6 +3044,92 @@ paths:
                     type: string
                     example: "test.bundle"
                     description: Bundle 文件 URL
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /monitor/error:
+    post:
+      summary: 错误监控
+      tags:
+        - 监控
+      security:
+        - JWTAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - projectName
+                - errorMessage
+                - stackTrace
+              properties:
+                projectName:
+                  type: string
+                  description: 项目名称
+                errorMessage:
+                  type: string
+                  description: 错误消息
+                stackTrace:
+                  type: string
+                  description: 堆栈跟踪
+                ipAddress:
+                  type: string
+                  description: IP地址
+                runtimeName:
+                  type: string
+                  description: 运行时名称
+                runtimeVersion:
+                  type: string
+                  description: 运行时版本
+                appStartTime:
+                  type: string
+                  format: date-time
+                  description: App启动时间
+                appMemory:
+                  type: number
+                  description: App内存
+                browserName:
+                  type: string
+                  description: 浏览器名称
+                browserVersion:
+                  type: string
+                  description: 浏览器版本
+                locale:
+                  type: string
+                  description: locale区域
+                timezone:
+                  type: string
+                  description: 时区
+                operatingSystemName:
+                  type: string
+                  description: 操作系统名称
+                operatingSystemVersion:
+                  type: string
+                  description: 操作系统版本
+                occurredFile:
+                  type: string
+                  description: 发生错误的文件名称
+                occurredLine:
+                  type: number
+                  description: 发生错误的代码行
+                occurredFunction:
+                  type: string
+                  description: 发生错误的函数名称
+              example:
+                projectName: MyProject
+                errorMessage: An error occurred in the application.
+                stackTrace: Error stack trace...
+      responses:
+        200:
+          description: 错误日志已记录
         400:
           $ref: '#/components/responses/BadRequest'
         403:

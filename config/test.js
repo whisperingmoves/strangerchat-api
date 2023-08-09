@@ -2,6 +2,7 @@ module.exports = {
   env: "test",
   port: 3001,
   dbUrl: "mongodb://localhost:27018/chat_test",
+  monitorDbUrl: "mongodb://localhost/monitor_test",
   verifyCodeExpires: 60,
   avatarUploadPath: "./public/uploads/avatars-test/",
   postUploadPath: "./public/uploads/posts-test/",
@@ -34,4 +35,6 @@ module.exports = {
   refreshBundleKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
   jwtAdminSecret: "a-secret-string-for-test",
   saltRounds: 10,
+  jwtMonitorSecret: "a-secret-string-for-test",
+  monitorKey: "8fbe8212-8ba2-40c2-afef-4373ab4a88aa",
 };
