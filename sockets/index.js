@@ -11,6 +11,9 @@ const sendMessage = require("./sendMessage");
 const markMessageAsRead = require("./markMessageAsRead");
 const initiateVoiceCall = require("./initiateVoiceCall");
 const webrtcSignaling = require("./webrtcSignaling");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = (io, socket, userIdSocketMap) => {
   console.log(`Socket connected: ${socket.id}`);
@@ -29,21 +32,19 @@ module.exports = (io, socket, userIdSocketMap) => {
       console.log(`User ${userId} online`);
     })
     .catch((error) => {
+      errorMonitoringService.monitorError(error).then();
       console.error(error);
     });
 
-  pushNearestUsers(io, userIdSocketMap, userId)
-    .then()
-    .catch((err) => console.error("pushNearestUsers error:", err));
-  pushOnlineUsers(io, userIdSocketMap, userId)
-    .then()
-    .catch((err) => console.error("pushOnlineUsers error:", err));
-  pushUnreadNotificationsCount(io, userIdSocketMap, userId)
-    .then()
-    .catch((err) => console.error("pushUnreadNotificationsCount error:", err));
+  pushNearestUsers(io, userIdSocketMap, userId).then();
+  pushOnlineUsers(io, userIdSocketMap, userId).then();
+  pushUnreadNotificationsCount(io, userIdSocketMap, userId).then();
   processOnlineUsers(io, userIdSocketMap, userId)
     .then()
-    .catch((err) => console.error("processOnlineUsers error:", err));
+    .catch((error) => {
+      errorMonitoringService.monitorError(error).then();
+      console.error("processOnlineUsers error:", error);
+    });
 
   socket.on("disconnect", () => {
     console.log(`Socket disconnected: ${socket.id}`);
@@ -67,7 +68,10 @@ module.exports = (io, socket, userIdSocketMap) => {
 
       processOnlineUsers(io, userIdSocketMap, userId)
         .then()
-        .catch((err) => console.error("processOnlineUsers error:", err));
+        .catch((error) => {
+          errorMonitoringService.monitorError(error).then();
+          console.error("processOnlineUsers error:", error);
+        });
     }
   });
 
@@ -75,50 +79,40 @@ module.exports = (io, socket, userIdSocketMap) => {
     const { type, data: messageData } = data;
     switch (type) {
       case 0:
-        createChatConversation(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) => console.error("createChatConversation error:", err));
+        createChatConversation(io, userIdSocketMap, userId, messageData).then();
         break;
       case 1:
-        getRecentChatConversations(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) =>
-            console.error("getRecentChatConversations error:", err)
-          );
+        getRecentChatConversations(
+          io,
+          userIdSocketMap,
+          userId,
+          messageData
+        ).then();
         break;
       case 2:
-        getChatConversationDetails(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) =>
-            console.error("getChatConversationDetails error:", err)
-          );
+        getChatConversationDetails(
+          io,
+          userIdSocketMap,
+          userId,
+          messageData
+        ).then();
         break;
       case 3:
-        getRecentChatMessages(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) => console.error("getRecentChatMessages error:", err));
+        getRecentChatMessages(io, userIdSocketMap, userId, messageData).then();
         break;
       case 4:
-        sendMessage(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) => console.error("sendMessage error:", err));
+        sendMessage(io, userIdSocketMap, userId, messageData).then();
         break;
       case 5:
-        markMessageAsRead(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) => console.error("markMessageAsRead error:", err));
+        markMessageAsRead(io, userIdSocketMap, userId, messageData).then();
         break;
       case 6:
-        initiateVoiceCall(io, userIdSocketMap, userId, messageData)
-          .then()
-          .catch((err) => console.error("initiateVoiceCall error:", err));
+        initiateVoiceCall(io, userIdSocketMap, userId, messageData).then();
         break;
       case 7:
       case 8:
       case 9:
-        webrtcSignaling(io, userIdSocketMap, userId, type, messageData)
-          .then()
-          .catch((err) => console.error("webrtcSignaling error:", err));
+        webrtcSignaling(io, userIdSocketMap, userId, type, messageData).then();
         break;
       default:
         console.log("Invalid message type");

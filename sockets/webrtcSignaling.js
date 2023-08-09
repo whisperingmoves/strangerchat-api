@@ -1,3 +1,7 @@
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
+
 module.exports = async (io, userIdSocketMap, userId, type, data) => {
   try {
     const { opponentUserId } = data;
@@ -33,6 +37,7 @@ module.exports = async (io, userIdSocketMap, userId, type, data) => {
       });
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in webrtcSignaling socket controller:", error);
   }
 };

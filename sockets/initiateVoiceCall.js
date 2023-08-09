@@ -1,6 +1,9 @@
 const ChatMessage = require("../models/ChatMessage");
 const VoiceCallRecord = require("../models/VoiceCallRecord");
 const ChatConversation = require("../models/ChatConversation");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
@@ -73,6 +76,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       }
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in initiateVoiceCall socket controller:", error);
   }
 };

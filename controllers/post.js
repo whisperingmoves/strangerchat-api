@@ -7,6 +7,9 @@ const ChatConversation = require("../models/ChatConversation");
 const pushNearestUsers = require("../sockets/pushNearestUsers");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const { processUsersWithLocation } = require("./helper");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 const uploadPost = async (req, res, next) => {
   try {
@@ -558,12 +561,13 @@ const getRecommendedPosts = async (req, res, next) => {
     // 更新用户的位置信息后，调用相应的处理函数
     const io = req.app.get("io");
     const userIdSocketMap = req.app.get("userIdSocketMap");
-    pushNearestUsers(io, userIdSocketMap, userId)
-      .then()
-      .catch((err) => console.error("pushNearestUsers error: ", err));
+    pushNearestUsers(io, userIdSocketMap, userId).then();
     processUsersWithLocation(io, userIdSocketMap, userId)
       .then()
-      .catch((err) => console.error("processUsersWithLocation error: ", err));
+      .catch((error) => {
+        errorMonitoringService.monitorError(error).then();
+        console.error("processUsersWithLocation error: ", error);
+      });
   } else {
     const userId = req.user.userId;
     try {

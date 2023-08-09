@@ -1,3 +1,7 @@
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
+
 module.exports = async (io, userIdSocketMap, userId) => {
   try {
     let online = 0;
@@ -15,6 +19,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
       });
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in onlineUsers socket controller:", error);
   }
 };

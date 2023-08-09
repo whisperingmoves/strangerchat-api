@@ -2,6 +2,9 @@ const InteractionNotification = require("../models/InteractionNotification");
 const StatusNotification = require("../models/StatusNotification");
 const GiftNotification = require("../models/GiftNotification");
 const SystemNotification = require("../models/SystemNotification");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId) => {
   try {
@@ -37,6 +40,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
       });
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error(
       "Error in pushUnreadNotificationsCount socket controller:",
       error

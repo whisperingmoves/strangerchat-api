@@ -2,6 +2,9 @@ const { calculateDistance } = require("../utils/distanceUtils");
 const ChatConversation = require("../models/ChatConversation");
 const ChatMessage = require("../models/ChatMessage");
 const User = require("../models/User");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
@@ -11,7 +14,9 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     const conversation = await ChatConversation.findById(conversationId);
     if (!conversation) {
       // 聊天会话不存在
-      console.error("Conversation not found");
+      const error = new Error("Conversation not found");
+      errorMonitoringService.monitorError(error).then();
+      console.error(error.message);
       return;
     }
 
@@ -83,6 +88,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       });
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error(
       "Error in getChatConversationDetails socket controller:",
       error

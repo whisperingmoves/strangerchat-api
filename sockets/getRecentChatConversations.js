@@ -2,6 +2,9 @@ const { calculateDistance } = require("../utils/distanceUtils");
 const ChatConversation = require("../models/ChatConversation");
 const ChatMessage = require("../models/ChatMessage");
 const User = require("../models/User");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
@@ -95,6 +98,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       sendBatchedConversations(io, userIdSocketMap, userId, batch);
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error(
       "Error in getRecentChatConversations socket controller:",
       error

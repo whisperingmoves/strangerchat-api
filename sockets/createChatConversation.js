@@ -1,6 +1,9 @@
 const { calculateDistance } = require("../utils/distanceUtils");
 const ChatConversation = require("../models/ChatConversation");
 const User = require("../models/User");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
@@ -74,6 +77,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       });
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in createChatConversation socket controller:", error);
   }
 };

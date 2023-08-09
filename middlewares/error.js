@@ -1,15 +1,20 @@
-module.exports = (err, req, res) => {
-  console.error(err);
+const ErrorMonitorService = require("../services/ErrorMonitorService");
 
-  res.status(err.status || 500);
+const errorMonitoringService = ErrorMonitorService.getInstance();
+
+module.exports = (error, req, res) => {
+  errorMonitoringService.monitorError(error).then();
+  console.error(error);
+
+  res.status(error.status || 500);
   res.json({
-    message: err.message,
+    message: error.message,
   });
 
   if (process.env.NODE_ENV === "development") {
     res.json({
-      message: err.message,
-      stack: err.stack,
+      message: error.message,
+      stack: error.stack,
     });
   }
 };

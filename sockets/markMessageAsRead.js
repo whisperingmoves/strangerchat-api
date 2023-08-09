@@ -1,4 +1,7 @@
 const ChatMessage = require("../models/ChatMessage");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
@@ -12,7 +15,9 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     });
 
     if (!message) {
-      console.error("Message not found");
+      const error = new Error("Message not found");
+      errorMonitoringService.monitorError(error).then();
+      console.error(error.message);
       return;
     }
 
@@ -52,6 +57,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       }
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in markMessageAsRead socket controller:", error);
   }
 };

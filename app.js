@@ -62,6 +62,7 @@ mongoose.connection.once("open", async () => {
     await Post.createIndexes({ location: "2dsphere" });
     console.log("地理索引创建成功！");
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("创建地理索引时出错：", error);
   }
 });
@@ -93,14 +94,16 @@ server.listen(config.port, () => {
 });
 
 // 捕捉未经处理的同步异常
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
+process.on("uncaughtException", (error) => {
+  errorMonitoringService.monitorError(error).then();
+  console.error("Uncaught Exception:", error);
   process.exit(1); // 终止进程
 });
 
 // 捕捉未经处理的异步异常
-process.on("unhandledRejection", (err) => {
-  console.error("Unhandled Rejection:", err);
+process.on("unhandledRejection", (error) => {
+  errorMonitoringService.monitorError(error).then();
+  console.error("Unhandled Rejection:", error);
   process.exit(1); // 终止进程
 });
 

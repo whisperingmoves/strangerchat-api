@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const mongoose = require("mongoose");
 const { calculateDistance } = require("../utils/distanceUtils");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId) => {
   try {
@@ -83,6 +86,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
       }
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in nearbyUsers socket controller:", error);
   }
 };

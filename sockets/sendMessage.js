@@ -1,5 +1,8 @@
 const ChatConversation = require("../models/ChatConversation");
 const ChatMessage = require("../models/ChatMessage");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
@@ -9,7 +12,9 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     const conversation = await ChatConversation.findById(conversationId);
 
     if (!conversation) {
-      console.error("Conversation not found");
+      const error = new Error("Conversation not found");
+      errorMonitoringService.monitorError(error).then();
+      console.error(error.message);
       return;
     }
 
@@ -18,7 +23,9 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       conversation.userId1.toString() !== userId &&
       conversation.userId2.toString() !== userId
     ) {
-      console.error("User is not a participant of the conversation");
+      const error = new Error("User is not a participant of the conversation");
+      errorMonitoringService.monitorError(error).then();
+      console.error(error.message);
       return;
     }
 
@@ -77,6 +84,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       }
     }
   } catch (error) {
+    errorMonitoringService.monitorError(error).then();
     console.error("Error in sendMessage socket controller:", error);
   }
 };

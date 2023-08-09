@@ -12,6 +12,9 @@ const {
 } = require("./helper");
 const pushNearestUsers = require("../sockets/pushNearestUsers");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
+const ErrorMonitorService = require("../services/ErrorMonitorService");
+
+const errorMonitoringService = ErrorMonitorService.getInstance();
 
 const register = async (req, res, next) => {
   const { mobile, gender, birthday, avatar, longitude, latitude } = req.body;
@@ -49,13 +52,17 @@ const register = async (req, res, next) => {
     if (!user.location || !user.location.coordinates) {
       processUsersWithEmptyLocation(io, userIdSocketMap, user.id)
         .then()
-        .catch((err) =>
-          console.error("processUsersWithEmptyLocation error: ", err)
-        );
+        .catch((error) => {
+          errorMonitoringService.monitorError(error).then();
+          console.error("processUsersWithEmptyLocation error: ", error);
+        });
     } else {
       processAllOnlineUsers(io, userIdSocketMap, user.id)
         .then()
-        .catch((err) => console.error("processAllOnlineUsers error: ", err));
+        .catch((error) => {
+          errorMonitoringService.monitorError(error).then();
+          console.error("processAllOnlineUsers error: ", error);
+        });
     }
 
     res.json({
@@ -483,12 +490,13 @@ const updateUserProfile = async (req, res, next) => {
     if (longitude && latitude) {
       const io = req.app.get("io");
       const userIdSocketMap = req.app.get("userIdSocketMap");
-      pushNearestUsers(io, userIdSocketMap, userId)
-        .then()
-        .catch((err) => console.error("pushNearestUsers error: ", err));
+      pushNearestUsers(io, userIdSocketMap, userId).then();
       processUsersWithLocation(io, userIdSocketMap, user.id)
         .then()
-        .catch((err) => console.error("processUsersWithLocation error: ", err));
+        .catch((error) => {
+          errorMonitoringService.monitorError(error).then();
+          console.error("processUsersWithLocation error: ", error);
+        });
     }
 
     res.sendStatus(200);
