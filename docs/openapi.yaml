@@ -30,7 +30,7 @@ tags:
   - name: 监控
     description: 监控相关接口
   - name: 后台管理
-    description: 后台管理接口
+    description: 后台管理相关接口
 paths:
 
   /verifications/sendCode:
@@ -240,7 +240,7 @@ paths:
       tags:
         - 资源
       security:
-        - JWTAuth: [ ]
+        - JWTAuth: [ upload ]
       requestBody:
         content:
           multipart/form-data:
@@ -1563,7 +1563,7 @@ paths:
       tags:
         - 资源
       security:
-        - JWTAuth: [ ]
+        - JWTAuth: [ upload ]
       requestBody:
         content:
           multipart/form-data:
@@ -2910,7 +2910,7 @@ paths:
       tags:
         - 资源
       security:
-        - JWTAuth: [ ]
+        - JWTAuth: [ upload ]
       requestBody:
         content:
           multipart/form-data:
@@ -2956,7 +2956,7 @@ paths:
       tags:
         - Bundle
       security:
-        - JWTAuth: [ ]
+        - JWTAuth: [ publishBundle ]
       requestBody:
         content:
           application/json:
@@ -3033,7 +3033,7 @@ paths:
       tags:
         - Bundle
       security:
-        - JWTAuth: [ ]
+        - JWTAuth: [ refreshBundle ]
       responses:
         200:
           description: 请求成功
@@ -3064,7 +3064,7 @@ paths:
       tags:
         - 监控
       security:
-        - JWTAuth: [ ]
+        - JWTAuth: [ monitor ]
       requestBody:
         content:
           application/json:
