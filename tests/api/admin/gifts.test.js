@@ -14,7 +14,7 @@ const jwt = require("jsonwebtoken");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe("Gift Admin API", () => {
+describe("Gifts Admin API", () => {
   let adminToken;
 
   beforeEach(async () => {

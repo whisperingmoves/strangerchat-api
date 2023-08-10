@@ -3146,7 +3146,7 @@ paths:
 
   /admin/gifts:
     post:
-      summary: 新增礼物
+      summary: 创建礼物
       tags:
         - 礼物
         - 后台管理
@@ -3426,7 +3426,109 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              required:
+                - mobile
+                - gender
+                - birthday
+                - avatar
+              properties:
+                mobile:
+                  type: string
+                  description: 用户手机号
+                  example: "1234567890"
+                gender:
+                  type: string
+                  description: 用户性别
+                  example: "male"
+                birthday:
+                  type: string
+                  format: date
+                  description: 用户生日
+                  example: "1990-01-01"
+                avatar:
+                  type: string
+                  description: 用户头像 URL
+                  example: "/avatars/user001.png"
+                giftsReceived:
+                  type: integer
+                  description: 接收到的礼物数量
+                  example: 5
+                username:
+                  type: string
+                  description: 用户名
+                  example: "JohnDoe"
+                city:
+                  type: string
+                  description: 用户所在城市
+                  example: "New York"
+                followingCount:
+                  type: integer
+                  description: 关注的用户数量
+                  example: 10
+                followersCount:
+                  type: integer
+                  description: 粉丝数量
+                  example: 20
+                visitorsCount:
+                  type: integer
+                  description: 访客数量
+                  example: 100
+                freeHeatsLeft:
+                  type: integer
+                  description: 剩余免费热度次数
+                  example: 2
+                coinBalance:
+                  type: integer
+                  description: 金币余额
+                  example: 500
+                checkedDays:
+                  type: integer
+                  description: 连续签到的天数
+                  example: 7
+                lastCheckDate:
+                  type: string
+                  format: date-time
+                  description: 上次签到日期
+                  example: "2023-08-10T09:00:00Z"
+                location:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: 地理位置类型
+                      example: "Point"
+                    coordinates:
+                      type: array
+                      items:
+                        type: number
+                      description: 地理坐标 [经度, 纬度]
+                      example: [ -73.9857, 40.7484 ]
+                following:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: 关注的用户列表
+                receivedGiftRankings:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        format: uuid
+                        description: 用户 ID
+                      lastRanking:
+                        type: integer
+                        description: 上次排名
+                  description: 接收到礼物的排行榜
+                online:
+                  type: integer
+                  enum: [ 0, 1 ]
+                  description: |
+                    是否在线 (0: 否, 1: 是)
+                  example: 1
       responses:
         201:
           description: 用户创建成功
@@ -3550,7 +3652,124 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'
+                      type: object
+                      required:
+                        - id
+                        - mobile
+                        - gender
+                        - birthday
+                        - avatar
+                      properties:
+                        id:
+                          type: string
+                          description: 礼物 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        mobile:
+                          type: string
+                          description: 用户手机号
+                          example: "1234567890"
+                        gender:
+                          type: string
+                          description: 用户性别
+                          example: "male"
+                        birthday:
+                          type: string
+                          format: date
+                          description: 用户生日
+                          example: "1990-01-01"
+                        avatar:
+                          type: string
+                          description: 用户头像 URL
+                          example: "/avatars/user001.png"
+                        giftsReceived:
+                          type: integer
+                          description: 接收到的礼物数量
+                          example: 5
+                        username:
+                          type: string
+                          description: 用户名
+                          example: "JohnDoe"
+                        city:
+                          type: string
+                          description: 用户所在城市
+                          example: "New York"
+                        followingCount:
+                          type: integer
+                          description: 关注的用户数量
+                          example: 10
+                        followersCount:
+                          type: integer
+                          description: 粉丝数量
+                          example: 20
+                        visitorsCount:
+                          type: integer
+                          description: 访客数量
+                          example: 100
+                        freeHeatsLeft:
+                          type: integer
+                          description: 剩余免费热度次数
+                          example: 2
+                        coinBalance:
+                          type: integer
+                          description: 金币余额
+                          example: 500
+                        checkedDays:
+                          type: integer
+                          description: 连续签到的天数
+                          example: 7
+                        lastCheckDate:
+                          type: string
+                          format: date-time
+                          description: 上次签到日期
+                          example: "2023-08-10T09:00:00Z"
+                        location:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              description: 地理位置类型
+                              example: "Point"
+                            coordinates:
+                              type: array
+                              items:
+                                type: number
+                              description: 地理坐标 [经度, 纬度]
+                              example: [ -73.9857, 40.7484 ]
+                        following:
+                          type: array
+                          items:
+                            type: string
+                            format: uuid
+                          description: 关注的用户列表
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 创建时间
+                          example: "2023-08-01T12:00:00Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: 更新时间
+                          example: "2023-08-10T09:30:00Z"
+                        receivedGiftRankings:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              userId:
+                                type: string
+                                format: uuid
+                                description: 用户 ID
+                              lastRanking:
+                                type: integer
+                                description: 上次排名
+                          description: 接收到礼物的排行榜
+                        online:
+                          type: integer
+                          enum: [ 0, 1 ]
+                          description: |
+                            是否在线 (0: 否, 1: 是)
+                          example: 1
                     description: 用户列表
         400:
           $ref: '#/components/responses/BadRequest'
@@ -3584,10 +3803,165 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              required:
+                - mobile
+                - gender
+                - birthday
+                - avatar
+              properties:
+                mobile:
+                  type: string
+                  description: 用户手机号
+                  example: "1234567890"
+                gender:
+                  type: string
+                  description: 用户性别
+                  example: "male"
+                birthday:
+                  type: string
+                  format: date
+                  description: 用户生日
+                  example: "1990-01-01"
+                avatar:
+                  type: string
+                  description: 用户头像 URL
+                  example: "/avatars/user001.png"
+                giftsReceived:
+                  type: integer
+                  description: 接收到的礼物数量
+                  example: 5
+                username:
+                  type: string
+                  description: 用户名
+                  example: "JohnDoe"
+                city:
+                  type: string
+                  description: 用户所在城市
+                  example: "New York"
+                followingCount:
+                  type: integer
+                  description: 关注的用户数量
+                  example: 10
+                followersCount:
+                  type: integer
+                  description: 粉丝数量
+                  example: 20
+                visitorsCount:
+                  type: integer
+                  description: 访客数量
+                  example: 100
+                freeHeatsLeft:
+                  type: integer
+                  description: 剩余免费热度次数
+                  example: 2
+                coinBalance:
+                  type: integer
+                  description: 金币余额
+                  example: 500
+                checkedDays:
+                  type: integer
+                  description: 连续签到的天数
+                  example: 7
+                lastCheckDate:
+                  type: string
+                  format: date-time
+                  description: 上次签到日期
+                  example: "2023-08-10T09:00:00Z"
+                location:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: 地理位置类型
+                      example: "Point"
+                    coordinates:
+                      type: array
+                      items:
+                        type: number
+                      description: 地理坐标 [经度, 纬度]
+                      example: [ -73.9857, 40.7484 ]
+                following:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: 关注的用户列表
+                receivedGiftRankings:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        format: uuid
+                        description: 用户 ID
+                      lastRanking:
+                        type: integer
+                        description: 上次排名
+                  description: 接收到礼物的排行榜
+                online:
+                  type: integer
+                  enum: [ 0, 1 ]
+                  description: |
+                    是否在线 (0: 否, 1: 是)
+                  example: 1
       responses:
         200:
           description: 用户修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/giftHistories:
+    post:
+      summary: 创建礼物历史
+      tags:
+        - 礼物
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sender
+                - receiver
+                - gift
+                - quantity
+              properties:
+                sender:
+                  type: string
+                  description: 发送者的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                receiver:
+                  type: string
+                  description: 接收者的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9f
+                gift:
+                  type: string
+                  description: 礼物的唯一标识符
+                  example: 60f372a9515b5f001f4b3aa0
+                quantity:
+                  type: integer
+                  description: 礼物的数量
+                  example: 3
+                  minimum: 1
+      responses:
+        201:
+          description: 礼物历史创建成功
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -4200,116 +4574,5 @@ components:
           type: string
           description: ICE候选者的SDP媒体行标识符
           example: "audio"
-    User:
-      type: object
-      properties:
-        mobile:
-          type: string
-          description: 用户手机号
-          example: "1234567890"
-        gender:
-          type: string
-          description: 用户性别
-          example: "male"
-        birthday:
-          type: string
-          format: date
-          description: 用户生日
-          example: "1990-01-01"
-        avatar:
-          type: string
-          description: 用户头像 URL
-          example: "/avatars/user001.png"
-        giftsReceived:
-          type: integer
-          description: 接收到的礼物数量
-          example: 5
-        username:
-          type: string
-          description: 用户名
-          example: "JohnDoe"
-        city:
-          type: string
-          description: 用户所在城市
-          example: "New York"
-        followingCount:
-          type: integer
-          description: 关注的用户数量
-          example: 10
-        followersCount:
-          type: integer
-          description: 粉丝数量
-          example: 20
-        visitorsCount:
-          type: integer
-          description: 访客数量
-          example: 100
-        freeHeatsLeft:
-          type: integer
-          description: 剩余免费热度次数
-          example: 2
-        coinBalance:
-          type: integer
-          description: 金币余额
-          example: 500
-        checkedDays:
-          type: integer
-          description: 连续签到的天数
-          example: 7
-        lastCheckDate:
-          type: string
-          format: date-time
-          description: 上次签到日期
-          example: "2023-08-10T09:00:00Z"
-        location:
-          type: object
-          properties:
-            type:
-              type: string
-              description: 地理位置类型
-              example: "Point"
-            coordinates:
-              type: array
-              items:
-                type: number
-              description: 地理坐标 [经度, 纬度]
-              example: [ -73.9857, 40.7484 ]
-        following:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: 关注的用户列表
-        createdAt:
-          type: string
-          format: date-time
-          description: 创建时间
-          example: "2023-08-01T12:00:00Z"
-        updatedAt:
-          type: string
-          format: date-time
-          description: 更新时间
-          example: "2023-08-10T09:30:00Z"
-        receivedGiftRankings:
-          type: array
-          items:
-            type: object
-            properties:
-              userId:
-                type: string
-                format: uuid
-                description: 用户 ID
-              lastRanking:
-                type: integer
-                description: 上次排名
-          description: 接收到礼物的排行榜
-        online:
-          type: integer
-          enum: [ 0, 1 ]
-          description: |
-            是否在线 (0: 否, 1: 是)
-          example: 1
-      required:
-        - mobile
 security:
   - JWTAuth: [ ]

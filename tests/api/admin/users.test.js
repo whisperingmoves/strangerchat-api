@@ -15,7 +15,7 @@ const { generateMobile } = require("../../helper");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe("Gift Admin API", () => {
+describe("Users Admin API", () => {
   let adminToken;
 
   beforeEach(async () => {
@@ -344,8 +344,6 @@ describe("Gift Admin API", () => {
           coordinates: [-118.2437, 34.0522],
         },
         following: [],
-        createdAt: "2023-08-01T12:00:00Z",
-        updatedAt: "2023-08-10T09:30:00Z",
         receivedGiftRankings: [],
         online: 0,
       };

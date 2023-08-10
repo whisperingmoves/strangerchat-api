@@ -25,6 +25,10 @@ const giftHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 giftHistorySchema.virtual("id").get(function () {

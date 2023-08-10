@@ -14,7 +14,7 @@ const AdminUser = require("../../models/AdminUser");
 chai.use(chaiHttp);
 chai.should();
 
-describe("Bundle API", () => {
+describe("Bundles API", () => {
   let url = "test.bundle";
   let publishBundleToken;
   let refreshBundleToken;
