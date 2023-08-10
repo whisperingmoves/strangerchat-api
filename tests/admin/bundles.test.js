@@ -1,15 +1,15 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const { it, describe, beforeEach } = require("mocha");
-const app = require("../../../app");
+const app = require("../../app");
 const jwt = require("jsonwebtoken");
-const config = require("../../../config");
+const config = require("../../config");
 const {
   generateRandomUsername,
   generateStrongPassword,
-} = require("../../../utils/authUtils");
+} = require("../../utils/authUtils");
 const bcrypt = require("bcrypt");
-const AdminUser = require("../../../models/AdminUser");
+const AdminUser = require("../../models/AdminUser");
 
 chai.use(chaiHttp);
 chai.should();

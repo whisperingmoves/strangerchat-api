@@ -1,18 +1,19 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
-const app = require("../../../app");
+const { it, describe, beforeEach, afterEach } = require("mocha");
+const app = require("../../app");
 const {
   generateRandomUsername,
   generateStrongPassword,
-} = require("../../../utils/authUtils");
+} = require("../../utils/authUtils");
 const bcrypt = require("bcrypt");
-const config = require("../../../config");
-const AdminUser = require("../../../models/AdminUser");
-const User = require("../../../models/User");
-const Gift = require("../../../models/Gift");
+const config = require("../../config");
+const AdminUser = require("../../models/AdminUser");
+const User = require("../../models/User");
+const Gift = require("../../models/Gift");
+const GiftHistory = require("../../models/GiftHistory");
 const jwt = require("jsonwebtoken");
-const { generateMobile } = require("../../helper");
+const { generateMobile } = require("../helper");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
@@ -171,6 +172,58 @@ describe("Gift Histories Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/giftHistories", () => {
+    let giftHistoryIds; // 用于存储礼物历史记录的ID
+
+    beforeEach(async () => {
+      // 创建两个礼物历史模型并获取它们的ID
+      const giftHistory1 = new GiftHistory({
+        sender: sender1.id,
+        receiver: receiver1.id,
+        gift: gift1.id,
+        quantity: 3,
+      });
+      const giftHistory2 = new GiftHistory({
+        sender: sender2.id,
+        receiver: receiver2.id,
+        gift: gift2.id,
+        quantity: 2,
+      });
+
+      await Promise.all([giftHistory1.save(), giftHistory2.save()]);
+
+      giftHistoryIds = [giftHistory1.id, giftHistory2.id];
+    });
+
+    afterEach(async () => {
+      // 删除创建的礼物历史记录
+      await GiftHistory.deleteMany({});
+    });
+
+    it("should delete gift histories and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/giftHistories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: giftHistoryIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedGiftHistories = await GiftHistory.find({
+              _id: { $in: giftHistoryIds },
+            });
+            expect(deletedGiftHistories).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });

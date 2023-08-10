@@ -10,5 +10,10 @@ router.post(
   adminAuth,
   giftHistoryController.createGiftHistory
 );
+router.delete(
+  "/giftHistories",
+  adminAuth,
+  giftHistoryController.deleteGiftHistories
+);
 
 module.exports = router;

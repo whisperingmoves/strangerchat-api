@@ -17,6 +17,19 @@ const createGiftHistory = async (req, res, next) => {
   }
 };
 
+const deleteGiftHistories = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await GiftHistory.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createGiftHistory,
+  deleteGiftHistories,
 };
