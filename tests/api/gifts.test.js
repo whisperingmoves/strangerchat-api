@@ -6,6 +6,7 @@ const Gift = require("../../models/Gift");
 const User = require("../../models/User");
 const GiftHistory = require("../../models/GiftHistory");
 const { expect } = require("chai");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -17,7 +18,7 @@ describe("Gifts API", () => {
 
   beforeEach(async () => {
     // 生成随机的手机号
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
     // 注册用户并获取token
     const registerResponse = await chai
@@ -88,7 +89,7 @@ describe("Gifts API", () => {
     beforeEach(async () => {
       // 创建测试接收礼物用户
       receiver = await User.create({
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "female",
         birthday: new Date("1995-01-01"),
         avatar: "avatar.png",
@@ -229,7 +230,7 @@ describe("Gifts API", () => {
     beforeEach(async () => {
       // 创建测试送礼用户1
       sender1 = await User.create({
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "male",
         birthday: new Date("1990-01-01"),
         avatar: "avatar1.png",

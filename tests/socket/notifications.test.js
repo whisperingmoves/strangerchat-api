@@ -12,6 +12,7 @@ const Gift = require("../../models/Gift");
 const CoinProduct = require("../../models/CoinProduct");
 const SystemNotification = require("../../models/SystemNotification");
 const { calculateDistance } = require("../../utils/distanceUtils");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -32,7 +33,7 @@ describe("Notifications Socket", () => {
     const latitude = 31.2 + Math.random() * 0.01;
 
     // 生成随机的手机号
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
     // 注册用户并获取 token
     const registerRes = await chai.request(app).post("/users/register").send({
@@ -50,7 +51,7 @@ describe("Notifications Socket", () => {
     user = await User.findOne({ mobile: mobile });
 
     // 注册另一个用户并保存结果
-    const otherUserMobile = "135" + Math.floor(Math.random() * 1000000000);
+    const otherUserMobile = generateMobile();
     const registerOtherRes = await chai
       .request(app)
       .post("/users/register")
@@ -85,7 +86,7 @@ describe("Notifications Socket", () => {
     // 注册5个距离当前用户最近的用户
     const otherUsers = [
       {
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "male",
         birthday: "1980-01-01",
         avatar: "avatar1.png",
@@ -93,7 +94,7 @@ describe("Notifications Socket", () => {
         latitude: latitude.toString(),
       },
       {
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "female",
         birthday: "1985-01-01",
         avatar: "avatar2.png",
@@ -101,7 +102,7 @@ describe("Notifications Socket", () => {
         latitude: (latitude + 0.0001).toString(),
       },
       {
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "male",
         birthday: "2000-01-01",
         avatar: "avatar3.png",
@@ -109,7 +110,7 @@ describe("Notifications Socket", () => {
         latitude: (latitude + 0.0002).toString(),
       },
       {
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "female",
         birthday: "1995-01-01",
         avatar: "avatar4.png",
@@ -117,7 +118,7 @@ describe("Notifications Socket", () => {
         latitude: (latitude + 0.0003).toString(),
       },
       {
-        mobile: "135" + Math.floor(Math.random() * 1000000000),
+        mobile: generateMobile(),
         gender: "male",
         birthday: "1990-01-01",
         avatar: "avatar5.png",

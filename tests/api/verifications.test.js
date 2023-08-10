@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const { it, beforeEach, describe } = require("mocha");
 const app = require("../../app");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -11,7 +12,7 @@ describe("Verifications API", () => {
     let mobile;
 
     beforeEach(() => {
-      mobile = "135" + Math.floor(Math.random() * 1000000000);
+      mobile = generateMobile();
     });
 
     it("should send code successfully", (done) => {
@@ -30,7 +31,7 @@ describe("Verifications API", () => {
     let mobile;
 
     beforeEach(() => {
-      mobile = "135" + Math.floor(Math.random() * 1000000000);
+      mobile = generateMobile();
     });
 
     let code;

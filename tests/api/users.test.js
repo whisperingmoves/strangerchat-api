@@ -3,6 +3,7 @@ const chaiHttp = require("chai-http");
 const { it, before, beforeEach, describe } = require("mocha");
 const app = require("../../app");
 const User = require("../../models/User");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -14,7 +15,7 @@ describe("Users API", () => {
 
   beforeEach(async () => {
     // 生成随机的手机号
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
     // 注册用户并获取token
     const registerResponse = await chai
@@ -35,7 +36,7 @@ describe("Users API", () => {
     let mobile;
 
     beforeEach(() => {
-      mobile = "135" + Math.floor(Math.random() * 1000000000);
+      mobile = generateMobile();
     });
 
     it("should register successfully", (done) => {
@@ -89,7 +90,7 @@ describe("Users API", () => {
         .request(app)
         .post("/users/register")
         .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
+          mobile: generateMobile(),
           gender: "male",
           birthday: "2023-07-30",
           avatar: "avatar.png",
@@ -151,15 +152,12 @@ describe("Users API", () => {
 
     beforeEach(async () => {
       // 创建一个用户名含有"张"的测试用户
-      const res1 = await chai
-        .request(app)
-        .post("/users/register")
-        .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
-          gender: "male",
-          birthday: "2023-07-30",
-          avatar: "avatar.png",
-        });
+      const res1 = await chai.request(app).post("/users/register").send({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: "2023-07-30",
+        avatar: "avatar.png",
+      });
 
       // 保存用户1的userId和token
       userId1 = res1.body.userId;
@@ -312,15 +310,12 @@ describe("Users API", () => {
 
     beforeEach(async () => {
       // 创建一个测试用户
-      const res1 = await chai
-        .request(app)
-        .post("/users/register")
-        .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
-          gender: "male",
-          birthday: "2023-07-30",
-          avatar: "avatar.png",
-        });
+      const res1 = await chai.request(app).post("/users/register").send({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: "2023-07-30",
+        avatar: "avatar.png",
+      });
 
       // 保存用户1的userId和token
       userId1 = res1.body.userId;
@@ -473,15 +468,12 @@ describe("Users API", () => {
 
     beforeEach(async () => {
       // 创建一个测试用户
-      const res1 = await chai
-        .request(app)
-        .post("/users/register")
-        .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
-          gender: "male",
-          birthday: "2023-07-30",
-          avatar: "avatar.png",
-        });
+      const res1 = await chai.request(app).post("/users/register").send({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: "2023-07-30",
+        avatar: "avatar.png",
+      });
 
       // 保存用户1的userId和token
       userId1 = res1.body.userId;
@@ -643,7 +635,7 @@ describe("Users API", () => {
 
     before(async () => {
       // 创建一个测试用户
-      checkMobile = "135" + Math.floor(Math.random() * 1000000000);
+      checkMobile = generateMobile();
       const res = await chai.request(app).post("/users/register").send({
         mobile: checkMobile,
         gender: "male",
@@ -785,7 +777,7 @@ describe("Users API", () => {
         .request(app)
         .post("/users/register")
         .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
+          mobile: generateMobile(),
           gender: "male",
           birthday: "2000-01-01",
           avatar: "https://example.com/avatar.png",

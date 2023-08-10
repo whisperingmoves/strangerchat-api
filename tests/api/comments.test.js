@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const { it, before, beforeEach, describe } = require("mocha");
 const app = require("../../app");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -14,7 +15,7 @@ describe("Comments API", () => {
 
   beforeEach(async () => {
     // 生成随机的手机号
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
     // 注册用户并获取token
     const registerResponse = await chai
@@ -134,7 +135,7 @@ describe("Comments API", () => {
 
     it("should return 404 if user is not the author of the comment", (done) => {
       // 创建另一个用户并获取其令牌
-      const otherUserMobile = "135" + Math.floor(Math.random() * 1000000000);
+      const otherUserMobile = generateMobile();
       const newUser = {
         mobile: otherUserMobile,
         gender: "male",

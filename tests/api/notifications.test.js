@@ -5,6 +5,7 @@ const app = require("../../app");
 const StatusNotification = require("../../models/StatusNotification");
 const GiftNotification = require("../../models/GiftNotification");
 const SystemNotification = require("../../models/SystemNotification");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -17,7 +18,7 @@ describe("Notifications API", () => {
 
   beforeEach(async () => {
     // 生成随机的手机号
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
     // 注册用户并获取token
     const registerResponse = await chai
@@ -297,7 +298,7 @@ describe("Notifications API", () => {
         .request(app)
         .post("/users/register")
         .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
+          mobile: generateMobile(),
           gender: "female",
           birthday: "2000-01-01",
           avatar: "avatar.png",
@@ -450,7 +451,7 @@ describe("Notifications API", () => {
         .request(app)
         .post("/users/register")
         .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
+          mobile: generateMobile(),
           gender: "female",
           birthday: "2000-01-01",
           avatar: "avatar.png",
@@ -608,7 +609,7 @@ describe("Notifications API", () => {
         .request(app)
         .post("/users/register")
         .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
+          mobile: generateMobile(),
           gender: "female",
           birthday: "2000-01-01",
           avatar: "avatar.png",
@@ -762,7 +763,7 @@ describe("Notifications API", () => {
         .request(app)
         .post("/users/register")
         .send({
-          mobile: "135" + Math.floor(Math.random() * 1000000000),
+          mobile: generateMobile(),
           gender: "female",
           birthday: "2000-01-01",
           avatar: "avatar.png",

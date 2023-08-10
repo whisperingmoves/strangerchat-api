@@ -6,6 +6,7 @@ const app = require("../../app");
 const config = require("../../config");
 const User = require("../../models/User");
 const { calculateDistance } = require("../../utils/distanceUtils");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -28,9 +29,9 @@ describe("Messages Socket", () => {
     const longitude = 121.5 + Math.random() * 0.01;
     const latitude = 31.2 + Math.random() * 0.01;
 
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
-    otherMobile = "135" + Math.floor(Math.random() * 1000000000);
+    otherMobile = generateMobile();
 
     // 注册用户并获取 token
     const registerRes = await chai.request(app).post("/users/register").send({

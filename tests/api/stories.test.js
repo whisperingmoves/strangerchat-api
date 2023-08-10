@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const { it, beforeEach, describe } = require("mocha");
 const app = require("../../app");
+const { generateMobile } = require("../helper");
 
 chai.use(chaiHttp);
 chai.should();
@@ -12,7 +13,7 @@ describe("Stories API", () => {
 
   beforeEach(async () => {
     // 生成随机的手机号
-    mobile = "135" + Math.floor(Math.random() * 1000000000);
+    mobile = generateMobile();
 
     // 注册用户并获取token
     const registerResponse = await chai
