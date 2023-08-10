@@ -50,6 +50,19 @@ const createUser = async (req, res, next) => {
   }
 };
 
+const deleteUsers = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await User.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createUser,
+  deleteUsers,
 };

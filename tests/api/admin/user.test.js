@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../../app");
 const {
   generateRandomUsername,
@@ -86,6 +86,62 @@ describe("Gift Admin API", () => {
               done();
             })
             .catch((error) => done(error));
+        });
+    });
+  });
+
+  describe("DELETE /admin/users", () => {
+    let userIds;
+
+    before((done) => {
+      const newUser1 = {
+        mobile: generateMobile(),
+        username: "JohnDoe",
+      };
+
+      const newUser2 = {
+        mobile: generateMobile(),
+        username: "JaneSmith",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newUser1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          const userId1 = res.body.id;
+
+          chai
+            .request(app)
+            .post("/admin/users")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newUser2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+              const userId2 = res.body.id;
+
+              userIds = [userId1, userId2];
+              done();
+            });
+        });
+    });
+
+    it("should delete users", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: userIds })
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+
+          // 验证删除是否成功
+          User.find({ _id: { $in: userIds } }, (err, users) => {
+            expect(users).to.have.lengthOf(0);
+            done();
+          });
         });
     });
   });

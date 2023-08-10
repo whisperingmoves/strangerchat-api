@@ -6,5 +6,6 @@ const router = express.Router();
 
 // 用户路由
 router.post("/users", adminAuth, userController.createUser);
+router.delete("/users", adminAuth, userController.deleteUsers);
 
 module.exports = router;
