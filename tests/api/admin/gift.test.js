@@ -106,7 +106,12 @@ describe("Gift Admin API", () => {
         .query({ ids: giftIds })
         .end((err, res) => {
           expect(res).to.have.status(204);
-          done();
+
+          // 验证删除是否成功
+          Gift.find({ _id: { $in: giftIds } }, (err, gifts) => {
+            expect(gifts).to.have.lengthOf(0);
+            done();
+          });
         });
     });
   });
