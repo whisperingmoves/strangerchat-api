@@ -145,4 +145,138 @@ describe("Gift Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/users", () => {
+    before((done) => {
+      // Create new users for testing
+      const newUser1 = {
+        mobile: "1234567890",
+        gender: "male",
+        birthday: "1990-01-01",
+        avatar: "/avatars/user001.png",
+        giftsReceived: 5,
+        username: "JohnDoe",
+        city: "New York",
+        followingCount: 10,
+        followersCount: 20,
+        visitorsCount: 100,
+        freeHeatsLeft: 2,
+        coinBalance: 500,
+        checkedDays: 7,
+        lastCheckDate: "2023-08-10T09:00:00Z",
+        location: {
+          type: "Point",
+          coordinates: [-73.9857, 40.7484],
+        },
+        following: [],
+        createdAt: "2023-08-01T12:00:00Z",
+        updatedAt: "2023-08-10T09:30:00Z",
+        receivedGiftRankings: [],
+        online: 1,
+      };
+
+      const newUser2 = {
+        mobile: "9876543210",
+        gender: "female",
+        birthday: "1995-05-05",
+        avatar: "/avatars/user002.png",
+        giftsReceived: 10,
+        username: "JaneSmith",
+        city: "Los Angeles",
+        followingCount: 5,
+        followersCount: 15,
+        visitorsCount: 50,
+        freeHeatsLeft: 1,
+        coinBalance: 1000,
+        checkedDays: 5,
+        lastCheckDate: "2023-08-05T09:00:00Z",
+        location: {
+          type: "Point",
+          coordinates: [-118.2437, 34.0522],
+        },
+        following: [],
+        createdAt: "2023-08-02T10:00:00Z",
+        updatedAt: "2023-08-10T10:30:00Z",
+        receivedGiftRankings: [],
+        online: 0,
+      };
+
+      // Create user 1
+      chai
+        .request(app)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newUser1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+
+          // Create user 2
+          chai
+            .request(app)
+            .post("/admin/users")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newUser2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+              done();
+            });
+        });
+    });
+
+    it("should get a paginated list of users", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter users by keyword", (done) => {
+      const keyword = "JohnDoe";
+
+      chai
+        .request(app)
+        .get("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ keyword })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items).to.have.lengthOf.above(0);
+          expect(res.body.items[0].username).to.equal(keyword);
+          done();
+        });
+    });
+
+    it("should sort users by createdAt in ascending order", (done) => {
+      const sort = "createdAt";
+      const order = "asc";
+
+      chai
+        .request(app)
+        .get("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });
