@@ -13,7 +13,7 @@ fs.readdirSync(routesDirectory).forEach((file) => {
       file = file.replace(".js", "");
     }
     const route = require(`./${file}`);
-    router.use(route);
+    router.use("/admin", route);
   }
 });
 

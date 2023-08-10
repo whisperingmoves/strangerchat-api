@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Bundle 路由
 router.post(
-  "/admin/bundles/:bundleId/online",
+  "/bundles/:bundleId/online",
   adminAuth,
   bundleController.onlineBundle
 );
