@@ -16,6 +16,14 @@ const giftSchema = new mongoose.Schema({
     min: 1,
     max: 10000,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 giftSchema.virtual("id").get(function () {

@@ -10,7 +10,7 @@ const rateLimiter = (req, res, next) => {
 
   // 创建新会话
   if (!clientIp) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "未授权" });
   }
 
   const session = sessions[clientIp];
@@ -36,7 +36,9 @@ const rateLimiter = (req, res, next) => {
       (requestsInWindow[0].timestamp - windowStartTime) / 1000
     ); // 秒数
     res.set("Retry-After", retryAfter);
-    return res.status(429).json({ message: "Too Many Requests" });
+    return res
+      .status(429)
+      .json({ message: "在一定的时间内用户发送了太多的请求" });
   }
 
   // 记录当前请求

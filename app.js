@@ -11,6 +11,7 @@ const routes = require("./routes");
 const Post = require("./models/Post");
 const User = require("./models/User");
 const errorMiddleware = require("./middlewares/error");
+const notFoundMiddleware = require("./middlewares/notFound");
 const socketAuthMiddleware = require("./middlewares/socketAuth");
 const requestLoggerMiddleware = require("./middlewares/requestLogger");
 const rateLimiterMiddleware = require("./middlewares/rateLimiter");
@@ -78,6 +79,9 @@ app.use(rateLimiterMiddleware);
 app.use("/public", express.static(__dirname + "/public"));
 
 app.use(routes);
+
+// 404 中间件
+app.use(notFoundMiddleware);
 
 app.use(errorMiddleware);
 
