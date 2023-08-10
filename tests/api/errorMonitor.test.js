@@ -25,6 +25,7 @@ describe("Error Monitoring API", () => {
         projectName: "MyProject",
         errorMessage: "An error occurred in the application.",
         stackTrace: "Error stack trace...",
+        appVersion: "1.0.0",
         ipAddress: "127.0.0.1",
         runtimeName: "Node.js",
         runtimeVersion: "v14.17.5",

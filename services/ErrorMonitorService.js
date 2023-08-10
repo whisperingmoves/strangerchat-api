@@ -26,6 +26,7 @@ class ErrorMonitoringService {
 
       // 从上下文中获取其他属性
       const projectName = packageJson.name;
+      const appVersion = packageJson.version;
       const {
         ipAddress,
         runtimeName,
@@ -50,6 +51,7 @@ class ErrorMonitoringService {
         projectName,
         errorMessage: message,
         stackTrace: stack,
+        appVersion,
         ipAddress,
         runtimeName,
         runtimeVersion,

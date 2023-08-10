@@ -20,6 +20,7 @@ describe("ErrorMonitoringService", () => {
 
       expect(savedError).to.exist;
       expect(savedError.projectName).to.be.a("string");
+      expect(savedError.appVersion).to.be.a("string");
       expect(savedError.errorMessage).to.equal("Test error");
       expect(savedError.stackTrace).to.equal(error.stack);
       expect(savedError.ipAddress).to.be.a("string");

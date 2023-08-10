@@ -10,6 +10,7 @@ const errorMonitorSchema = new mongoose.Schema({
   projectName: { type: String, required: true },
   errorMessage: { type: String, required: true },
   stackTrace: { type: String, required: true },
+  appVersion: { type: String },
   ipAddress: { type: String },
   runtimeName: { type: String },
   runtimeVersion: { type: String },
