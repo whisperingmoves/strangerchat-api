@@ -126,8 +126,33 @@ const getUserList = async (req, res, next) => {
   }
 };
 
+const updateUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const updates = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: updates,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "用户不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createUser,
   deleteUsers,
   getUserList,
+  updateUser,
 };

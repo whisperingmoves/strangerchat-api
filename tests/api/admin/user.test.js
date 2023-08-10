@@ -150,7 +150,7 @@ describe("Gift Admin API", () => {
     before((done) => {
       // Create new users for testing
       const newUser1 = {
-        mobile: "1234567890",
+        mobile: generateMobile(),
         gender: "male",
         birthday: "1990-01-01",
         avatar: "/avatars/user001.png",
@@ -176,7 +176,7 @@ describe("Gift Admin API", () => {
       };
 
       const newUser2 = {
-        mobile: "9876543210",
+        mobile: generateMobile(),
         gender: "female",
         birthday: "1995-05-05",
         avatar: "/avatars/user002.png",
@@ -276,6 +276,114 @@ describe("Gift Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/users/:userId", () => {
+    let userId;
+
+    before((done) => {
+      // 创建用户
+      const newUser = {
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: "1990-01-01",
+        avatar: "/avatars/user001.png",
+        giftsReceived: 5,
+        username: "JohnDoe",
+        city: "New York",
+        followingCount: 10,
+        followersCount: 20,
+        visitorsCount: 100,
+        freeHeatsLeft: 2,
+        coinBalance: 500,
+        checkedDays: 7,
+        lastCheckDate: "2023-08-10T09:00:00Z",
+        location: {
+          type: "Point",
+          coordinates: [-73.9857, 40.7484],
+        },
+        following: [],
+        createdAt: "2023-08-01T12:00:00Z",
+        updatedAt: "2023-08-01T12:00:00Z",
+        receivedGiftRankings: [],
+        online: 1,
+      };
+
+      chai
+        .request(app)
+        .post("/admin/users")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newUser)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          userId = res.body.id; // 保存创建的用户的ID
+          done();
+        });
+    });
+
+    it("should update a user with all fields", (done) => {
+      const updatedUser = {
+        mobile: generateMobile(),
+        gender: "female",
+        birthday: "1995-05-05",
+        avatar: "/avatars/user002.png",
+        giftsReceived: 10,
+        username: "JaneDoe",
+        city: "Los Angeles",
+        followingCount: 20,
+        followersCount: 30,
+        visitorsCount: 200,
+        freeHeatsLeft: 1,
+        coinBalance: 1000,
+        checkedDays: 14,
+        lastCheckDate: "2023-08-10T09:30:00Z",
+        location: {
+          type: "Point",
+          coordinates: [-118.2437, 34.0522],
+        },
+        following: [],
+        createdAt: "2023-08-01T12:00:00Z",
+        updatedAt: "2023-08-10T09:30:00Z",
+        receivedGiftRankings: [],
+        online: 0,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/users/${userId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedUser)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          User.findById(userId, (err, user) => {
+            expect(user.mobile).to.equal(updatedUser.mobile);
+            expect(user.gender).to.equal(updatedUser.gender);
+            expect(user.birthday).to.equal(updatedUser.birthday);
+            expect(user.avatar).to.equal(updatedUser.avatar);
+            expect(user.giftsReceived).to.equal(updatedUser.giftsReceived);
+            expect(user.username).to.equal(updatedUser.username);
+            expect(user.city).to.equal(updatedUser.city);
+            expect(user.followingCount).to.equal(updatedUser.followingCount);
+            expect(user.followersCount).to.equal(updatedUser.followersCount);
+            expect(user.visitorsCount).to.equal(updatedUser.visitorsCount);
+            expect(user.freeHeatsLeft).to.equal(updatedUser.freeHeatsLeft);
+            expect(user.coinBalance).to.equal(updatedUser.coinBalance);
+            expect(user.checkedDays).to.equal(updatedUser.checkedDays);
+            expect(user.lastCheckDate).to.equal(updatedUser.lastCheckDate);
+            expect(user.location).to.deep.equal(updatedUser.location);
+            expect(user.following).to.deep.equal(updatedUser.following);
+            expect(user.createdAt).to.equal(updatedUser.createdAt);
+            expect(user.updatedAt).to.equal(updatedUser.updatedAt);
+            expect(user.receivedGiftRankings).to.deep.equal(
+              updatedUser.receivedGiftRankings
+            );
+            expect(user.online).to.equal(updatedUser.online);
+            done();
+          });
         });
     });
   });
