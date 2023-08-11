@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -12,6 +12,7 @@ const AdminUser = require("../../models/AdminUser");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const User = require("../../models/User");
+const ChatConversation = require("../../models/ChatConversation");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
@@ -153,6 +154,52 @@ describe("ChatConversations Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/chatConversations", () => {
+    let chatConversationIds;
+
+    before((done) => {
+      const newConversation1 = {
+        userId1: caller1.id,
+        userId2: recipient1.id,
+      };
+
+      const newConversation2 = {
+        userId1: caller2.id,
+        userId2: recipient2.id,
+      };
+
+      ChatConversation.create(
+        [newConversation1, newConversation2],
+        (err, conversations) => {
+          chatConversationIds = conversations.map((conversation) =>
+            conversation._id.toHexString()
+          );
+          done();
+        }
+      );
+    });
+
+    it("should delete chat conversations", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/chatConversations")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: chatConversationIds })
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+
+          // 验证删除是否成功
+          ChatConversation.find(
+            { _id: { $in: chatConversationIds } },
+            (err, conversations) => {
+              expect(conversations).to.have.lengthOf(0);
+              done();
+            }
+          );
         });
     });
   });

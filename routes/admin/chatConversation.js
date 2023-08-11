@@ -8,5 +8,9 @@ router.post(
   "/chatConversations",
   chatConversationController.createChatConversation
 );
+router.delete(
+  "/chatConversations",
+  chatConversationController.deleteChatConversations
+);
 
 module.exports = router;
