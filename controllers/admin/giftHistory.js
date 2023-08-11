@@ -94,8 +94,30 @@ const getGiftHistoryList = async (req, res, next) => {
   }
 };
 
+const updateGiftHistory = async (req, res, next) => {
+  try {
+    const { sender, receiver, gift, quantity } = req.body;
+    const { giftHistoryId } = req.params;
+
+    const giftHistory = await GiftHistory.findByIdAndUpdate(
+      giftHistoryId,
+      { sender, receiver, gift, quantity, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!giftHistory) {
+      return res.status(404).json({ message: "礼物历史不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createGiftHistory,
   deleteGiftHistories,
   getGiftHistoryList,
+  updateGiftHistory,
 };

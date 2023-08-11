@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   giftHistoryController.getGiftHistoryList
 );
+router.put(
+  "/giftHistories/:giftHistoryId",
+  adminAuth,
+  giftHistoryController.updateGiftHistory
+);
 
 module.exports = router;

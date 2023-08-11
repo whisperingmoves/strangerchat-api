@@ -4175,6 +4175,62 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/giftHistories/{giftHistoryId}:
+    put:
+      summary: 修改礼物历史
+      tags:
+        - 礼物
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: giftHistoryId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 礼物历史的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sender:
+                  type: string
+                  description: 发送者的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                receiver:
+                  type: string
+                  description: 接收者的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                gift:
+                  type: string
+                  description: 礼物的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                quantity:
+                  type: integer
+                  description: 礼物数量
+                  example: 2
+                  minimum: 1
+      responses:
+        200:
+          description: 礼物历史修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

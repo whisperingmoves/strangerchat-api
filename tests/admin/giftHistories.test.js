@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -142,14 +142,14 @@ describe("Gift Histories Admin API", () => {
     gift1 = new Gift({
       image: "/gifts/gift1.png",
       name: "Gift 1",
-      value: 50,
+      value: 100,
     });
     await gift1.save();
 
     gift2 = new Gift({
       image: "/gifts/gift2.png",
       name: "Gift 2",
-      value: 100,
+      value: 150,
     });
     await gift2.save();
   });
@@ -315,6 +315,58 @@ describe("Gift Histories Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/giftHistories/:giftHistoryId", () => {
+    let giftHistoryId;
+
+    before((done) => {
+      // 创建礼物历史记录
+      const newGiftHistory = {
+        sender: sender1.id,
+        receiver: receiver1.id,
+        gift: gift1.id,
+        quantity: 1,
+      };
+
+      GiftHistory.create(newGiftHistory, (err, giftHistory) => {
+        giftHistoryId = giftHistory._id; // 保存新增礼物历史记录的ID
+        done();
+      });
+    });
+
+    it("should update a gift history", (done) => {
+      const updatedGiftHistory = {
+        sender: sender2.id,
+        receiver: receiver2.id,
+        gift: gift2.id,
+        quantity: 2,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/giftHistories/${giftHistoryId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedGiftHistory)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          GiftHistory.findById(giftHistoryId, (err, giftHistory) => {
+            expect(giftHistory.sender.toString()).to.equal(
+              updatedGiftHistory.sender
+            );
+            expect(giftHistory.receiver.toString()).to.equal(
+              updatedGiftHistory.receiver
+            );
+            expect(giftHistory.gift.toString()).to.equal(
+              updatedGiftHistory.gift
+            );
+            expect(giftHistory.quantity).to.equal(updatedGiftHistory.quantity);
+            done();
+          });
         });
     });
   });

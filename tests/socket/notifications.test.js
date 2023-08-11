@@ -9,6 +9,7 @@ const InteractionNotification = require("../../models/InteractionNotification");
 const StatusNotification = require("../../models/StatusNotification");
 const GiftNotification = require("../../models/GiftNotification");
 const Gift = require("../../models/Gift");
+const GiftHistory = require("../../models/GiftHistory");
 const CoinProduct = require("../../models/CoinProduct");
 const SystemNotification = require("../../models/SystemNotification");
 const { calculateDistance } = require("../../utils/distanceUtils");
@@ -1087,6 +1088,9 @@ describe("Notifications Socket", () => {
 
     // 删除测试用户和附近的用户
     await User.deleteOne({ mobile: mobile });
+
+    // 删除相关的礼物历史记录
+    await GiftHistory.deleteMany({ receiver: user.id });
 
     const promises = nearbyUsers.map((userInfo) => {
       return new Promise((resolve, reject) => {
