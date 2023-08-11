@@ -13,5 +13,9 @@ router.delete(
   voiceCallRecordController.deleteVoiceCallRecords
 );
 router.get("/voiceCallRecords", voiceCallRecordController.getVoiceCallRecords);
+router.put(
+  "/voiceCallRecords/:voiceCallRecordId",
+  voiceCallRecordController.updateVoiceCallRecord
+);
 
 module.exports = router;

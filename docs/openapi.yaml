@@ -4751,6 +4751,67 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/voiceCallRecords/{voiceCallRecordId}:
+    put:
+      summary: 修改语音通话记录
+      tags:
+        - 语音通话记录
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: voiceCallRecordId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 语音通话记录的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callerId:
+                  type: string
+                  description: 发起者的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                recipientId:
+                  type: string
+                  description: 接收者的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                startTime:
+                  type: string
+                  format: date-time
+                  description: 通话开始时间
+                  example: "2023-08-11T10:00:00Z"
+                endTime:
+                  type: string
+                  format: date-time
+                  description: 通话结束时间
+                  example: "2023-08-11T10:30:00Z"
+              required:
+                - callerId
+                - recipientId
+                - startTime
+      responses:
+        200:
+          description: 语音通话记录修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

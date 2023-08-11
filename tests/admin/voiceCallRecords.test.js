@@ -300,4 +300,60 @@ describe("VoiceCallRecords Admin API", () => {
         });
     });
   });
+
+  describe("PUT /admin/voiceCallRecords/:voiceCallRecordId", () => {
+    let voiceCallRecordId;
+
+    before((done) => {
+      // 创建语音通话记录
+      const newVoiceCallRecord = {
+        callerId: caller1.id,
+        recipientId: recipient1.id,
+        startTime: new Date("2023-08-11T10:00:00Z"),
+      };
+
+      VoiceCallRecord.create(newVoiceCallRecord, (err, voiceCallRecord) => {
+        voiceCallRecordId = voiceCallRecord._id; // 保存新增语音通话记录的ID
+        done();
+      });
+    });
+
+    it("should update a voice call record", (done) => {
+      const updatedVoiceCallRecord = {
+        callerId: caller2.id,
+        recipientId: recipient2.id,
+        startTime: new Date("2023-08-11T11:00:00Z"),
+        endTime: new Date("2023-08-11T11:30:00Z"),
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/voiceCallRecords/${voiceCallRecordId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedVoiceCallRecord)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          VoiceCallRecord.findById(
+            voiceCallRecordId,
+            (err, voiceCallRecord) => {
+              expect(voiceCallRecord.callerId.toString()).to.equal(
+                updatedVoiceCallRecord.callerId
+              );
+              expect(voiceCallRecord.recipientId.toString()).to.equal(
+                updatedVoiceCallRecord.recipientId
+              );
+              expect(voiceCallRecord.startTime.toISOString()).to.equal(
+                updatedVoiceCallRecord.startTime.toISOString()
+              );
+              expect(voiceCallRecord.endTime.toISOString()).to.equal(
+                updatedVoiceCallRecord.endTime.toISOString()
+              );
+              done();
+            }
+          );
+        });
+    });
+  });
 });

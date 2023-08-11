@@ -5,6 +5,7 @@ const ioClient = require("socket.io-client");
 const app = require("../../app");
 const config = require("../../config");
 const User = require("../../models/User");
+const VoiceCallRecord = require("../../models/VoiceCallRecord");
 const { calculateDistance } = require("../../utils/distanceUtils");
 const { generateMobile } = require("../helper");
 
@@ -1166,5 +1167,15 @@ describe("Messages Socket", () => {
     // 删除测试用户
     await User.deleteOne({ mobile: mobile });
     await User.deleteOne({ mobile: otherMobile });
+
+    // 删除关联的语音通话记录
+    await VoiceCallRecord.deleteMany({
+      $or: [
+        { callerId: user._id },
+        { recipientId: user._id },
+        { callerId: otherUser._id },
+        { recipientId: otherUser._id },
+      ],
+    });
   });
 });

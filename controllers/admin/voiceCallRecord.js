@@ -88,8 +88,30 @@ const getVoiceCallRecords = async (req, res, next) => {
   }
 };
 
+const updateVoiceCallRecord = async (req, res, next) => {
+  try {
+    const { callerId, recipientId, startTime, endTime } = req.body;
+    const { voiceCallRecordId } = req.params;
+
+    const voiceCallRecord = await VoiceCallRecord.findByIdAndUpdate(
+      voiceCallRecordId,
+      { callerId, recipientId, startTime, endTime, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!voiceCallRecord) {
+      return res.status(404).json({ message: "语音通话记录不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createVoiceCallRecord,
   deleteVoiceCallRecords,
   getVoiceCallRecords,
+  updateVoiceCallRecord,
 };
