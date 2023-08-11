@@ -12,8 +12,19 @@ const sendVerificationCode = async (req, res) => {
   // 生成验证码
   const code = generateVerifyCode();
 
+  // 查找现有的验证码记录
+  let verification = await Verification.findOne({ mobile });
+
+  if (verification) {
+    // 更新现有的验证码记录
+    verification.code = code;
+  } else {
+    // 创建新的验证码记录
+    verification = new Verification({ mobile, code });
+  }
+
   // 保存验证码
-  await Verification.create({ mobile, code });
+  await verification.save();
 
   if (process.env.NODE_ENV === "test") {
     // 测试环境
