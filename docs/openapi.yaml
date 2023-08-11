@@ -3535,6 +3535,17 @@ paths:
       responses:
         201:
           description: 用户创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 用户 ID
+                    example: 6133a6e2f7dcb80021a7e28a
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -3965,6 +3976,17 @@ paths:
       responses:
         201:
           description: 礼物历史创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 礼物历史 ID
+                    example: 6133a6e2f7dcb80021a7e28a
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -4227,6 +4249,57 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/verifications:
+    post:
+      summary: 创建验证码
+      tags:
+        - 验证码
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mobile
+                - code
+              properties:
+                mobile:
+                  type: string
+                  description: 手机号码
+                  example: "1234567890"
+                code:
+                  type: string
+                  description: 验证码
+                  example: "1234"
+      responses:
+        201:
+          description: 验证码创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 验证码 ID
+                    example: 6133a6e2f7dcb80021a7e28a
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
         429:
           $ref: '#/components/responses/TooManyRequests'
         500:
