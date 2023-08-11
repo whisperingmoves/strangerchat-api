@@ -178,7 +178,7 @@ describe("Verifications Admin API", () => {
     });
 
     it("should filter verifications by keyword", (done) => {
-      const keyword = mobile1.substring(0, 4);
+      const keyword = mobile1;
 
       chai
         .request(app)

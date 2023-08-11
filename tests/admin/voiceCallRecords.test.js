@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -12,6 +12,7 @@ const AdminUser = require("../../models/AdminUser");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const User = require("../../models/User");
+const VoiceCallRecord = require("../../models/VoiceCallRecord");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
@@ -153,6 +154,54 @@ describe("VoiceCallRecords Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/voiceCallRecords", () => {
+    let voiceCallRecordIds;
+
+    before((done) => {
+      const newVoiceCallRecord1 = {
+        callerId: caller1.id,
+        recipientId: recipient1.id,
+        startTime: new Date(),
+      };
+
+      const newVoiceCallRecord2 = {
+        callerId: caller2.id,
+        recipientId: recipient2.id,
+        startTime: new Date(),
+      };
+
+      VoiceCallRecord.create(
+        [newVoiceCallRecord1, newVoiceCallRecord2],
+        (err, records) => {
+          voiceCallRecordIds = records.map((record) =>
+            record._id.toHexString()
+          );
+          done();
+        }
+      );
+    });
+
+    it("should delete voice call records", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/voiceCallRecords")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: voiceCallRecordIds })
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+
+          // 验证删除是否成功
+          VoiceCallRecord.find(
+            { _id: { $in: voiceCallRecordIds } },
+            (err, records) => {
+              expect(records).to.have.lengthOf(0);
+              done();
+            }
+          );
         });
     });
   });

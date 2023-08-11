@@ -8,5 +8,9 @@ router.post(
   "/voiceCallRecords",
   voiceCallRecordController.createVoiceCallRecord
 );
+router.delete(
+  "/voiceCallRecords",
+  voiceCallRecordController.deleteVoiceCallRecords
+);
 
 module.exports = router;
