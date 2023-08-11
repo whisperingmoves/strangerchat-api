@@ -116,4 +116,96 @@ describe("Verifications Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/verifications", () => {
+    before((done) => {
+      const newVerification1 = {
+        mobile: "1234567890",
+        code: "1234",
+      };
+
+      const newVerification2 = {
+        mobile: "9876543210",
+        code: "5678",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newVerification1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+
+          chai
+            .request(app)
+            .post("/admin/verifications")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newVerification2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+
+              done();
+            });
+        });
+    });
+
+    it("should get a paginated list of verifications", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter verifications by keyword", (done) => {
+      const keyword = "1234";
+
+      chai
+        .request(app)
+        .get("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ keyword })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items).to.have.lengthOf(1);
+          expect(res.body.items[0].code).to.equal(keyword);
+          done();
+        });
+    });
+
+    it("should sort verifications by createdAt in ascending order", (done) => {
+      const sort = "createdAt";
+      const order = "asc";
+
+      chai
+        .request(app)
+        .get("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0);
+          sortedItems.sort(
+            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

@@ -24,4 +24,56 @@ const deleteVerifications = async (req, res, next) => {
   }
 };
 
-module.exports = { createVerification, deleteVerifications };
+const getVerificationList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      keyword,
+      sort = "updatedAt",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const filter = keyword
+      ? { mobile: { $regex: new RegExp(keyword, "i") } }
+      : {};
+
+    const [total, verifications] = await Promise.all([
+      Verification.countDocuments(filter),
+      Verification.find(filter)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .select("-__v")
+        .lean(),
+    ]);
+
+    const formattedVerifications = verifications.map((verification) => ({
+      id: verification._id,
+      mobile: verification.mobile,
+      code: verification.code,
+      createdAt: verification.createdAt,
+      updatedAt: verification.updatedAt,
+    }));
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedVerifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  createVerification,
+  deleteVerifications,
+  getVerificationList,
+};
