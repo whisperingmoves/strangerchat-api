@@ -17,6 +17,14 @@ const chatConversationSchema = new mongoose.Schema({
   lastMessageContent: {
     type: String,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 chatConversationSchema.virtual("id").get(function () {

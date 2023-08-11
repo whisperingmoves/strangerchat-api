@@ -12,15 +12,22 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     // 准备查询条件
     const query = {
-      $or: [
+      $and: [
         {
-          $and: [
-            { lastMessageContent: { $exists: true } },
-            { lastMessageContent: { $ne: null } },
-            { lastMessageContent: { $ne: "" } },
+          $or: [
+            {
+              $and: [
+                { lastMessageContent: { $exists: true } },
+                { lastMessageContent: { $ne: null } },
+                { lastMessageContent: { $ne: "" } },
+              ],
+            },
+            { lastMessageContent: { $exists: false } },
           ],
         },
-        { lastMessageContent: { $exists: false } },
+        {
+          $or: [{ userId1: userId }, { userId2: userId }],
+        },
       ],
     };
 
