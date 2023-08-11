@@ -205,4 +205,99 @@ describe("VoiceCallRecords Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/voiceCallRecords", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const voiceCallRecord1 = new VoiceCallRecord({
+        callerId: caller1.id,
+        recipientId: recipient1.id,
+        startTime: new Date("2023-08-09T10:51:00.000Z"),
+        endTime: new Date("2023-08-09T10:52:00.000Z"),
+      });
+      await voiceCallRecord1.save();
+
+      const voiceCallRecord2 = new VoiceCallRecord({
+        callerId: caller2.id,
+        recipientId: recipient2.id,
+        startTime: new Date("2023-08-09T11:00:00.000Z"),
+        endTime: new Date("2023-08-09T11:02:00.000Z"),
+      });
+      await voiceCallRecord2.save();
+    });
+
+    it("should get a paginated list of voice call records", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/voiceCallRecords")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter voice call records by callerId", (done) => {
+      const callerId = caller1.id; // 替换为实际的主叫者ID
+
+      chai
+        .request(app)
+        .get("/admin/voiceCallRecords")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ callerId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].caller.id).to.equal(callerId);
+          done();
+        });
+    });
+
+    it("should filter voice call records by recipientId", (done) => {
+      const recipientId = recipient1.id; // 替换为实际的被叫者ID
+
+      chai
+        .request(app)
+        .get("/admin/voiceCallRecords")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ recipientId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].recipient.id).to.equal(recipientId);
+          done();
+        });
+    });
+
+    it("should sort voice call records by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/voiceCallRecords")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

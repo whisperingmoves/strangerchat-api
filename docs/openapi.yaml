@@ -4605,6 +4605,152 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: 分页获取语音通话记录列表
+      tags:
+        - 语音通话记录
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: callerId
+          schema:
+            type: string
+          description: 主叫者ID
+        - in: query
+          name: recipientId
+          schema:
+            type: string
+          description: 被叫者ID
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ startTime, endTime, createdAt, updatedAt ]
+            default: updatedAt
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+      responses:
+        200:
+          description: 成功获取语音通话记录列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - caller
+                        - recipient
+                        - startTime
+                        - endTime
+                        - createdAt
+                        - updatedAt
+                      properties:
+                        id:
+                          type: string
+                          description: 语音通话记录 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        caller:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 主叫者 ID
+                              example: 6133a6e2f7dcb80021a7e28b
+                            username:
+                              type: string
+                              description: 主叫者用户名
+                              example: "JohnDoe"
+                        recipient:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 被叫者 ID
+                              example: 6133a6e2f7dcb80021a7e28c
+                            username:
+                              type: string
+                              description: 被叫者用户名
+                              example: "JaneDoe"
+                        startTime:
+                          type: string
+                          format: date-time
+                          description: 通话开始时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        endTime:
+                          type: string
+                          format: date-time
+                          description: 通话结束时间
+                          example: "2023-08-09T10:52:00.000Z"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 语音通话记录创建时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: 语音通话记录更新时间
+                          example: "2023-08-09T10:52:00.000Z"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

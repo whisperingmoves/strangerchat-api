@@ -12,5 +12,6 @@ router.delete(
   "/voiceCallRecords",
   voiceCallRecordController.deleteVoiceCallRecords
 );
+router.get("/voiceCallRecords", voiceCallRecordController.getVoiceCallRecords);
 
 module.exports = router;

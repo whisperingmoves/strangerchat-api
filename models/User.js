@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const GiftHistory = require("./GiftHistory");
+const VoiceCallRecord = require("./VoiceCallRecord");
 
 const userSchema = new mongoose.Schema({
   mobile: {
@@ -125,5 +126,31 @@ userSchema.statics.getUserInfo = async function (userIds) {
     return acc;
   }, {});
 };
+
+// 用户模型删除前的中间件
+userSchema.pre('remove', async function (next) {
+  const user = this;
+
+  try {
+    // 删除与用户关联的语音通话记录
+    await VoiceCallRecord.deleteMany({
+      $or: [
+        { callerId: user._id },
+        { recipientId: user._id }
+      ]
+    });
+    // 删除与用户关联的礼物历史记录
+    await GiftHistory.deleteMany({
+      $or: [
+        { sender: user._id },
+        { receiver: user._id }
+      ]
+    });
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = mongoose.model("User", userSchema);
