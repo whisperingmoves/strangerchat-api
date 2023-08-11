@@ -19,6 +19,14 @@ const voiceCallRecordSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 voiceCallRecordSchema.virtual("id").get(function () {

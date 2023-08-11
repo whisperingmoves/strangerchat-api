@@ -31,6 +31,8 @@ tags:
     description: 监控相关接口
   - name: 后台管理
     description: 后台管理相关接口
+  - name: 语音通话记录
+    description: 语音通话记录相关接口
 paths:
 
   /verifications/sendCode:
@@ -4501,6 +4503,69 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/voiceCallRecords:
+    post:
+      summary: 创建语音通话记录
+      tags:
+        - 语音通话记录
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - callerId
+                - recipientId
+                - startTime
+                - endTime
+              properties:
+                callerId:
+                  type: string
+                  description: 主叫用户的ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                recipientId:
+                  type: string
+                  description: 被叫用户的ID
+                  example: 6133a6e2f7dcb80021a7e28b
+                startTime:
+                  type: string
+                  format: date-time
+                  description: 通话开始时间
+                  example: 2023-08-11T10:30:00Z
+                endTime:
+                  type: string
+                  format: date-time
+                  description: 通话结束时间
+                  example: 2023-08-11T10:30:00Z
+      responses:
+        201:
+          description: 语音通话记录创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 语音通话记录的ID
+                    example: 6133a6e2f7dcb80021a7e28c
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
         429:
           $ref: '#/components/responses/TooManyRequests'
         500:
