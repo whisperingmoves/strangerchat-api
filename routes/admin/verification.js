@@ -7,5 +7,9 @@ const router = express.Router();
 router.post("/verifications", verificationController.createVerification);
 router.delete("/verifications", verificationController.deleteVerifications);
 router.get("/verifications", verificationController.getVerificationList);
+router.put(
+  "/verifications/:verificationId",
+  verificationController.updateVerification
+);
 
 module.exports = router;

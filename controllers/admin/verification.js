@@ -72,8 +72,30 @@ const getVerificationList = async (req, res, next) => {
   }
 };
 
+const updateVerification = async (req, res, next) => {
+  try {
+    const { code, mobile } = req.body;
+    const { verificationId } = req.params;
+
+    const verification = await Verification.findByIdAndUpdate(
+      verificationId,
+      { code, mobile, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!verification) {
+      return res.status(404).json({ message: "验证码不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createVerification,
   deleteVerifications,
   getVerificationList,
+  updateVerification,
 };

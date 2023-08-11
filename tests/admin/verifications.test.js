@@ -63,12 +63,12 @@ describe("Verifications Admin API", () => {
 
     before((done) => {
       const newVerification1 = {
-        mobile: "1234567890",
+        mobile: generateMobile(),
         code: "1234",
       };
 
       const newVerification2 = {
-        mobile: "9876543210",
+        mobile: generateMobile(),
         code: "5678",
       };
 
@@ -118,15 +118,24 @@ describe("Verifications Admin API", () => {
   });
 
   describe("GET /admin/verifications", () => {
-    before((done) => {
+    let mobile1;
+    let code1;
+    let mobile2;
+    let code2;
+
+    beforeEach((done) => {
+      mobile1 = generateMobile();
+      code1 = "1234";
       const newVerification1 = {
-        mobile: "1234567890",
-        code: "1234",
+        mobile: mobile1,
+        code: code1,
       };
 
+      mobile2 = generateMobile();
+      code2 = "5678";
       const newVerification2 = {
-        mobile: "9876543210",
-        code: "5678",
+        mobile: mobile2,
+        code: code2,
       };
 
       chai
@@ -169,7 +178,7 @@ describe("Verifications Admin API", () => {
     });
 
     it("should filter verifications by keyword", (done) => {
-      const keyword = "1234";
+      const keyword = mobile1.substring(0, 4);
 
       chai
         .request(app)
@@ -179,8 +188,8 @@ describe("Verifications Admin API", () => {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.items).to.be.an("array");
-          expect(res.body.items).to.have.lengthOf(1);
-          expect(res.body.items[0].code).to.equal(keyword);
+          expect(res.body.items).to.have.lengthOf.above(0);
+          expect(res.body.items[0].code).to.equal(code1);
           done();
         });
     });
@@ -205,6 +214,52 @@ describe("Verifications Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/verifications/:verificationId", () => {
+    let verificationId;
+
+    before((done) => {
+      // 新增验证码
+      const newVerification = {
+        mobile: generateMobile(),
+        code: "123456",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newVerification)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          verificationId = res.body.id; // 保存新增验证码的ID
+          done();
+        });
+    });
+
+    it("should update a verification", (done) => {
+      const updatedVerification = {
+        code: "654321",
+        mobile: generateMobile(),
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/verifications/${verificationId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedVerification)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          Verification.findById(verificationId, (err, verification) => {
+            expect(verification.code).to.equal(updatedVerification.code);
+            expect(verification.mobile).to.equal(updatedVerification.mobile);
+            done();
+          });
         });
     });
   });
