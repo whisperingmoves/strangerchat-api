@@ -353,36 +353,40 @@ describe("Users Admin API", () => {
       };
 
       chai
-          .request(app)
-          .put(`/admin/users/${userId}`)
-          .set("Authorization", `Bearer ${adminToken}`)
-          .send(updatedUser)
-          .end((err, res) => {
-            expect(res).to.have.status(200);
+        .request(app)
+        .put(`/admin/users/${userId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedUser)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
 
-            // 验证修改是否生效
-            User.findById(userId, (err, user) => {
-              expect(user.mobile).to.equal(updatedUser.mobile);
-              expect(user.gender).to.equal(updatedUser.gender);
-              expect(user.birthday).to.deep.equal(updatedUser.birthday);
-              expect(user.avatar).to.equal(updatedUser.avatar);
-              expect(user.giftsReceived).to.equal(updatedUser.giftsReceived);
-              expect(user.username).to.equal(updatedUser.username);
-              expect(user.city).to.equal(updatedUser.city);
-              expect(user.followingCount).to.equal(updatedUser.followingCount);
-              expect(user.followersCount).to.equal(updatedUser.followersCount);
-              expect(user.visitorsCount).to.equal(updatedUser.visitorsCount);
-              expect(user.freeHeatsLeft).to.equal(updatedUser.freeHeatsLeft);
-              expect(user.coinBalance).to.equal(updatedUser.coinBalance);
-              expect(user.checkedDays).to.equal(updatedUser.checkedDays);
-              expect(user.lastCheckDate).to.deep.equal(updatedUser.lastCheckDate);
-              expect(user.location.coordinates).to.deep.equal(updatedUser.location.coordinates);
-              expect(user.following).to.deep.equal(updatedUser.following);
-              expect(user.receivedGiftRankings).to.deep.equal(updatedUser.receivedGiftRankings);
-              expect(user.online).to.equal(updatedUser.online);
-              done();
-            });
+          // 验证修改是否生效
+          User.findById(userId, (err, user) => {
+            expect(user.mobile).to.equal(updatedUser.mobile);
+            expect(user.gender).to.equal(updatedUser.gender);
+            expect(user.birthday).to.deep.equal(updatedUser.birthday);
+            expect(user.avatar).to.equal(updatedUser.avatar);
+            expect(user.giftsReceived).to.equal(updatedUser.giftsReceived);
+            expect(user.username).to.equal(updatedUser.username);
+            expect(user.city).to.equal(updatedUser.city);
+            expect(user.followingCount).to.equal(updatedUser.followingCount);
+            expect(user.followersCount).to.equal(updatedUser.followersCount);
+            expect(user.visitorsCount).to.equal(updatedUser.visitorsCount);
+            expect(user.freeHeatsLeft).to.equal(updatedUser.freeHeatsLeft);
+            expect(user.coinBalance).to.equal(updatedUser.coinBalance);
+            expect(user.checkedDays).to.equal(updatedUser.checkedDays);
+            expect(user.lastCheckDate).to.deep.equal(updatedUser.lastCheckDate);
+            expect(user.location.coordinates).to.deep.equal(
+              updatedUser.location.coordinates
+            );
+            expect(user.following).to.deep.equal(updatedUser.following);
+            expect(user.receivedGiftRankings).to.deep.equal(
+              updatedUser.receivedGiftRankings
+            );
+            expect(user.online).to.equal(updatedUser.online);
+            done();
           });
+        });
     });
   });
 });
