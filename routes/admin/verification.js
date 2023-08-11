@@ -5,5 +5,6 @@ const router = express.Router();
 
 // 验证码路由
 router.post("/verifications", verificationController.createVerification);
+router.delete("/verifications", verificationController.deleteVerifications);
 
 module.exports = router;

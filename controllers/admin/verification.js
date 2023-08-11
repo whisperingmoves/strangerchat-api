@@ -12,4 +12,16 @@ const createVerification = async (req, res, next) => {
   }
 };
 
-module.exports = { createVerification };
+const deleteVerifications = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await Verification.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createVerification, deleteVerifications };

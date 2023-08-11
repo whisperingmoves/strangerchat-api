@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -9,6 +9,7 @@ const {
 const bcrypt = require("bcrypt");
 const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
+const Verification = require("../../models/Verification");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -53,6 +54,65 @@ describe("Verifications Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/verifications", () => {
+    let verificationIds;
+
+    before((done) => {
+      const newVerification1 = {
+        mobile: "1234567890",
+        code: "1234",
+      };
+
+      const newVerification2 = {
+        mobile: "9876543210",
+        code: "5678",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newVerification1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          const verificationId1 = res.body.id;
+
+          chai
+            .request(app)
+            .post("/admin/verifications")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newVerification2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+              const verificationId2 = res.body.id;
+
+              verificationIds = [verificationId1, verificationId2];
+              done();
+            });
+        });
+    });
+
+    it("should delete verifications", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/verifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: verificationIds })
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+
+          // 验证删除是否成功
+          Verification.find(
+            { _id: { $in: verificationIds } },
+            (err, verifications) => {
+              expect(verifications).to.have.lengthOf(0);
+              done();
+            }
+          );
         });
     });
   });
