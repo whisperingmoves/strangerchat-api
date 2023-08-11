@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach, afterEach } = require("mocha");
+const { it, describe, beforeEach } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -187,21 +187,17 @@ describe("Gift Histories Admin API", () => {
         gift: gift1.id,
         quantity: 3,
       });
+      await giftHistory1.save();
+
       const giftHistory2 = new GiftHistory({
         sender: sender2.id,
         receiver: receiver2.id,
         gift: gift2.id,
         quantity: 2,
       });
-
-      await Promise.all([giftHistory1.save(), giftHistory2.save()]);
+      await giftHistory2.save();
 
       giftHistoryIds = [giftHistory1.id, giftHistory2.id];
-    });
-
-    afterEach(async () => {
-      // 删除创建的礼物历史记录
-      await GiftHistory.deleteMany({});
     });
 
     it("should delete gift histories and verify deletion", (done) => {
@@ -224,6 +220,101 @@ describe("Gift Histories Admin API", () => {
           } catch (error) {
             done(error);
           }
+        });
+    });
+  });
+
+  describe("GET /admin/giftHistories", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const giftHistory1 = new GiftHistory({
+        sender: sender1.id,
+        receiver: receiver1.id,
+        gift: gift1.id,
+        quantity: 2,
+      });
+      await giftHistory1.save();
+
+      const giftHistory2 = new GiftHistory({
+        sender: sender2.id,
+        receiver: receiver2.id,
+        gift: gift2.id,
+        quantity: 1,
+      });
+      await giftHistory2.save();
+    });
+
+    it("should get a paginated list of gift histories", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/giftHistories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter gift histories by senderId", (done) => {
+      const senderId = sender1.id; // 替换为实际的发送者ID
+
+      chai
+        .request(app)
+        .get("/admin/giftHistories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ senderId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].sender.id).to.equal(senderId);
+          done();
+        });
+    });
+
+    it("should filter gift histories by receiverId", (done) => {
+      const receiverId = receiver1.id; // 替换为实际的接收者ID
+
+      chai
+        .request(app)
+        .get("/admin/giftHistories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ receiverId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].receiver.id).to.equal(receiverId);
+          done();
+        });
+    });
+
+    it("should sort gift histories by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/giftHistories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
         });
     });
   });

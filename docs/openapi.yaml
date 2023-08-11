@@ -4012,6 +4012,169 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: 分页获取礼物历史列表
+      tags:
+        - 礼物
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: senderId
+          schema:
+            type: string
+          description: 发送者ID
+        - in: query
+          name: receiverId
+          schema:
+            type: string
+          description: 接收者ID
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ createdAt, updatedAt ]
+            default: updatedAt
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+      responses:
+        200:
+          description: 成功获取礼物历史列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - sender
+                        - receiver
+                        - gift
+                        - quantity
+                        - createdAt
+                        - updatedAt
+                      properties:
+                        id:
+                          type: string
+                          description: 礼物历史记录 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        sender:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 发送者 ID
+                              example: 6133a6e2f7dcb80021a7e28b
+                            username:
+                              type: string
+                              description: 发送者用户名
+                              example: "JohnDoe"
+                        receiver:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 接收者 ID
+                              example: 6133a6e2f7dcb80021a7e28c
+                            username:
+                              type: string
+                              description: 接收者用户名
+                              example: "JaneDoe"
+                        gift:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 礼物 ID
+                              example: 6133a6e2f7dcb80021a7e28d
+                            image:
+                              type: string
+                              description: 礼物图片 URL
+                              example: "/order/gift001.png"
+                            name:
+                              type: string
+                              description: 礼物名称
+                              example: "热气球"
+                              maxLength: 50
+                            value:
+                              type: integer
+                              description: 礼物价值（金币数）
+                              example: 100
+                              minimum: 1
+                              maximum: 10000
+                        quantity:
+                          type: integer
+                          description: 礼物发送数量
+                          example: 2
+                          minimum: 1
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 礼物历史记录创建时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: 礼物历史记录更新时间
+                          example: "2023-08-09T10:52:00.000Z"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
