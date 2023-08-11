@@ -11,21 +11,24 @@ const requestLogger = (req, res, next) => {
     console.log("Body:", req.body);
   }
 
+  // 注册响应完成的回调函数
+  res.on("finish", () => {
+    // 计算响应耗时
+    const end = new Date();
+    const duration = end - start;
+
+    // 检查环境变量的值
+    if (process.env.NODE_ENV !== "test") {
+      // 打印响应信息
+      console.log("--- Response ---");
+      console.log("Status:", res.statusCode);
+      console.log("Headers:", res.getHeaders());
+      console.log("Duration:", duration, "ms");
+    }
+  });
+
   // 继续处理请求
   next();
-
-  // 计算响应耗时
-  const end = new Date();
-  const duration = end - start;
-
-  // 检查环境变量的值
-  if (process.env.NODE_ENV !== "test") {
-    // 打印响应信息
-    console.log("--- Response ---");
-    console.log("Status:", res.statusCode);
-    console.log("Headers:", res.getHeaders());
-    console.log("Duration:", duration, "ms");
-  }
 };
 
 module.exports = requestLogger;
