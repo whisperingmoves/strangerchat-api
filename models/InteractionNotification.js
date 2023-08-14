@@ -14,7 +14,7 @@ const interactionNotificationSchema = new mongoose.Schema({
   interactionType: {
     type: Number,
     required: true,
-    enum: [0, 1, 2, 3, 4, 5], // 交互类型 (0: 给帖子点赞, 1: 评论帖子, 2: 分享帖子, 3: 收藏帖子, 4: 评论点赞, 5: 回复评论)
+    enum: [0, 1, 2, 3, 4, 5, 6], // 交互类型 (0: 给帖子点赞, 1: 评论帖子, 2: 分享帖子, 3: 收藏帖子, 4: 评论点赞, 5: 回复评论, 6: 帖子艾特用户)
   },
   post: {
     type: mongoose.Schema.Types.ObjectId,

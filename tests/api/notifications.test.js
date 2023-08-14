@@ -46,7 +46,6 @@ describe("Notifications API", () => {
         latitude: "39.9042",
         images: ["/uploads/xxx1.png", "/uploads/xxx2.png"],
         visibility: 0,
-        atUsers: ["user1", "user2"],
       });
 
     postId = createPostResponse.body.postId;

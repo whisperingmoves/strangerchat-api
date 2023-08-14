@@ -35,7 +35,8 @@ const postSchema = new mongoose.Schema({
   },
   atUsers: [
     {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
   heatCount: {

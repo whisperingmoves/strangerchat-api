@@ -680,6 +680,7 @@ const getFollowedUsersPosts = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate("author", "id avatar username")
+      .populate("atUsers", "id username")
       .lean();
 
     const postIds = posts.map((post) => post._id);
@@ -723,6 +724,13 @@ const getFollowedUsersPosts = async (req, res, next) => {
           postId: postId,
           isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
           conversationId,
+          atUsers:
+            post.atUsers && post.atUsers.length > 1
+              ? post.atUsers.map((user) => ({
+                  id: user.id,
+                  username: user.username,
+                }))
+              : undefined,
         };
       })
     );

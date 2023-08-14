@@ -461,6 +461,23 @@ paths:
                       type: string
                       description: 聊天会话的ID
                       example: "6133a6e2f7dcb80021a7e28a"
+                    atUsers:
+                      type: array
+                      description: 艾特用户列表
+                      items:
+                        type: object
+                        description: 用户信息
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: string
+                            description: 用户ID
+                            example: 6133a6e2f7dcb80021a7e28c
+                          username:
+                            type: string
+                            description: 用户名
+                            example: "JaneDoe"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -586,6 +603,23 @@ paths:
                       type: string
                       description: 聊天会话的ID
                       example: "6133a6e2f7dcb80021a7e28a"
+                    atUsers:
+                      type: array
+                      description: 艾特用户列表
+                      items:
+                        type: object
+                        description: 用户信息
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: string
+                            description: 用户ID
+                            example: 6133a6e2f7dcb80021a7e28c
+                          username:
+                            type: string
+                            description: 用户名
+                            example: "JaneDoe"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -717,6 +751,23 @@ paths:
                       type: string
                       description: 聊天会话的ID
                       example: "6133a6e2f7dcb80021a7e28a"
+                    atUsers:
+                      type: array
+                      description: 艾特用户列表
+                      items:
+                        type: object
+                        description: 用户信息
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: string
+                            description: 用户ID
+                            example: 6133a6e2f7dcb80021a7e28c
+                          username:
+                            type: string
+                            description: 用户名
+                            example: "JaneDoe"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -1281,6 +1332,23 @@ paths:
                     type: string
                     description: 聊天会话的ID
                     example: "6133a6e2f7dcb80021a7e28a"
+                  atUsers:
+                    type: array
+                    description: 艾特用户列表
+                    items:
+                      type: object
+                      description: 用户信息
+                      required:
+                        - id
+                      properties:
+                        id:
+                          type: string
+                          description: 用户ID
+                          example: 6133a6e2f7dcb80021a7e28c
+                        username:
+                          type: string
+                          description: 用户名
+                          example: "JaneDoe"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -1461,6 +1529,23 @@ paths:
                       format: city name
                       description: 帖子发布时用户所在城市名称
                       example: 北京
+                    atUsers:
+                      type: array
+                      description: 艾特用户列表
+                      items:
+                        type: object
+                        description: 用户信息
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: string
+                            description: 用户ID
+                            example: 6133a6e2f7dcb80021a7e28c
+                          username:
+                            type: string
+                            description: 用户名
+                            example: "JaneDoe"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -1548,6 +1633,23 @@ paths:
                     default: 0
                     description: 当前登录用户是否点赞，0-未点赞，1-已点赞
                     example: 1
+                  atUsers:
+                    type: array
+                    description: 艾特用户列表
+                    items:
+                      type: object
+                      description: 用户信息
+                      required:
+                        - id
+                      properties:
+                        id:
+                          type: string
+                          description: 用户ID
+                          example: 6133a6e2f7dcb80021a7e28c
+                        username:
+                          type: string
+                          description: 用户名
+                          example: "JaneDoe"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -1665,7 +1767,7 @@ paths:
                     interactionType:
                       type: integer
                       description: |
-                        交互类型 (0: 给帖子点赞, 1: 评论帖子, 2: 分享帖子, 3: 收藏帖子, 4: 评论点赞, 5: 回复评论)
+                        交互类型 (0: 给帖子点赞, 1: 评论帖子, 2: 分享帖子, 3: 收藏帖子, 4: 评论点赞, 5: 回复评论, 6: 帖子艾特用户)
                       example: 0
                       enum:
                         - 0
@@ -1674,6 +1776,7 @@ paths:
                         - 3
                         - 4
                         - 5
+                        - 6
                     interactionTime:
                       type: integer
                       description: 交互发生的时间 (精确到秒的 UNIX 时间戳)
@@ -4997,8 +5100,8 @@ paths:
                       type: object
                       required:
                         - id
-                        - userId1
-                        - userId2
+                        - user1
+                        - user2
                         - createdAt
                         - updatedAt
                       properties:
