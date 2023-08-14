@@ -12,5 +12,6 @@ router.post(
 );
 router.post("/bundles", adminAuth, bundleController.createBundle);
 router.delete("/bundles", adminAuth, bundleController.deleteBundles);
+router.get("/bundles", adminAuth, bundleController.getBundleList);
 
 module.exports = router;

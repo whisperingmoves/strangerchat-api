@@ -51,8 +51,58 @@ const deleteBundles = async (req, res, next) => {
   }
 };
 
+const getBundleList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      keyword,
+      sort = "updatedAt",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const filter = keyword
+        ? { url: { $regex: new RegExp(keyword, "i") } }
+        : {};
+
+    const [total, bundles] = await Promise.all([
+      Bundle.countDocuments(filter),
+      Bundle.find(filter)
+          .sort(sortQuery)
+          .skip(skip)
+          .limit(parseInt(pageSize))
+          .select("-__v")
+          .lean(),
+    ]);
+
+    const formattedBundles = bundles.map((bundle) => ({
+      id: bundle.id,
+      url: bundle.url,
+      version: bundle.version,
+      online: bundle.online,
+      createdAt: bundle.createdAt,
+      updatedAt: bundle.updatedAt,
+    }));
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedBundles,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   onlineBundle,
   createBundle,
   deleteBundles,
+  getBundleList,
 };

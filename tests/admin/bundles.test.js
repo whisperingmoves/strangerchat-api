@@ -171,4 +171,95 @@ describe("Bundles Admin API", () => {
         });
     });
   });
+
+    describe("GET /admin/bundles", () => {
+        before((done) => {
+            const newBundle1 = {
+                url: "test.bundle1",
+                version: "1.0.0",
+                online: 1,
+            };
+
+            const newBundle2 = {
+                url: "test.bundle2",
+                version: "2.0.0",
+                online: 0,
+            };
+
+            chai
+                .request(app)
+                .post("/admin/bundles")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .send(newBundle1)
+                .end((err, res) => {
+                    expect(res).to.have.status(201);
+
+                    chai
+                        .request(app)
+                        .post("/admin/bundles")
+                        .set("Authorization", `Bearer ${adminToken}`)
+                        .send(newBundle2)
+                        .end((err, res) => {
+                            expect(res).to.have.status(201);
+                            done();
+                        });
+                });
+        });
+
+        it("should get a paginated list of bundles", (done) => {
+            const page = 1;
+            const pageSize = 10;
+
+            chai
+                .request(app)
+                .get("/admin/bundles")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .query({ page, pageSize })
+                .end((err, res) => {
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.have.property("page", page);
+                    expect(res.body).to.have.property("pageSize", pageSize);
+                    expect(res.body).to.have.property("items").to.be.an("array");
+                    done();
+                });
+        });
+
+        it("should filter bundles by keyword", (done) => {
+            const keyword = "test.bundle1";
+
+            chai
+                .request(app)
+                .get("/admin/bundles")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .query({ keyword })
+                .end((err, res) => {
+                    expect(res).to.have.status(200);
+                    expect(res.body.items).to.be.an("array");
+                    expect(res.body.items).to.have.lengthOf(1);
+                    expect(res.body.items[0].url).to.equal(keyword);
+                    done();
+                });
+        });
+
+        it("should sort bundles by version in ascending order", (done) => {
+            const sort = "version";
+            const order = "asc";
+
+            chai
+                .request(app)
+                .get("/admin/bundles")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .query({ sort, order })
+                .end((err, res) => {
+                    expect(res).to.have.status(200);
+                    expect(res.body.items).to.be.an("array");
+
+                    const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+                    sortedItems.sort((a, b) => a.version.localeCompare(b.version));
+
+                    expect(res.body.items).to.deep.equal(sortedItems);
+                    done();
+                });
+        });
+    });
 });
