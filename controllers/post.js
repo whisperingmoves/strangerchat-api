@@ -76,7 +76,7 @@ const createPost = async (req, res, next) => {
   try {
     await post.save();
 
-    res.json({ postId: post.id });
+    res.json({ postId: post._id });
   } catch (err) {
     next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
   }
@@ -350,7 +350,7 @@ const getPostDetails = async (req, res, next) => {
     );
     const isFollowed = await User.findOne({
       _id: req.user.userId,
-      following: post.author.id,
+      following: post.author._id,
     })
       .countDocuments()
       .exec();
@@ -364,15 +364,15 @@ const getPostDetails = async (req, res, next) => {
     // 查询当前用户和帖子作者之间的聊天会话
     const conversation = await ChatConversation.findOne({
       $or: [
-        { userId1: req.user.userId, userId2: post.author.id },
-        { userId1: post.author.id, userId2: req.user.userId },
+        { userId1: req.user.userId, userId2: post.author._id },
+        { userId1: post.author._id, userId2: req.user.userId },
       ],
     });
 
-    const conversationId = conversation ? conversation.id : undefined;
+    const conversationId = conversation ? conversation._id : undefined;
 
     const postDetails = {
-      authorId: post.author.id,
+      authorId: post.author._id,
       authorAvatar: post.author.avatar,
       authorName: post.author.username,
       createTime: Math.floor(post.createdAt.getTime() / 1000),
@@ -383,7 +383,7 @@ const getPostDetails = async (req, res, next) => {
       likeCount: post.likes.length,
       commentCount: commentCount,
       shareCount: post.shares.length,
-      postId: post.id,
+      postId: post._id,
       isLiked: isLiked ? 1 : 0,
       isCollected: isCollected ? 1 : 0,
       conversationId,
@@ -493,26 +493,26 @@ const getLatestPosts = async (req, res, next) => {
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
         const commentCount = await Comment.countDocuments({
-          post: post.id,
+          post: post._id,
         }).exec();
         const isFollowed = await User.findOne({
           _id: req.user.userId,
-          following: post.author.id,
+          following: post.author._id,
         })
           .countDocuments()
           .exec();
 
         const conversation = await ChatConversation.findOne({
           $or: [
-            { userId1: req.user.userId, userId2: post.author.id },
-            { userId1: post.author.id, userId2: req.user.userId },
+            { userId1: req.user.userId, userId2: post.author._id },
+            { userId1: post.author._id, userId2: req.user.userId },
           ],
         });
 
-        const conversationId = conversation ? conversation.id : undefined;
+        const conversationId = conversation ? conversation._id : undefined;
 
         return {
-          authorId: post.author.id,
+          authorId: post.author._id,
           authorAvatar: post.author.avatar,
           authorName: post.author.username,
           createTime: Math.floor(post.createdAt.getTime() / 1000),
@@ -521,7 +521,7 @@ const getLatestPosts = async (req, res, next) => {
           city: post.city,
           likeCount: post.likes.length,
           commentCount: commentCount,
-          postId: post.id,
+          postId: post._id,
           isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
           isFollowed: isFollowed ? 1 : 0,
           conversationId,
@@ -542,7 +542,7 @@ const getRecommendedPosts = async (req, res, next) => {
   const query = {};
 
   if (longitude && latitude) {
-    query.location = {
+    query["location.coordinates"] = {
       $near: {
         $geometry: {
           type: "Point",
@@ -578,7 +578,7 @@ const getRecommendedPosts = async (req, res, next) => {
         user.location.coordinates &&
         user.location.coordinates.length === 2
       ) {
-        query.location = {
+        query["location.coordinates"] = {
           $near: {
             $geometry: {
               type: "Point",
@@ -601,6 +601,7 @@ const getRecommendedPosts = async (req, res, next) => {
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .select("-createdAt -location -__v")
+        .populate("atUsers", "id username")
         .populate("author", "id username avatar");
     } else {
       // Location query present, apply distance sorting
@@ -608,6 +609,7 @@ const getRecommendedPosts = async (req, res, next) => {
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .select("-createdAt -location -__v")
+        .populate("atUsers", "id username")
         .populate("author", "id username avatar");
     }
 
@@ -636,15 +638,15 @@ const getRecommendedPosts = async (req, res, next) => {
       posts.map(async (post) => {
         const conversation = await ChatConversation.findOne({
           $or: [
-            { userId1: req.user.userId, userId2: post.author.id },
-            { userId1: post.author.id, userId2: req.user.userId },
+            { userId1: req.user.userId, userId2: post.author._id },
+            { userId1: post.author._id, userId2: req.user.userId },
           ],
         });
 
-        const conversationId = conversation ? conversation.id : undefined;
+        const conversationId = conversation ? conversation._id : undefined;
 
         return {
-          authorId: post.author.id,
+          authorId: post.author._id,
           authorAvatar: post.author.avatar,
           authorName: post.author.username,
           images: post.images,
@@ -652,10 +654,17 @@ const getRecommendedPosts = async (req, res, next) => {
           city: post.city,
           likeCount: post.likes.length,
           commentCount: commentCounts[post._id.toString()] || 0,
-          postId: post.id,
+          postId: post._id,
           isLiked: post.likes.includes(userId) ? 1 : 0,
-          isFollowed: followedAuthorIds.includes(post.author.id) ? 1 : 0,
+          isFollowed: followedAuthorIds.includes(post.author._id) ? 1 : 0,
           conversationId,
+          atUsers:
+            post.atUsers && post.atUsers.length > 0
+              ? post.atUsers.map((user) => ({
+                  id: user._id,
+                  username: user.username,
+                }))
+              : undefined,
         };
       })
     );
@@ -679,8 +688,8 @@ const getFollowedUsersPosts = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate("author", "id avatar username")
-      .populate("atUsers", "id username")
+      .populate("author", "avatar username")
+      .populate("atUsers", "username")
       .lean();
 
     const postIds = posts.map((post) => post._id);
@@ -704,15 +713,15 @@ const getFollowedUsersPosts = async (req, res, next) => {
 
         const conversation = await ChatConversation.findOne({
           $or: [
-            { userId1: req.user.userId, userId2: post.author.id },
-            { userId1: post.author.id, userId2: req.user.userId },
+            { userId1: req.user.userId, userId2: post.author._id },
+            { userId1: post.author._id, userId2: req.user.userId },
           ],
         });
 
-        const conversationId = conversation ? conversation.id : undefined;
+        const conversationId = conversation ? conversation._id : undefined;
 
         return {
-          authorId: post.author.id,
+          authorId: post.author._id,
           authorAvatar: post.author.avatar,
           authorName: post.author.username,
           createTime: Math.floor(post.createdAt.getTime() / 1000),
@@ -725,9 +734,9 @@ const getFollowedUsersPosts = async (req, res, next) => {
           isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
           conversationId,
           atUsers:
-            post.atUsers && post.atUsers.length > 1
+            post.atUsers && post.atUsers.length > 0
               ? post.atUsers.map((user) => ({
-                  id: user.id,
+                  id: user._id,
                   username: user.username,
                 }))
               : undefined,
@@ -756,7 +765,7 @@ const getMyPosts = async (req, res, next) => {
 
     const formattedPosts = posts.map((post) => {
       return {
-        postId: post.id,
+        postId: post._id,
         createTime: Math.floor(post.createdAt.getTime() / 1000),
         content: post.content,
         images: post.images,
@@ -803,7 +812,7 @@ const getMyPostDetails = async (req, res, next) => {
       likeCount: post.likes.length,
       commentCount: commentCount,
       shareCount: post.shares.length,
-      postId: post.id,
+      postId: post._id,
       isLiked: isLiked ? 1 : 0,
     };
 

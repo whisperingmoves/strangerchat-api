@@ -3,8 +3,8 @@ const chaiHttp = require("chai-http");
 const { it, before, beforeEach, describe } = require("mocha");
 const app = require("../../app");
 const { generateMobile } = require("../helper");
-const User = require('../../models/User');
-const Post = require('../../models/Post');
+const User = require("../../models/User");
+const Post = require("../../models/Post");
 
 chai.use(chaiHttp);
 chai.should();
@@ -12,6 +12,7 @@ chai.should();
 describe("Posts API", () => {
   let token;
   let mobile;
+  let user;
 
   beforeEach(async () => {
     // 生成随机的手机号
@@ -29,6 +30,9 @@ describe("Posts API", () => {
       });
 
     token = registerResponse.body.token;
+    const userId = registerResponse.body.userId;
+
+    user = await User.findById(userId);
   });
 
   describe("POST /posts", () => {
@@ -484,16 +488,68 @@ describe("Posts API", () => {
   });
 
   describe("GET /posts/recommended", () => {
+    let longitude;
+    let latitude;
+    let post1;
+    let post2;
+
+    beforeEach(async () => {
+      // 创建并保存测试帖子
+      const user1 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+      });
+      const user2 = new User({
+        mobile: generateMobile(),
+        gender: "female",
+        birthday: new Date(),
+        avatar: "avatar2.jpg",
+      });
+      await user1.save();
+      await user2.save();
+
+      // 生成随机的经度和纬度
+      longitude = 122.5 + Math.random() * 0.01;
+      latitude = 31.2 + Math.random() * 0.01;
+
+      post1 = new Post({
+        content: "Test Post 1",
+        author: user1._id,
+        atUsers: [user2._id],
+        location: {
+          type: "Point",
+          coordinates: [(longitude + 0.0001).toString(), latitude.toString()],
+        },
+      });
+      post2 = new Post({
+        content: "Test Post 2",
+        author: user1._id,
+        atUsers: [user2._id],
+        location: {
+          type: "Point",
+          coordinates: [
+            (longitude + 0.0002).toString(),
+            (latitude + 0.0001).toString(),
+          ],
+        },
+      });
+      await post1.save();
+      await post2.save();
+    });
+
     it("should get recommended posts list", (done) => {
       chai
         .request(app)
         .get("/posts/recommended")
+        .query({ longitude, latitude })
         .set("Authorization", `Bearer ${token}`)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.an("array");
 
-          res.body.forEach((post) => {
+          res.body.forEach((post, index) => {
             post.should.have.property("authorId");
             post.should.have.property("authorAvatar");
             post.should.have.property("content");
@@ -527,6 +583,26 @@ describe("Posts API", () => {
             if (post.hasOwnProperty("conversationId")) {
               post.conversationId.should.be.a("string");
             }
+
+            if (post.hasOwnProperty("atUsers")) {
+              post.atUsers.should.be.an("array");
+
+              post.atUsers.forEach((user) => {
+                user.should.have.property("id");
+
+                user.id.should.be.a("string");
+
+                if (user.hasOwnProperty("username")) {
+                  user.username.should.be.a("string");
+                }
+              });
+            }
+
+            if (index === 0) {
+              post.postId.should.be.equal(post1.id);
+            } else if (index === 1) {
+              post.postId.should.be.equal(post2.id);
+            }
           });
 
           done();
@@ -545,7 +621,7 @@ describe("Posts API", () => {
   });
 
   describe("GET /posts/follows", () => {
-    before(async () => {
+    beforeEach(async () => {
       // 创建并保存测试帖子
       const user1 = new User({
         mobile: generateMobile(),
@@ -561,6 +637,8 @@ describe("Posts API", () => {
       });
       await user1.save();
       await user2.save();
+      user.following = [user1.id, user2.id];
+      await user.save();
 
       const post1 = new Post({
         content: "Test Post 1",
