@@ -66,18 +66,16 @@ const getBundleList = async (req, res, next) => {
     const sortQuery = {};
     sortQuery[sort] = order === "asc" ? 1 : -1;
 
-    const filter = keyword
-        ? { url: { $regex: new RegExp(keyword, "i") } }
-        : {};
+    const filter = keyword ? { url: { $regex: new RegExp(keyword, "i") } } : {};
 
     const [total, bundles] = await Promise.all([
       Bundle.countDocuments(filter),
       Bundle.find(filter)
-          .sort(sortQuery)
-          .skip(skip)
-          .limit(parseInt(pageSize))
-          .select("-__v")
-          .lean(),
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .select("-__v")
+        .lean(),
     ]);
 
     const formattedBundles = bundles.map((bundle) => ({
