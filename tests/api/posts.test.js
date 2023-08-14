@@ -899,6 +899,24 @@ describe("Posts API", () => {
     let postsToken;
 
     before(async () => {
+      // 创建测试艾特用户
+      const atUser1 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+        username: "atUser1",
+      });
+      await atUser1.save();
+      const atUser2 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+        username: "atUser2",
+      });
+      await atUser2.save();
+
       // 创建一个测试帖子
       const createPostResponse = await chai
         .request(app)
@@ -908,6 +926,7 @@ describe("Posts API", () => {
           content: "Test post",
           city: "北京",
           images: ["/uploads/xxx1.png", "/uploads/xxx2.png"],
+          atUsers: [atUser1.id, atUser2.id],
         });
 
       postId = createPostResponse.body.postId;
@@ -926,6 +945,7 @@ describe("Posts API", () => {
           res.body.should.have.property("content");
           res.body.should.have.property("postId");
           res.body.should.have.property("isLiked");
+          res.body.should.have.property("atUsers");
 
           // 验证可选字段
           if (res.body.hasOwnProperty("images")) {
@@ -940,6 +960,16 @@ describe("Posts API", () => {
           res.body.should.have.property("likeCount");
           res.body.should.have.property("commentCount");
           res.body.should.have.property("shareCount");
+
+          res.body.atUsers.should.be.an("array").and.have.lengthOf(2);
+
+          res.body.atUsers.forEach((user) => {
+            user.should.have.property("id");
+            user.should.have.property("username");
+
+            user.id.should.be.a("string");
+            user.username.should.be.a("string");
+          });
 
           done();
         });

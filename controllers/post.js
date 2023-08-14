@@ -815,6 +815,7 @@ const getMyPostDetails = async (req, res, next) => {
 
     const post = await Post.findOne({ _id: postId, author: userId })
       .populate("author", "id avatar username")
+      .populate("atUsers", "id username")
       .populate("likes", "id")
       .exec();
 
@@ -838,6 +839,13 @@ const getMyPostDetails = async (req, res, next) => {
       shareCount: post.shares.length,
       postId: post._id,
       isLiked: isLiked ? 1 : 0,
+      atUsers:
+        post.atUsers && post.atUsers.length > 0
+          ? post.atUsers.map((user) => ({
+              id: user._id,
+              username: user.username,
+            }))
+          : undefined,
     };
 
     res.status(200).json(postDetails);
