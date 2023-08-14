@@ -298,4 +298,58 @@ describe("ChatConversations Admin API", () => {
           });
     });
   });
+
+  describe("PUT /admin/chatConversations/:conversationId", () => {
+    let conversationId;
+
+    before((done) => {
+      // 创建聊天会话
+      const newConversation = {
+        userId1: caller1.id,
+        userId2: recipient1.id,
+        lastMessageTime: null,
+        lastMessageContent: null,
+      };
+
+      ChatConversation.create(newConversation, (err, conversation) => {
+        conversationId = conversation._id; // 保存新增聊天会话的ID
+        done();
+      });
+    });
+
+    it("should update a chat conversation", (done) => {
+      const updatedConversation = {
+        userId1: caller2.id,
+        userId2: recipient2.id,
+        lastMessageTime: new Date("2023-08-14T12:30:00Z"),
+        lastMessageContent: "Hello, how are you today?",
+      };
+
+      chai
+          .request(app)
+          .put(`/admin/chatConversations/${conversationId}`)
+          .set("Authorization", `Bearer ${adminToken}`)
+          .send(updatedConversation)
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+
+            // 验证修改是否生效
+            ChatConversation.findById(conversationId, (err, conversation) => {
+              expect(conversation.userId1.toString()).to.equal(
+                  updatedConversation.userId1
+              );
+              expect(conversation.userId2.toString()).to.equal(
+                  updatedConversation.userId2
+              );
+              expect(conversation.lastMessageTime.toISOString()).to.equal(
+                  updatedConversation.lastMessageTime.toISOString()
+              );
+              expect(conversation.lastMessageContent).to.equal(
+                  updatedConversation.lastMessageContent
+              );
+              done();
+            });
+          });
+    });
+  });
 });

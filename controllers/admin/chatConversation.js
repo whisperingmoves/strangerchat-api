@@ -89,8 +89,30 @@ const getChatConversationList = async (req, res, next) => {
   }
 };
 
+const updateChatConversation = async (req, res, next) => {
+  try {
+    const { userId1, userId2, lastMessageTime, lastMessageContent } = req.body;
+    const { conversationId } = req.params;
+
+    const conversation = await ChatConversation.findByIdAndUpdate(
+        conversationId,
+        { userId1, userId2, lastMessageTime, lastMessageContent, updatedAt: Date.now() },
+        { new: true }
+    );
+
+    if (!conversation) {
+      return res.status(404).json({ message: "聊天会话不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createChatConversation,
   deleteChatConversations,
   getChatConversationList,
+  updateChatConversation,
 };

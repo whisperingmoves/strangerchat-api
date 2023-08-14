@@ -16,5 +16,9 @@ router.get(
     "/chatConversations",
     chatConversationController.getChatConversationList
 );
+router.put(
+    "/chatConversations/:conversationId",
+    chatConversationController.updateChatConversation
+);
 
 module.exports = router;

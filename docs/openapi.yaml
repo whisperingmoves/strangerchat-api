@@ -4940,12 +4940,12 @@ paths:
           name: userId1
           schema:
             type: string
-          description: 发送者ID
+          description: 用户1 ID
         - in: query
           name: userId2
           schema:
             type: string
-          description: 接收者ID
+          description: 用户2 ID
         - in: query
           name: sort
           schema:
@@ -4997,8 +4997,6 @@ paths:
                         - id
                         - userId1
                         - userId2
-                        - lastMessageTime
-                        - lastMessageContent
                         - createdAt
                         - updatedAt
                       properties:
@@ -5059,6 +5057,65 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         403:
           $ref: '#/components/responses/Forbidden'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/chatConversations/{conversationId}:
+    put:
+      summary: 修改聊天会话
+      tags:
+        - 聊天会话
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 聊天会话的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId1:
+                  type: string
+                  description: 用户1的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                userId2:
+                  type: string
+                  description: 用户2的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                lastMessageTime:
+                  type: string
+                  format: date-time
+                  description: 最后一条消息的时间
+                  example: "2023-08-14T12:30:00Z"
+                lastMessageContent:
+                  type: string
+                  description: 最后一条消息的内容
+                  example: "你好，今天天气真好！"
+              required:
+                - userId1
+                - userId2
+      responses:
+        200:
+          description: 聊天会话修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
         429:
           $ref: '#/components/responses/TooManyRequests'
         500:
