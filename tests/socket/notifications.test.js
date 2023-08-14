@@ -5,6 +5,7 @@ const ioClient = require("socket.io-client");
 const app = require("../../app");
 const config = require("../../config");
 const User = require("../../models/User");
+const Post = require("../../models/Post");
 const InteractionNotification = require("../../models/InteractionNotification");
 const StatusNotification = require("../../models/StatusNotification");
 const GiftNotification = require("../../models/GiftNotification");
@@ -1088,6 +1089,9 @@ describe("Notifications Socket", () => {
 
     // 删除测试用户和附近的用户
     await User.deleteOne({ mobile: mobile });
+
+    // 删除测试帖子
+    await Post.deleteOne({ userId: user.id });
 
     // 删除相关的礼物历史记录
     await GiftHistory.deleteMany({ receiver: user.id });

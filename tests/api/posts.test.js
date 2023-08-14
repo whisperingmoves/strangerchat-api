@@ -310,8 +310,28 @@ describe("Posts API", () => {
 
   describe("GET /posts/:postId", () => {
     let postId;
+    let atUser1;
+    let atUser2;
 
     before(async () => {
+      // 创建测试艾特用户
+      atUser1 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+        username: "atUser1",
+      });
+      await atUser1.save();
+      atUser2 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+        username: "atUser2",
+      });
+      await atUser2.save();
+
       // 创建一个测试帖子
       const createPostResponse = await chai
         .request(app)
@@ -324,6 +344,7 @@ describe("Posts API", () => {
           latitude: "39.9042",
           images: ["/uploads/xxx1.png", "/uploads/xxx2.png"],
           visibility: 0,
+          atUsers: [atUser1.id, atUser2.id],
         });
 
       postId = createPostResponse.body.postId;
@@ -346,6 +367,7 @@ describe("Posts API", () => {
           res.body.should.have.property("shareCount");
           res.body.should.have.property("isLiked");
           res.body.should.have.property("isCollected");
+          res.body.should.have.property("atUsers");
 
           // 验证可能不会返回的非必填字段
           if (res.body.hasOwnProperty("authorName")) {
@@ -363,6 +385,16 @@ describe("Posts API", () => {
           if (res.body.hasOwnProperty("conversationId")) {
             res.body.conversationId.should.be.a("string");
           }
+
+          res.body.atUsers.should.be.an("array").and.have.lengthOf(2);
+
+          res.body.atUsers.forEach((user) => {
+            user.should.have.property("id");
+            user.should.have.property("username");
+
+            user.id.should.be.a("string");
+            user.username.should.be.a("string");
+          });
 
           done();
         });

@@ -336,6 +336,7 @@ const getPostDetails = async (req, res, next) => {
       .populate("author", "id avatar username")
       .populate("likes", "id")
       .populate("collects", "id")
+      .populate("atUsers", "id username")
       .exec();
 
     if (!post) {
@@ -387,6 +388,13 @@ const getPostDetails = async (req, res, next) => {
       isLiked: isLiked ? 1 : 0,
       isCollected: isCollected ? 1 : 0,
       conversationId,
+      atUsers:
+        post.atUsers && post.atUsers.length > 0
+          ? post.atUsers.map((user) => ({
+              id: user._id,
+              username: user.username,
+            }))
+          : undefined,
     };
 
     res.status(200).json(postDetails);
