@@ -12,5 +12,9 @@ router.delete(
   "/chatConversations",
   chatConversationController.deleteChatConversations
 );
+router.get(
+    "/chatConversations",
+    chatConversationController.getChatConversationList
+);
 
 module.exports = router;

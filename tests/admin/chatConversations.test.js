@@ -203,4 +203,99 @@ describe("ChatConversations Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/chatConversations", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const conversation1 = new ChatConversation({
+        userId1: caller1.id,
+        userId2: recipient1.id,
+        lastMessageTime: new Date(),
+        lastMessageContent: "你好，今天天气真好！",
+      });
+      await conversation1.save();
+
+      const conversation2 = new ChatConversation({
+        userId1: caller2.id,
+        userId2: recipient2.id,
+        lastMessageTime: new Date(),
+        lastMessageContent: "明天有什么计划吗？",
+      });
+      await conversation2.save();
+    });
+
+    it("should get a paginated list of chat conversations", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+          .request(app)
+          .get("/admin/chatConversations")
+          .set("Authorization", `Bearer ${adminToken}`)
+          .query({ page, pageSize })
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property("page", page);
+            expect(res.body).to.have.property("pageSize", pageSize);
+            expect(res.body).to.have.property("total");
+            expect(res.body).to.have.property("items").to.be.an("array");
+            done();
+          });
+    });
+
+    it("should sort chat conversations by updatedAt in descending order", (done) => {
+      const sort = "updatedAt";
+      const order = "desc";
+
+      chai
+          .request(app)
+          .get("/admin/chatConversations")
+          .set("Authorization", `Bearer ${adminToken}`)
+          .query({ sort, order })
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.items).to.be.an("array");
+
+            const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+            sortedItems.sort(
+                (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+            );
+
+            expect(res.body.items).to.deep.equal(sortedItems);
+            done();
+          });
+    });
+
+    it("should filter chat conversations by userId1", (done) => {
+      const userId1 = caller1.id; // Replace with actual userId1
+
+      chai
+          .request(app)
+          .get("/admin/chatConversations")
+          .set("Authorization", `Bearer ${adminToken}`)
+          .query({ userId1 })
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.items).to.be.an("array");
+            expect(res.body.items[0].user1.id).to.equal(userId1);
+            done();
+          });
+    });
+
+    it("should filter chat conversations by userId2", (done) => {
+      const userId2 = recipient1.id; // Replace with actual userId2
+
+      chai
+          .request(app)
+          .get("/admin/chatConversations")
+          .set("Authorization", `Bearer ${adminToken}`)
+          .query({ userId2 })
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.items).to.be.an("array");
+            expect(res.body.items[0].user2.id).to.equal(userId2);
+            done();
+          });
+    });
+  });
 });
