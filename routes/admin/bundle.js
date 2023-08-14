@@ -11,5 +11,6 @@ router.post(
   bundleController.onlineBundle
 );
 router.post("/bundles", adminAuth, bundleController.createBundle);
+router.delete("/bundles", adminAuth, bundleController.deleteBundles);
 
 module.exports = router;

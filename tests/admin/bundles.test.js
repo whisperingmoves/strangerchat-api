@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
@@ -10,6 +10,7 @@ const {
 } = require("../../utils/authUtils");
 const bcrypt = require("bcrypt");
 const AdminUser = require("../../models/AdminUser");
+const Bundle = require("../../models/Bundle");
 const { expect } = require("chai");
 
 chai.use(chaiHttp);
@@ -109,6 +110,64 @@ describe("Bundles Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/bundles", () => {
+    let bundleIds;
+
+    before((done) => {
+      const newBundle1 = {
+        url,
+        version: "1.0.0",
+        online: 0,
+      };
+
+      const newBundle2 = {
+        url,
+        version: "2.0.0",
+        online: 0,
+      };
+
+      chai
+        .request(app)
+        .post("/admin/bundles")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newBundle1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          const bundleId1 = res.body.id;
+
+          chai
+            .request(app)
+            .post("/admin/bundles")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newBundle2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+              const bundleId2 = res.body.id;
+
+              bundleIds = [bundleId1, bundleId2];
+              done();
+            });
+        });
+    });
+
+    it("should delete bundles", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/bundles")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: bundleIds })
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+
+          // 验证删除是否成功
+          Bundle.find({ _id: { $in: bundleIds } }, (err, bundles) => {
+            expect(bundles).to.have.lengthOf(0);
+            done();
+          });
         });
     });
   });

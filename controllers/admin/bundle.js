@@ -39,7 +39,20 @@ const createBundle = async (req, res, next) => {
   }
 };
 
+const deleteBundles = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await Bundle.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   onlineBundle,
   createBundle,
+  deleteBundles,
 };
