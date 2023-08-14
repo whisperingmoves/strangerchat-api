@@ -35,7 +35,7 @@ const getChatConversationList = async (req, res, next) => {
     const {
       page = 1,
       pageSize = 10,
-        userId1,
+      userId1,
       userId2,
       sort = "updatedAt",
       order = "desc",
@@ -53,30 +53,32 @@ const getChatConversationList = async (req, res, next) => {
     const [total, chatConversations] = await Promise.all([
       ChatConversation.countDocuments(filter),
       ChatConversation.find(filter)
-          .sort(sortQuery)
-          .skip(skip)
-          .limit(parseInt(pageSize))
-          .populate("userId1", "username")
-          .populate("userId2", "username")
-          .select("-__v")
-          .lean(),
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .populate("userId1", "username")
+        .populate("userId2", "username")
+        .select("-__v")
+        .lean(),
     ]);
 
-    const formattedChatConversations = chatConversations.map((conversation) => ({
-      id: conversation._id,
-      user1: {
-        id: conversation.userId1._id,
-        username: conversation.userId1.username,
-      },
-      user2: {
-        id: conversation.userId2._id,
-        username: conversation.userId2.username,
-      },
-      lastMessageTime: conversation.lastMessageTime,
-      lastMessageContent: conversation.lastMessageContent,
-      createdAt: conversation.createdAt,
-      updatedAt: conversation.updatedAt,
-    }));
+    const formattedChatConversations = chatConversations.map(
+      (conversation) => ({
+        id: conversation._id,
+        user1: {
+          id: conversation.userId1._id,
+          username: conversation.userId1.username,
+        },
+        user2: {
+          id: conversation.userId2._id,
+          username: conversation.userId2.username,
+        },
+        lastMessageTime: conversation.lastMessageTime,
+        lastMessageContent: conversation.lastMessageContent,
+        createdAt: conversation.createdAt,
+        updatedAt: conversation.updatedAt,
+      })
+    );
 
     res.status(200).json({
       page: parseInt(page),
@@ -95,9 +97,15 @@ const updateChatConversation = async (req, res, next) => {
     const { conversationId } = req.params;
 
     const conversation = await ChatConversation.findByIdAndUpdate(
-        conversationId,
-        { userId1, userId2, lastMessageTime, lastMessageContent, updatedAt: Date.now() },
-        { new: true }
+      conversationId,
+      {
+        userId1,
+        userId2,
+        lastMessageTime,
+        lastMessageContent,
+        updatedAt: Date.now(),
+      },
+      { new: true }
     );
 
     if (!conversation) {

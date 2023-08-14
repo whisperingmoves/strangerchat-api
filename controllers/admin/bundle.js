@@ -27,6 +27,19 @@ const onlineBundle = async (req, res, next) => {
   }
 };
 
+const createBundle = async (req, res, next) => {
+  try {
+    const { url, version, online } = req.body;
+
+    const bundle = await Bundle.create({ url, version, online });
+
+    res.status(201).json({ id: bundle.id });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   onlineBundle,
+  createBundle,
 };

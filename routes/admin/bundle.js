@@ -10,5 +10,6 @@ router.post(
   adminAuth,
   bundleController.onlineBundle
 );
+router.post("/bundles", adminAuth, bundleController.createBundle);
 
 module.exports = router;

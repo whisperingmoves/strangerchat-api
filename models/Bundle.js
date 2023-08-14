@@ -11,8 +11,16 @@ const bundleSchema = new mongoose.Schema({
   },
   online: {
     type: Number,
-    enum: [0, 1], // 是否在线 (0: 否, 1: 是, 默认值: 0)
+    enum: [0, 1], // 是否上线 (0: 否, 1: 是, 默认值: 0)
     default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

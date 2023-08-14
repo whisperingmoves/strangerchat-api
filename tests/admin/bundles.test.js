@@ -10,6 +10,7 @@ const {
 } = require("../../utils/authUtils");
 const bcrypt = require("bcrypt");
 const AdminUser = require("../../models/AdminUser");
+const { expect } = require("chai");
 
 chai.use(chaiHttp);
 chai.should();
@@ -87,6 +88,27 @@ describe("Bundles Admin API", () => {
         })
         .catch((err) => {
           done(err);
+        });
+    });
+  });
+
+  describe("POST /admin/bundles", () => {
+    it("should create a new bundle", (done) => {
+      const newBundle = {
+        url,
+        version: "1.0.0",
+        online: 1,
+      };
+
+      chai
+        .request(app)
+        .post("/admin/bundles")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newBundle)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          expect(res.body).to.have.property("id");
+          done();
         });
     });
   });

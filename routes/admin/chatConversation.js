@@ -13,12 +13,12 @@ router.delete(
   chatConversationController.deleteChatConversations
 );
 router.get(
-    "/chatConversations",
-    chatConversationController.getChatConversationList
+  "/chatConversations",
+  chatConversationController.getChatConversationList
 );
 router.put(
-    "/chatConversations/:conversationId",
-    chatConversationController.updateChatConversation
+  "/chatConversations/:conversationId",
+  chatConversationController.updateChatConversation
 );
 
 module.exports = router;

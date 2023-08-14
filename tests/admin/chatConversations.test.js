@@ -229,18 +229,18 @@ describe("ChatConversations Admin API", () => {
       const pageSize = 10;
 
       chai
-          .request(app)
-          .get("/admin/chatConversations")
-          .set("Authorization", `Bearer ${adminToken}`)
-          .query({ page, pageSize })
-          .end((err, res) => {
-            expect(res).to.have.status(200);
-            expect(res.body).to.have.property("page", page);
-            expect(res.body).to.have.property("pageSize", pageSize);
-            expect(res.body).to.have.property("total");
-            expect(res.body).to.have.property("items").to.be.an("array");
-            done();
-          });
+        .request(app)
+        .get("/admin/chatConversations")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
     });
 
     it("should sort chat conversations by updatedAt in descending order", (done) => {
@@ -248,54 +248,54 @@ describe("ChatConversations Admin API", () => {
       const order = "desc";
 
       chai
-          .request(app)
-          .get("/admin/chatConversations")
-          .set("Authorization", `Bearer ${adminToken}`)
-          .query({ sort, order })
-          .end((err, res) => {
-            expect(res).to.have.status(200);
-            expect(res.body.items).to.be.an("array");
+        .request(app)
+        .get("/admin/chatConversations")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
 
-            const sortedItems = res.body.items.slice(0); // Create a copy of the items array
-            sortedItems.sort(
-                (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-            );
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
 
-            expect(res.body.items).to.deep.equal(sortedItems);
-            done();
-          });
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
     });
 
     it("should filter chat conversations by userId1", (done) => {
       const userId1 = caller1.id; // Replace with actual userId1
 
       chai
-          .request(app)
-          .get("/admin/chatConversations")
-          .set("Authorization", `Bearer ${adminToken}`)
-          .query({ userId1 })
-          .end((err, res) => {
-            expect(res).to.have.status(200);
-            expect(res.body.items).to.be.an("array");
-            expect(res.body.items[0].user1.id).to.equal(userId1);
-            done();
-          });
+        .request(app)
+        .get("/admin/chatConversations")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ userId1 })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].user1.id).to.equal(userId1);
+          done();
+        });
     });
 
     it("should filter chat conversations by userId2", (done) => {
       const userId2 = recipient1.id; // Replace with actual userId2
 
       chai
-          .request(app)
-          .get("/admin/chatConversations")
-          .set("Authorization", `Bearer ${adminToken}`)
-          .query({ userId2 })
-          .end((err, res) => {
-            expect(res).to.have.status(200);
-            expect(res.body.items).to.be.an("array");
-            expect(res.body.items[0].user2.id).to.equal(userId2);
-            done();
-          });
+        .request(app)
+        .get("/admin/chatConversations")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ userId2 })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].user2.id).to.equal(userId2);
+          done();
+        });
     });
   });
 
@@ -326,30 +326,30 @@ describe("ChatConversations Admin API", () => {
       };
 
       chai
-          .request(app)
-          .put(`/admin/chatConversations/${conversationId}`)
-          .set("Authorization", `Bearer ${adminToken}`)
-          .send(updatedConversation)
-          .end((err, res) => {
-            expect(res).to.have.status(200);
+        .request(app)
+        .put(`/admin/chatConversations/${conversationId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedConversation)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
 
-            // 验证修改是否生效
-            ChatConversation.findById(conversationId, (err, conversation) => {
-              expect(conversation.userId1.toString()).to.equal(
-                  updatedConversation.userId1
-              );
-              expect(conversation.userId2.toString()).to.equal(
-                  updatedConversation.userId2
-              );
-              expect(conversation.lastMessageTime.toISOString()).to.equal(
-                  updatedConversation.lastMessageTime.toISOString()
-              );
-              expect(conversation.lastMessageContent).to.equal(
-                  updatedConversation.lastMessageContent
-              );
-              done();
-            });
+          // 验证修改是否生效
+          ChatConversation.findById(conversationId, (err, conversation) => {
+            expect(conversation.userId1.toString()).to.equal(
+              updatedConversation.userId1
+            );
+            expect(conversation.userId2.toString()).to.equal(
+              updatedConversation.userId2
+            );
+            expect(conversation.lastMessageTime.toISOString()).to.equal(
+              updatedConversation.lastMessageTime.toISOString()
+            );
+            expect(conversation.lastMessageContent).to.equal(
+              updatedConversation.lastMessageContent
+            );
+            done();
           });
+        });
     });
   });
 });
