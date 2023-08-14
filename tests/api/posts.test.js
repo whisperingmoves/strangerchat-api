@@ -806,6 +806,41 @@ describe("Posts API", () => {
   });
 
   describe("GET /users/me/posts", () => {
+    beforeEach(async () => {
+      // 创建并保存测试帖子
+      const user1 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+        username: "atUser1",
+      });
+      const user2 = new User({
+        mobile: generateMobile(),
+        gender: "female",
+        birthday: new Date(),
+        avatar: "avatar2.jpg",
+        username: "atUser2",
+      });
+      await user1.save();
+      await user2.save();
+      user.following = [user1.id, user2.id];
+      await user.save();
+
+      const post1 = new Post({
+        content: "Test Post 1",
+        author: user._id,
+        atUsers: [user1._id, user2._id],
+      });
+      const post2 = new Post({
+        content: "Test Post 2",
+        author: user._id,
+        atUsers: [user1._id, user2._id],
+      });
+      await post1.save();
+      await post2.save();
+    });
+
     it("should get my posts list", (done) => {
       chai
         .request(app)
@@ -819,10 +854,21 @@ describe("Posts API", () => {
             post.should.have.property("postId");
             post.should.have.property("createTime");
             post.should.have.property("content");
+            post.should.have.property("atUsers");
 
             post.postId.should.be.a("string");
             post.createTime.should.be.a("number");
             post.content.should.be.a("string");
+
+            post.atUsers.should.be.an("array").and.have.lengthOf(2);
+
+            post.atUsers.forEach((user) => {
+              user.should.have.property("id");
+              user.should.have.property("username");
+
+              user.id.should.be.a("string");
+              user.username.should.be.a("string");
+            });
 
             if (post.hasOwnProperty("images")) {
               post.images.should.be.an("array");

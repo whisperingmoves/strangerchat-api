@@ -774,6 +774,7 @@ const getMyPosts = async (req, res, next) => {
 
   try {
     const posts = await Post.find({ author: userId })
+      .populate("atUsers", "id username")
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
@@ -786,6 +787,13 @@ const getMyPosts = async (req, res, next) => {
         content: post.content,
         images: post.images,
         city: post.city,
+        atUsers:
+          post.atUsers && post.atUsers.length > 0
+            ? post.atUsers.map((user) => ({
+                id: user._id,
+                username: user.username,
+              }))
+            : undefined,
       };
     });
 
