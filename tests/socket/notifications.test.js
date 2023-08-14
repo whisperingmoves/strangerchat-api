@@ -493,6 +493,60 @@ describe("Notifications Socket", () => {
     });
   });
 
+  it("should receive unread notifications count via WebSocket after receiving a @ of a post", (done) => {
+    // 创建带有认证信息的 WebSocket 连接
+    const socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token: token,
+      },
+    });
+
+    // 标记是否已经接收到第一个未读通知数消息
+    let firstUnreadMessageReceived = false;
+
+    // 监听连接成功事件
+    socket.on("connect", () => {
+      // 监听 WebSocket 推送消息
+      socket.on("notifications", (message) => {
+        // 只处理未读通知数消息
+        if (message.type !== 2) {
+          return;
+        }
+
+        // 忽略第一个消息
+        if (!firstUnreadMessageReceived) {
+          firstUnreadMessageReceived = true;
+          return;
+        }
+
+        // 对推送的消息进行断言
+        chai.expect(message).to.deep.equal({
+          type: 2,
+          data: {
+            count: 1,
+          },
+        });
+
+        done();
+      });
+
+      // 在连接成功后，调用发布帖子的接口
+      chai
+        .request(app)
+        .post("/posts")
+        .set("Authorization", `Bearer ${otherToken}`)
+        .send({
+          content: "这是一条帖子内容。",
+          atUsers: [user.id],
+        })
+        .end((postErr) => {
+          if (postErr) {
+            done(postErr);
+          }
+        });
+    });
+  });
+
   it("should receive unread notifications count via WebSocket after post is collected and uncollected", (done) => {
     // 创建带有认证信息的 WebSocket 连接
     const socket = ioClient(`http://localhost:${config.port}`, {

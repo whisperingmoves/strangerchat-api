@@ -71,6 +71,21 @@ const createPost = async (req, res, next) => {
   // 添加可选的艾特用户列表
   if (atUsers && atUsers.length > 0) {
     post.atUsers = atUsers;
+
+    for (const atUser of atUsers) {
+      await InteractionNotification.create({
+        toUser: atUser,
+        user: req.user.userId,
+        interactionType: 6, // 帖子艾特用户
+        post: post._id,
+      });
+
+      await pushUnreadNotificationsCount(
+        req.app.get("io"),
+        req.app.get("userIdSocketMap"),
+        atUser
+      );
+    }
   }
 
   try {
