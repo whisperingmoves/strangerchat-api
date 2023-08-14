@@ -5337,6 +5337,62 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/bundles/{bundleId}:
+    put:
+      summary: 修改Bundle
+      tags:
+        - Bundle
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: bundleId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: Bundle的ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: Bundle URL
+                  example: "test.bundle"
+                version:
+                  type: string
+                  description: Bundle版本号
+                  example: "1.0.0"
+                  maxLength: 20
+                online:
+                  type: integer
+                  description: Bundle上线状态
+                  example: 1
+                  enum: [ 0, 1 ]
+              required:
+                - url
+                - version
+      responses:
+        200:
+          description: Bundle修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

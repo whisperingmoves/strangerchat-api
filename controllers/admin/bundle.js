@@ -98,9 +98,31 @@ const getBundleList = async (req, res, next) => {
   }
 };
 
+const updateBundle = async (req, res, next) => {
+  try {
+    const { url, version, online } = req.body;
+    const { bundleId } = req.params;
+
+    const bundle = await Bundle.findByIdAndUpdate(
+      bundleId,
+      { url, version, online, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!bundle) {
+      return res.status(404).json({ message: "Bundle不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   onlineBundle,
   createBundle,
   deleteBundles,
   getBundleList,
+  updateBundle,
 };

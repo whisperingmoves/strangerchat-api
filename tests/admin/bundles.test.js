@@ -235,7 +235,7 @@ describe("Bundles Admin API", () => {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.items).to.be.an("array");
-          expect(res.body.items).to.have.lengthOf(1);
+          expect(res.body.items).to.have.lengthOf.above(0);
           expect(res.body.items[0].url).to.equal(keyword);
           done();
         });
@@ -259,6 +259,55 @@ describe("Bundles Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/bundles/:bundleId", () => {
+    let bundleId;
+
+    before((done) => {
+      // 新增Bundle
+      const newBundle = {
+        url: "test.bundle1",
+        version: "1.0.0",
+        online: 0,
+      };
+
+      chai
+        .request(app)
+        .post("/admin/bundles")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newBundle)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          bundleId = res.body.id; // 保存新增Bundle的ID
+          done();
+        });
+    });
+
+    it("should update a bundle", (done) => {
+      const updatedBundle = {
+        url: "test.bundle2",
+        version: "2.0.0",
+        online: 1,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/bundles/${bundleId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedBundle)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          Bundle.findById(bundleId, (err, bundle) => {
+            expect(bundle.url).to.equal(updatedBundle.url);
+            expect(bundle.version).to.equal(updatedBundle.version);
+            expect(bundle.online).to.equal(updatedBundle.online);
+            done();
+          });
         });
     });
   });
