@@ -439,6 +439,37 @@ describe("Posts API", () => {
   });
 
   describe("GET /posts/latest", () => {
+    beforeEach(async () => {
+      // 创建并保存测试帖子
+      const user1 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+      });
+      const user2 = new User({
+        mobile: generateMobile(),
+        gender: "female",
+        birthday: new Date(),
+        avatar: "avatar2.jpg",
+      });
+      await user1.save();
+      await user2.save();
+
+      const post1 = new Post({
+        content: "Test Post 1",
+        author: user1._id,
+        atUsers: [user2._id],
+      });
+      const post2 = new Post({
+        content: "Test Post 2",
+        author: user1._id,
+        atUsers: [user2._id],
+      });
+      await post1.save();
+      await post2.save();
+    });
+
     it("should get latest posts list", (done) => {
       chai
         .request(app)
@@ -469,6 +500,20 @@ describe("Posts API", () => {
 
             if (post.hasOwnProperty("conversationId")) {
               post.conversationId.should.be.a("string");
+            }
+
+            if (post.hasOwnProperty("atUsers")) {
+              post.atUsers.should.be.an("array");
+
+              post.atUsers.forEach((user) => {
+                user.should.have.property("id");
+
+                user.id.should.be.a("string");
+
+                if (user.hasOwnProperty("username")) {
+                  user.username.should.be.a("string");
+                }
+              });
             }
           });
 

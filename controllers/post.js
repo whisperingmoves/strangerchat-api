@@ -488,6 +488,7 @@ const getLatestPosts = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate("author", "id avatar username")
+      .populate("atUsers", "id username")
       .exec();
 
     const formattedPosts = await Promise.all(
@@ -525,6 +526,13 @@ const getLatestPosts = async (req, res, next) => {
           isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
           isFollowed: isFollowed ? 1 : 0,
           conversationId,
+          atUsers:
+            post.atUsers && post.atUsers.length > 0
+              ? post.atUsers.map((user) => ({
+                  id: user._id,
+                  username: user.username,
+                }))
+              : undefined,
         };
       })
     );
