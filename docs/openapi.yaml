@@ -5945,6 +5945,120 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: 分页获取金币商品列表
+      tags:
+        - 商品
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ coins, originalPrice, price, createdAt, updatedAt ]
+            default: updatedAt
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+      responses:
+        '200':
+          description: 成功获取金币商品列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - coins
+                        - price
+                        - currency
+                      properties:
+                        id:
+                          type: string
+                          description: 金币商品 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        coins:
+                          type: integer
+                          description: 金币数量
+                          example: 100
+                          minimum: 1
+                          maximum: 100000
+                        originalPrice:
+                          type: number
+                          description: 原价
+                          example: 50.99
+                          minimum: 1
+                          maximum: 10000000
+                        price:
+                          type: number
+                          description: 价格
+                          example: 29.99
+                          minimum: 1
+                          maximum: 10000000
+                        currency:
+                          type: string
+                          description: 货币单位
+                          example: USD
+                          maxLength: 10
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

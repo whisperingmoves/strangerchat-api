@@ -121,4 +121,81 @@ describe("CoinProducts Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/coinProducts", () => {
+    before((done) => {
+      const newCoinProduct1 = {
+        coins: 100,
+        originalPrice: 50.99,
+        price: 29.99,
+        currency: "USD",
+      };
+
+      const newCoinProduct2 = {
+        coins: 50,
+        originalPrice: 25.99,
+        price: 19.99,
+        currency: "USD",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newCoinProduct1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+
+          chai
+            .request(app)
+            .post("/admin/coinProducts")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newCoinProduct2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+
+              done();
+            });
+        });
+    });
+
+    it("should get a paginated list of coin products", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should sort coin products by coins in descending order", (done) => {
+      const sort = "coins";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort((a, b) => b.coins - a.coins);
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

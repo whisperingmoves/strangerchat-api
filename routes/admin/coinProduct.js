@@ -15,5 +15,10 @@ router.delete(
   adminAuth,
   coinProductController.deleteCoinProducts
 );
+router.get(
+  "/coinProducts",
+  adminAuth,
+  coinProductController.getCoinProductList
+);
 
 module.exports = router;

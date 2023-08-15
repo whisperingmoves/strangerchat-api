@@ -29,7 +29,53 @@ const deleteCoinProducts = async (req, res, next) => {
   }
 };
 
+const getCoinProductList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      sort = "updatedAt",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const [total, coinProducts] = await Promise.all([
+      CoinProduct.countDocuments(),
+      CoinProduct.find()
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .select("-__v")
+        .lean(),
+    ]);
+
+    const formattedCoinProducts = coinProducts.map((coinProduct) => ({
+      id: coinProduct.id,
+      coins: coinProduct.coins,
+      originalPrice: coinProduct.originalPrice,
+      price: coinProduct.price,
+      currency: coinProduct.currency,
+      createdAt: coinProduct.createdAt,
+      updatedAt: coinProduct.updatedAt,
+    }));
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedCoinProducts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createCoinProduct,
   deleteCoinProducts,
+  getCoinProductList,
 };
