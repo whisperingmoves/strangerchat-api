@@ -6411,6 +6411,78 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/coinTransactions/{transactionId}:
+    put:
+      summary: 修改金币交易记录
+      tags:
+        - 金币交易
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 金币交易记录的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: 用户的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                coins:
+                  type: number
+                  description: 金币数量
+                  example: 100
+                  minimum: 1
+                amount:
+                  type: number
+                  description: 金额
+                  example: 10
+                  minimum: 0
+                currency:
+                  type: string
+                  description: 货币类型
+                  example: USD
+                paymentMethod:
+                  type: string
+                  description: 支付方式
+                  example: Credit Card
+                transactionId:
+                  type: string
+                  description: 交易 ID
+                  example: 1234567890
+              required:
+                - userId
+                - coins
+                - amount
+                - currency
+                - paymentMethod
+                - transactionId
+      responses:
+        200:
+          description: 金币交易记录修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

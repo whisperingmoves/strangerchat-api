@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   coinTransactionController.getCoinTransactionList
 );
+router.put(
+  "/coinTransactions/:transactionId",
+  adminAuth,
+  coinTransactionController.updateCoinTransaction
+);
 
 module.exports = router;

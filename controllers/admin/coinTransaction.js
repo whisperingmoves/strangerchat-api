@@ -89,8 +89,39 @@ const getCoinTransactionList = async (req, res, next) => {
   }
 };
 
+const updateCoinTransaction = async (req, res, next) => {
+  try {
+    const { userId, coins, amount, currency, paymentMethod, transactionId } =
+      req.body;
+    const { transactionId: id } = req.params;
+
+    const coinTransaction = await CoinTransaction.findByIdAndUpdate(
+      id,
+      {
+        userId,
+        coins,
+        amount,
+        currency,
+        paymentMethod,
+        transactionId,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!coinTransaction) {
+      return res.status(404).json({ message: "金币交易记录不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createCoinTransaction,
   deleteCoinTransactions,
   getCoinTransactionList,
+  updateCoinTransaction,
 };

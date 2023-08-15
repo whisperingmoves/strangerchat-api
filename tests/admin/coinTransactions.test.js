@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -223,6 +223,70 @@ describe("CoinTransactions Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/coinTransactions/:transactionId", () => {
+    let transactionId;
+
+    before((done) => {
+      // 创建金币交易记录
+      const newCoinTransaction = {
+        userId: user.id,
+        coins: 100,
+        amount: 10,
+        currency: "USD",
+        paymentMethod: "Credit Card",
+        transactionId: "1234567890",
+      };
+
+      CoinTransaction.create(newCoinTransaction, (err, coinTransaction) => {
+        transactionId = coinTransaction._id; // 保存新增金币交易记录的ID
+        done();
+      });
+    });
+
+    it("should update a coin transaction", (done) => {
+      const updatedCoinTransaction = {
+        userId: user.id,
+        coins: 200,
+        amount: 20,
+        currency: "EUR",
+        paymentMethod: "PayPal",
+        transactionId: "0987654321",
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/coinTransactions/${transactionId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedCoinTransaction)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          CoinTransaction.findById(transactionId, (err, coinTransaction) => {
+            expect(coinTransaction.userId.toString()).to.equal(
+              updatedCoinTransaction.userId
+            );
+            expect(coinTransaction.coins).to.equal(
+              updatedCoinTransaction.coins
+            );
+            expect(coinTransaction.amount).to.equal(
+              updatedCoinTransaction.amount
+            );
+            expect(coinTransaction.currency).to.equal(
+              updatedCoinTransaction.currency
+            );
+            expect(coinTransaction.paymentMethod).to.equal(
+              updatedCoinTransaction.paymentMethod
+            );
+            expect(coinTransaction.transactionId).to.equal(
+              updatedCoinTransaction.transactionId
+            );
+            done();
+          });
         });
     });
   });
