@@ -227,4 +227,117 @@ describe("ChatMessages Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/chatMessages", () => {
+    let conversationId;
+    let senderId;
+    let recipientId;
+
+    beforeEach(async () => {
+      conversationId = conversation1.id;
+      senderId = sender1.id;
+      recipientId = recipient1.id;
+
+      // 创建测试数据
+      const chatMessage1 = new ChatMessage({
+        conversationId: conversationId,
+        senderId: senderId,
+        recipientId: recipientId,
+        content: "Hello",
+      });
+      await chatMessage1.save();
+
+      const chatMessage2 = new ChatMessage({
+        conversationId: conversationId,
+        senderId: recipientId,
+        recipientId: senderId,
+        content: "Hi",
+      });
+      await chatMessage2.save();
+    });
+
+    it("should get a paginated list of chat messages", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/chatMessages")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter chat messages by conversationId", (done) => {
+      chai
+        .request(app)
+        .get("/admin/chatMessages")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ conversationId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].conversationId).to.equal(conversationId);
+          done();
+        });
+    });
+
+    it("should filter chat messages by senderId", (done) => {
+      chai
+        .request(app)
+        .get("/admin/chatMessages")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ senderId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].sender.id).to.equal(senderId);
+          done();
+        });
+    });
+
+    it("should filter chat messages by recipientId", (done) => {
+      chai
+        .request(app)
+        .get("/admin/chatMessages")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ recipientId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].recipient.id).to.equal(recipientId);
+          done();
+        });
+    });
+
+    it("should sort chat messages by sentTime in descending order", (done) => {
+      const sort = "sentTime";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/chatMessages")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.sentTime) - new Date(a.sentTime)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

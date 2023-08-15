@@ -39,7 +39,71 @@ const deleteChatMessages = async (req, res, next) => {
   }
 };
 
+const getChatMessageList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      conversationId,
+      senderId,
+      recipientId,
+      sort = "sentTime",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const filter = {};
+    if (conversationId) filter["conversationId"] = conversationId;
+    if (senderId) filter["senderId"] = senderId;
+    if (recipientId) filter["recipientId"] = recipientId;
+
+    const [total, chatMessages] = await Promise.all([
+      ChatMessage.countDocuments(filter),
+      ChatMessage.find(filter)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .populate("senderId", "username")
+        .populate("recipientId", "username")
+        .select("-__v")
+        .lean(),
+    ]);
+
+    const formattedChatMessages = chatMessages.map((message) => ({
+      id: message._id,
+      conversationId: message.conversationId,
+      sender: {
+        id: message.senderId._id,
+        username: message.senderId.username,
+      },
+      recipient: {
+        id: message.recipientId._id,
+        username: message.recipientId.username,
+      },
+      sentTime: message.sentTime,
+      content: message.content,
+      readStatus: message.readStatus,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+    }));
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedChatMessages,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createChatMessage,
   deleteChatMessages,
+  getChatMessageList,
 };

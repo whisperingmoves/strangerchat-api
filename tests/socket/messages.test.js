@@ -7,6 +7,7 @@ const config = require("../../config");
 const User = require("../../models/User");
 const VoiceCallRecord = require("../../models/VoiceCallRecord");
 const ChatConversation = require("../../models/ChatConversation");
+const ChatMessage = require("../../models/ChatMessage");
 const { calculateDistance } = require("../../utils/distanceUtils");
 const { generateMobile } = require("../helper");
 
@@ -1186,6 +1187,16 @@ describe("Messages Socket", () => {
         { userId2: user._id },
         { userId1: otherUser._id },
         { userId2: otherUser._id },
+      ],
+    });
+
+    // 删除关联的聊天消息
+    await ChatMessage.deleteMany({
+      $or: [
+        { senderId: user._id },
+        { recipientId: user._id },
+        { senderId: otherUser._id },
+        { recipientId: otherUser._id },
       ],
     });
   });

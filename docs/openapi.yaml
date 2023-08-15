@@ -5610,6 +5610,168 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: 分页获取聊天消息列表
+      tags:
+        - 聊天消息
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: conversationId
+          schema:
+            type: string
+          description: 对话 ID
+        - in: query
+          name: senderId
+          schema:
+            type: string
+          description: 发送者 ID
+        - in: query
+          name: recipientId
+          schema:
+            type: string
+          description: 接收者 ID
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ sentTime, createdAt, updatedAt ]
+            default: sentTime
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+      responses:
+        200:
+          description: 成功获取聊天消息列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - conversationId
+                        - sender
+                        - recipient
+                        - sentTime
+                        - content
+                        - readStatus
+                        - createdAt
+                        - updatedAt
+                      properties:
+                        id:
+                          type: string
+                          description: 聊天消息记录 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        conversationId:
+                          type: string
+                          description: 对话 ID
+                          example: 6133a6e2f7dcb80021a7e28b
+                        sender:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 发送者 ID
+                              example: 6133a6e2f7dcb80021a7e28b
+                            username:
+                              type: string
+                              description: 发送者用户名
+                              example: "JohnDoe"
+                        recipient:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: 接收者 ID
+                              example: 6133a6e2f7dcb80021a7e28c
+                            username:
+                              type: string
+                              description: 接收者用户名
+                              example: "JaneDoe"
+                        sentTime:
+                          type: string
+                          format: date-time
+                          description: 消息发送时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        content:
+                          type: string
+                          description: 消息内容
+                          example: "Hello"
+                        readStatus:
+                          type: integer
+                          description: |
+                            消息的已读状态 (0: 未读, 1:  已读, 默认值: 0)
+                          example: 0
+                          enum: [ 0, 1 ]
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 聊天消息记录创建时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: 聊天消息记录更新时间
+                          example: "2023-08-09T10:52:00.000Z"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

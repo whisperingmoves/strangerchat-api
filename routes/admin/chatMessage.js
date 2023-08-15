@@ -15,5 +15,10 @@ router.delete(
   adminAuth,
   chatMessageController.deleteChatMessages
 );
+router.get(
+  "/chatMessages",
+  adminAuth,
+  chatMessageController.getChatMessageList
+);
 
 module.exports = router;
