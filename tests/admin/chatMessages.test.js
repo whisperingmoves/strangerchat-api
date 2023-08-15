@@ -13,6 +13,7 @@ const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const User = require("../../models/User");
 const ChatConversation = require("../../models/ChatConversation");
+const ChatMessage = require("../../models/ChatMessage");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
@@ -175,6 +176,54 @@ describe("ChatMessages Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/chatMessages", () => {
+    let chatMessageIds; // 用于存储聊天消息记录的ID
+
+    beforeEach(async () => {
+      // 创建两个聊天消息模型并获取它们的ID
+      const chatMessage1 = new ChatMessage({
+        conversationId: conversation1.id,
+        senderId: sender1.id,
+        recipientId: recipient1.id,
+        content: "Hello",
+      });
+      await chatMessage1.save();
+
+      const chatMessage2 = new ChatMessage({
+        conversationId: conversation2.id,
+        senderId: sender2.id,
+        recipientId: recipient2.id,
+        content: "Hi",
+      });
+      await chatMessage2.save();
+
+      chatMessageIds = [chatMessage1.id, chatMessage2.id];
+    });
+
+    it("should delete chat messages and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/chatMessages")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: chatMessageIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedChatMessages = await ChatMessage.find({
+              _id: { $in: chatMessageIds },
+            });
+            expect(deletedChatMessages).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });

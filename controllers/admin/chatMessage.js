@@ -26,6 +26,20 @@ const createChatMessage = async (req, res, next) => {
   }
 };
 
+const deleteChatMessages = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    // 删除聊天消息
+    await ChatMessage.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createChatMessage,
+  deleteChatMessages,
 };
