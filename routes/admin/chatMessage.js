@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   chatMessageController.getChatMessageList
 );
+router.put(
+  "/chatMessages/:chatMessageId",
+  adminAuth,
+  chatMessageController.updateChatMessage
+);
 
 module.exports = router;

@@ -102,8 +102,45 @@ const getChatMessageList = async (req, res, next) => {
   }
 };
 
+const updateChatMessage = async (req, res, next) => {
+  try {
+    const {
+      content,
+      readStatus,
+      conversationId,
+      senderId,
+      recipientId,
+      sentTime,
+    } = req.body;
+    const { chatMessageId } = req.params;
+
+    const chatMessage = await ChatMessage.findByIdAndUpdate(
+      chatMessageId,
+      {
+        content,
+        readStatus,
+        conversationId,
+        senderId,
+        recipientId,
+        sentTime,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!chatMessage) {
+      return res.status(404).json({ message: "聊天消息不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createChatMessage,
   deleteChatMessages,
   getChatMessageList,
+  updateChatMessage,
 };

@@ -5772,6 +5772,77 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/chatMessages/{chatMessageId}:
+    put:
+      summary: 修改聊天消息
+      tags:
+        - 聊天
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: chatMessageId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 聊天消息的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - conversationId
+                - senderId
+                - recipientId
+                - content
+              properties:
+                content:
+                  type: string
+                  description: 聊天消息的内容
+                  example: Hello, how are you?
+                readStatus:
+                  type: integer
+                  enum: [ 0, 1 ]
+                  description: |
+                    消息的已读状态 (0: 未读, 1: 已读)
+                  example: 1
+                conversationId:
+                  type: string
+                  description: 聊天对话的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                senderId:
+                  type: string
+                  description: 发送者的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                recipientId:
+                  type: string
+                  description: 接收者的 ID
+                  example: 6133a6e2f7dcb80021a7e28a
+                sentTime:
+                  type: string
+                  format: date-time
+                  description: 消息的发送时间
+                  example: 2023-08-15T10:30:00Z
+      responses:
+        200:
+          description: 聊天消息修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

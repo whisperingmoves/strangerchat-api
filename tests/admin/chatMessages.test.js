@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -337,6 +337,66 @@ describe("ChatMessages Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/chatMessages/:chatMessageId", () => {
+    let chatMessageId;
+
+    before((done) => {
+      // 创建聊天消息
+      const newChatMessage = {
+        conversationId: conversation1.id,
+        senderId: sender1.id,
+        recipientId: recipient1.id,
+        content: "Hello, how are you?",
+      };
+
+      ChatMessage.create(newChatMessage, (err, chatMessage) => {
+        chatMessageId = chatMessage._id; // 保存新增聊天消息的ID
+        done();
+      });
+    });
+
+    it("should update a chat message", (done) => {
+      const updatedChatMessage = {
+        conversationId: conversation2.id,
+        senderId: sender2.id,
+        recipientId: recipient2.id,
+        content: "Hi, I'm fine. How about you?",
+        readStatus: 1,
+        sentTime: new Date("2023-08-15T10:30:00Z"),
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/chatMessages/${chatMessageId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedChatMessage)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          ChatMessage.findById(chatMessageId, (err, chatMessage) => {
+            expect(chatMessage.conversationId.toString()).to.equal(
+              updatedChatMessage.conversationId
+            );
+            expect(chatMessage.senderId.toString()).to.equal(
+              updatedChatMessage.senderId
+            );
+            expect(chatMessage.recipientId.toString()).to.equal(
+              updatedChatMessage.recipientId
+            );
+            expect(chatMessage.content).to.equal(updatedChatMessage.content);
+            expect(chatMessage.readStatus).to.equal(
+              updatedChatMessage.readStatus
+            );
+            expect(chatMessage.sentTime.toISOString()).to.equal(
+              updatedChatMessage.sentTime.toISOString()
+            );
+            done();
+          });
         });
     });
   });
