@@ -12,6 +12,7 @@ const GiftNotification = require("../../models/GiftNotification");
 const Gift = require("../../models/Gift");
 const GiftHistory = require("../../models/GiftHistory");
 const CoinProduct = require("../../models/CoinProduct");
+const CoinTransaction = require("../../models/CoinTransaction");
 const SystemNotification = require("../../models/SystemNotification");
 const { calculateDistance } = require("../../utils/distanceUtils");
 const { generateMobile } = require("../helper");
@@ -1149,6 +1150,9 @@ describe("Notifications Socket", () => {
 
     // 删除相关的礼物历史记录
     await GiftHistory.deleteMany({ receiver: user.id });
+
+    // 删除相关的金币交易记录
+    await CoinTransaction.deleteMany({ userId: user.id });
 
     const promises = nearbyUsers.map((userInfo) => {
       return new Promise((resolve, reject) => {

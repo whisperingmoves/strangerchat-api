@@ -127,4 +127,103 @@ describe("CoinTransactions Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/coinTransactions", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const coinTransaction1 = new CoinTransaction({
+        userId: user.id,
+        coins: 100,
+        amount: 10,
+        currency: "USD",
+        paymentMethod: "Credit Card",
+        transactionId: "1234567890",
+      });
+      await coinTransaction1.save();
+
+      const coinTransaction2 = new CoinTransaction({
+        userId: user.id,
+        coins: 200,
+        amount: 20,
+        currency: "EUR",
+        paymentMethod: "PayPal",
+        transactionId: "9876543210",
+      });
+      await coinTransaction2.save();
+    });
+
+    it("should get a paginated list of coin transactions", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/coinTransactions")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter coin transactions by userId", (done) => {
+      const userId = user.id; // 替换为实际的用户ID
+
+      chai
+        .request(app)
+        .get("/admin/coinTransactions")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ userId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].user.id).to.equal(userId);
+          done();
+        });
+    });
+
+    it("should filter coin transactions by transactionId", (done) => {
+      const transactionId = "1234567890"; // 替换为实际的交易ID
+
+      chai
+        .request(app)
+        .get("/admin/coinTransactions")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ transactionId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].transactionId).to.equal(transactionId);
+          done();
+        });
+    });
+
+    it("should sort coin transactions by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/coinTransactions")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

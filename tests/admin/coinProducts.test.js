@@ -40,9 +40,9 @@ describe("CoinProducts Admin API", () => {
   describe("POST /admin/coinProducts", () => {
     it("should create a new coin product", (done) => {
       const newCoinProduct = {
-        coins: 100,
-        originalPrice: 10,
-        price: 8,
+        coins: (1 + 1) * 100,
+        originalPrice: (1 + 1) * 1000,
+        price: (1 + 1) * 900,
         currency: "USD",
       };
 
@@ -64,16 +64,16 @@ describe("CoinProducts Admin API", () => {
 
     before((done) => {
       const newCoinProduct1 = {
-        coins: 100,
-        originalPrice: 10,
-        price: 5,
+        coins: (2 + 1) * 100,
+        originalPrice: (2 + 1) * 1000,
+        price: (2 + 1) * 900,
         currency: "USD",
       };
 
       const newCoinProduct2 = {
-        coins: 200,
-        originalPrice: 20,
-        price: 10,
+        coins: (3 + 1) * 100,
+        originalPrice: (3 + 1) * 1000,
+        price: (3 + 1) * 900,
         currency: "USD",
       };
 
@@ -125,16 +125,16 @@ describe("CoinProducts Admin API", () => {
   describe("GET /admin/coinProducts", () => {
     before((done) => {
       const newCoinProduct1 = {
-        coins: 100,
-        originalPrice: 50.99,
-        price: 29.99,
+        coins: (4 + 1) * 100,
+        originalPrice: (4 + 1) * 1000,
+        price: (4 + 1) * 900,
         currency: "USD",
       };
 
       const newCoinProduct2 = {
-        coins: 50,
-        originalPrice: 25.99,
-        price: 19.99,
+        coins: (5 + 1) * 100,
+        originalPrice: (5 + 1) * 1000,
+        price: (5 + 1) * 900,
         currency: "USD",
       };
 
@@ -205,9 +205,9 @@ describe("CoinProducts Admin API", () => {
     before((done) => {
       // 新增金币商品
       const newProduct = {
-        coins: 100,
-        originalPrice: 50.99,
-        price: 29.99,
+        coins: (6 + 1) * 100,
+        originalPrice: (6 + 1) * 1000,
+        price: (6 + 1) * 900,
         currency: "USD",
       };
 
@@ -225,9 +225,9 @@ describe("CoinProducts Admin API", () => {
 
     it("should update a coin product", (done) => {
       const updatedProduct = {
-        coins: 200,
-        originalPrice: 59.99,
-        price: 39.99,
+        coins: (7 + 1) * 100,
+        originalPrice: (7 + 1) * 1000,
+        price: (7 + 1) * 900,
         currency: "EUR",
       };
 

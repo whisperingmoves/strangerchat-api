@@ -15,5 +15,10 @@ router.delete(
   adminAuth,
   coinTransactionController.deleteCoinTransactions
 );
+router.get(
+  "/coinTransactions",
+  adminAuth,
+  coinTransactionController.getCoinTransactionList
+);
 
 module.exports = router;
