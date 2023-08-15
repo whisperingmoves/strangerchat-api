@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   coinProductController.getCoinProductList
 );
+router.put(
+  "/coinProducts/:productId",
+  adminAuth,
+  coinProductController.updateCoinProduct
+);
 
 module.exports = router;

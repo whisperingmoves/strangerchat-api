@@ -198,4 +198,58 @@ describe("CoinProducts Admin API", () => {
         });
     });
   });
+
+  describe("PUT /admin/coinProducts/:productId", () => {
+    let productId;
+
+    before((done) => {
+      // 新增金币商品
+      const newProduct = {
+        coins: 100,
+        originalPrice: 50.99,
+        price: 29.99,
+        currency: "USD",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newProduct)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          productId = res.body.id; // 保存新增金币商品的ID
+          done();
+        });
+    });
+
+    it("should update a coin product", (done) => {
+      const updatedProduct = {
+        coins: 200,
+        originalPrice: 59.99,
+        price: 39.99,
+        currency: "EUR",
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/coinProducts/${productId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedProduct)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          CoinProduct.findById(productId, (err, product) => {
+            expect(product.coins).to.equal(updatedProduct.coins);
+            expect(product.originalPrice).to.equal(
+              updatedProduct.originalPrice
+            );
+            expect(product.price).to.equal(updatedProduct.price);
+            expect(product.currency).to.equal(updatedProduct.currency);
+            done();
+          });
+        });
+    });
+  });
 });

@@ -74,8 +74,30 @@ const getCoinProductList = async (req, res, next) => {
   }
 };
 
+const updateCoinProduct = async (req, res, next) => {
+  try {
+    const { coins, originalPrice, price, currency } = req.body;
+    const { productId } = req.params;
+
+    const product = await CoinProduct.findByIdAndUpdate(
+      productId,
+      { coins, originalPrice, price, currency, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: "金币商品不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createCoinProduct,
   deleteCoinProducts,
   getCoinProductList,
+  updateCoinProduct,
 };

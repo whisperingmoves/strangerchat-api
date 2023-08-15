@@ -24,6 +24,14 @@ const coinProductSchema = new mongoose.Schema({
     required: true,
     maxLength: 10,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 coinProductSchema.virtual("id").get(function () {
