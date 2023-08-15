@@ -10,5 +10,10 @@ router.post(
   adminAuth,
   coinTransactionController.createCoinTransaction
 );
+router.delete(
+  "/coinTransactions",
+  adminAuth,
+  coinTransactionController.deleteCoinTransactions
+);
 
 module.exports = router;
