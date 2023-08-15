@@ -6,9 +6,14 @@ const router = express.Router();
 
 // 金币商品路由
 router.post(
-    "/coinProducts",
-    adminAuth,
-    coinProductController.createCoinProduct
+  "/coinProducts",
+  adminAuth,
+  coinProductController.createCoinProduct
+);
+router.delete(
+  "/coinProducts",
+  adminAuth,
+  coinProductController.deleteCoinProducts
 );
 
 module.exports = router;

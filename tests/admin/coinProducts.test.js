@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -9,6 +9,7 @@ const {
 const bcrypt = require("bcrypt");
 const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
+const CoinProduct = require("../../models/CoinProduct");
 const jwt = require("jsonwebtoken");
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -36,25 +37,88 @@ describe("CoinProducts Admin API", () => {
     adminToken = jwt.sign({ adminId: adminUser.id }, config.jwtAdminSecret);
   });
 
-    describe("POST /admin/coinProducts", () => {
-        it("should create a new coin product", (done) => {
-            const newCoinProduct = {
-                coins: 100,
-                originalPrice: 10,
-                price: 8,
-                currency: "USD",
-            };
+  describe("POST /admin/coinProducts", () => {
+    it("should create a new coin product", (done) => {
+      const newCoinProduct = {
+        coins: 100,
+        originalPrice: 10,
+        price: 8,
+        currency: "USD",
+      };
 
-            chai
-                .request(app)
-                .post("/admin/coinProducts")
-                .set("Authorization", `Bearer ${adminToken}`)
-                .send(newCoinProduct)
-                .end((err, res) => {
-                    expect(res).to.have.status(201);
-                    expect(res.body).to.have.property("id");
-                    done();
-                });
+      chai
+        .request(app)
+        .post("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newCoinProduct)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          expect(res.body).to.have.property("id");
+          done();
         });
     });
+  });
+
+  describe("DELETE /admin/coinProducts", () => {
+    let coinProductIds;
+
+    before((done) => {
+      const newCoinProduct1 = {
+        coins: 100,
+        originalPrice: 10,
+        price: 5,
+        currency: "USD",
+      };
+
+      const newCoinProduct2 = {
+        coins: 200,
+        originalPrice: 20,
+        price: 10,
+        currency: "USD",
+      };
+
+      chai
+        .request(app)
+        .post("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(newCoinProduct1)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          const coinProductId1 = res.body.id;
+
+          chai
+            .request(app)
+            .post("/admin/coinProducts")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .send(newCoinProduct2)
+            .end((err, res) => {
+              expect(res).to.have.status(201);
+              const coinProductId2 = res.body.id;
+
+              coinProductIds = [coinProductId1, coinProductId2];
+              done();
+            });
+        });
+    });
+
+    it("should delete coin products", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/coinProducts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: coinProductIds })
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+
+          // 验证删除是否成功
+          CoinProduct.find(
+            { _id: { $in: coinProductIds } },
+            (err, coinProducts) => {
+              expect(coinProducts).to.have.lengthOf(0);
+              done();
+            }
+          );
+        });
+    });
+  });
 });
