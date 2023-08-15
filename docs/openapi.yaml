@@ -6416,7 +6416,7 @@ paths:
     put:
       summary: 修改金币交易记录
       tags:
-        - 金币交易
+        - 交易记录
         - 后台管理
       security:
         - JWTAuth: [ admin ]
@@ -6479,6 +6479,178 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/errorMonitors:
+    get:
+      summary: 分页获取错误监控列表
+      tags:
+        - 监控
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ createdAt, projectName, errorMessage ]
+            default: createdAt
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+        - in: query
+          name: projectName
+          schema:
+            type: string
+          description: 项目名称，用于筛选
+        - in: query
+          name: appVersion
+          schema:
+            type: string
+          description: 应用程序版本，用于筛选
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: 关键词，用于模糊匹配 errorMessage 和 stackTrace
+      responses:
+        200:
+          description: 成功获取错误监控列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - projectName
+                        - errorMessage
+                        - stackTrace
+                        - createdAt
+                      properties:
+                        id:
+                          type: string
+                          description: 错误监控 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        projectName:
+                          type: string
+                          description: 项目名称
+                          example: "MyApp"
+                          maxLength: 50
+                        errorMessage:
+                          type: string
+                          description: 错误信息
+                          example: "Unhandled promise rejection"
+                        stackTrace:
+                          type: string
+                          description: 错误堆栈信息
+                          example: "Error: Something went wrong\n    at /path/to/file.js:10:5"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 错误监控创建时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        appVersion:
+                          type: string
+                          description: 应用程序版本
+                        ipAddress:
+                          type: string
+                          description: IP 地址
+                        runtimeName:
+                          type: string
+                          description: 运行时名称
+                        runtimeVersion:
+                          type: string
+                          description: 运行时版本
+                        appStartTime:
+                          type: string
+                          format: date-time
+                          description: 应用程序启动时间
+                        appMemory:
+                          type: number
+                          description: 应用程序内存（字节数）
+                        browserName:
+                          type: string
+                          description: 浏览器名称
+                        browserVersion:
+                          type: string
+                          description: 浏览器版本
+                        locale:
+                          type: string
+                          description: 区域设置
+                        timezone:
+                          type: string
+                          description: 时区
+                        operatingSystemName:
+                          type: string
+                          description: 操作系统名称
+                        operatingSystemVersion:
+                          type: string
+                          description: 操作系统版本
+                        occurredFile:
+                          type: string
+                          description: 错误发生的文件
+                        occurredLine:
+                          type: number
+                          description: 错误发生的行数
+                        occurredFunction:
+                          type: string
+                          description: 错误发生的函数
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
         429:
           $ref: '#/components/responses/TooManyRequests'
         500:
