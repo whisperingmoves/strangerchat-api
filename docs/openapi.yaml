@@ -35,6 +35,8 @@ tags:
     description: 语音通话记录相关接口
   - name: 聊天会话
     description: 聊天会话相关接口
+  - name: 聊天消息
+    description: 聊天消息相关接口
 paths:
 
   /verifications/sendCode:
@@ -5484,6 +5486,83 @@ paths:
       responses:
         200:
           description: Bundle修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/chatMessages:
+    post:
+      summary: 创建聊天消息
+      tags:
+        - 聊天消息
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - conversationId
+                - senderId
+                - recipientId
+                - content
+              properties:
+                conversationId:
+                  type: string
+                  description: 聊天会话的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                senderId:
+                  type: string
+                  description: 发送者的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9f
+                recipientId:
+                  type: string
+                  description: 接收者的唯一标识符
+                  example: 60f372a9515b5f001f4b3aa0
+                sentTime:
+                  type: string
+                  format: date-time
+                  description: 消息发送的时间
+                  example: 2023-08-11T10:30:00Z
+                content:
+                  type: string
+                  description: 聊天消息内容
+                  example: "你好，今天天气不错！"
+                readStatus:
+                  type: integer
+                  description: |
+                    消息的已读状态 (0: 未读, 1: 已读, 默认值: 0)
+                  example: 0
+                  enum:
+                    - 0
+                    - 1
+                  default: 0
+      responses:
+        201:
+          description: 聊天消息创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 聊天消息 ID
+                    example: 6133a6e2f7dcb80021a7e28a
         400:
           $ref: '#/components/responses/BadRequest'
         401:
