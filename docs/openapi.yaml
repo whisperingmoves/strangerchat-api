@@ -6137,6 +6137,82 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/coinTransactions:
+    post:
+      summary: 创建金币交易记录
+      tags:
+        - 交易记录
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - coins
+                - amount
+                - currency
+                - paymentMethod
+                - transactionId
+              properties:
+                userId:
+                  type: string
+                  description: 用户的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                coins:
+                  type: number
+                  description: 金币数量
+                  example: 100
+                amount:
+                  type: number
+                  description: 交易金额
+                  example: 9.99
+                currency:
+                  type: string
+                  description: 货币类型
+                  example: "USD"
+                  maxLength: 10
+                paymentMethod:
+                  type: string
+                  description: 支付方式
+                  example: "Credit Card"
+                  maxLength: 50
+                transactionId:
+                  type: string
+                  description: 交易ID
+                  example: "1234567890"
+                  maxLength: 50
+      responses:
+        201:
+          description: 金币交易记录创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 金币交易记录 ID
+                    example: 6133a6e2f7dcb80021a7e28a
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

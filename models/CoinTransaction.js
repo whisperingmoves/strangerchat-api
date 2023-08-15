@@ -30,6 +30,10 @@ const coinTransactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 coinTransactionSchema.virtual("id").get(function () {
