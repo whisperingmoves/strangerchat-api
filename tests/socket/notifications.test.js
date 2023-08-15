@@ -1145,7 +1145,7 @@ describe("Notifications Socket", () => {
     await User.deleteOne({ mobile: mobile });
 
     // 删除测试帖子
-    await Post.deleteOne({ userId: user.id });
+    await Post.deleteOne({ author: user.id });
 
     // 删除相关的礼物历史记录
     await GiftHistory.deleteMany({ receiver: user.id });
