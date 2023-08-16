@@ -8,5 +8,6 @@ const router = express.Router();
 router.post("/posts", adminAuth, postController.createPost);
 router.delete("/posts", adminAuth, postController.deletePosts);
 router.get("/posts", adminAuth, postController.getPostList);
+router.put("/posts/:postId", adminAuth, postController.updatePost);
 
 module.exports = router;

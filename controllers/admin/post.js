@@ -114,8 +114,57 @@ const getPostList = async (req, res, next) => {
   }
 };
 
+const updatePost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    const {
+      content,
+      author,
+      city,
+      location,
+      images,
+      visibility,
+      atUsers,
+      heatCount,
+      viewsCount,
+      likes,
+      collects,
+      shares,
+    } = req.body;
+
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      {
+        content,
+        author,
+        city,
+        location,
+        images,
+        visibility,
+        atUsers,
+        heatCount,
+        viewsCount,
+        likes,
+        collects,
+        shares,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!post) {
+      return res.status(404).json({ message: "帖子不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createPost,
   deletePosts,
   getPostList,
+  updatePost,
 };

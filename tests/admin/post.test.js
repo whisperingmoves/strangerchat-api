@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -419,6 +419,86 @@ describe("Post Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/posts/:postId", () => {
+    let postId;
+
+    before((done) => {
+      // 创建帖子
+      const newPost = {
+        content: "这是一个帖子",
+        author: author1.id,
+      };
+
+      Post.create(newPost, (err, post) => {
+        postId = post._id; // 保存新增帖子的ID
+        done();
+      });
+    });
+
+    it("should update a post", (done) => {
+      const updatedPost = {
+        content: "更新后的帖子内容",
+        author: author2.id,
+        city: "New York",
+        location: {
+          type: "Point",
+          coordinates: [40.7128, -74.006],
+        },
+        images: ["image1.jpg", "image2.jpg"],
+        visibility: 1,
+        atUsers: [atUser1.id, atUser2.id],
+        heatCount: 100,
+        viewsCount: 50,
+        likes: [likeUser1.id, likeUser2.id],
+        collects: [collectUser1.id, collectUser2.id],
+        shares: [
+          {
+            sharePlatform: 1,
+            sharedAt: new Date("2023-08-16T10:30:00Z"),
+          },
+          {
+            sharePlatform: 2,
+            sharedAt: new Date("2023-08-16T11:00:00Z"),
+          },
+        ],
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/posts/${postId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedPost)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          Post.findById(postId, (err, post) => {
+            expect(post.content).to.equal(updatedPost.content);
+            expect(post.author.toString()).to.equal(updatedPost.author);
+            expect(post.city).to.equal(updatedPost.city);
+            expect(post.location.type).to.equal(updatedPost.location.type);
+            expect(post.location.coordinates).to.deep.equal(
+              updatedPost.location.coordinates
+            );
+            expect(post.images).to.deep.equal(updatedPost.images);
+            expect(post.visibility).to.equal(updatedPost.visibility);
+            expect(post.atUsers.map((user) => user.toString())).to.deep.equal(
+              updatedPost.atUsers
+            );
+            expect(post.heatCount).to.equal(updatedPost.heatCount);
+            expect(post.viewsCount).to.equal(updatedPost.viewsCount);
+            expect(post.likes.map((user) => user.toString())).to.deep.equal(
+              updatedPost.likes
+            );
+            expect(post.collects.map((user) => user.toString())).to.deep.equal(
+              updatedPost.collects
+            );
+            done();
+          });
         });
     });
   });
