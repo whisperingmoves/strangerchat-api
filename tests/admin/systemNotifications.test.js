@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
 const User = require("../../models/User");
+const SystemNotification = require("../../models/SystemNotification");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -106,6 +107,52 @@ describe("SystemNotifications Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/systemNotifications", () => {
+    let systemNotificationIds; // 用于存储系统类通知的ID
+
+    beforeEach(async () => {
+      // 创建两个系统类通知模型并获取它们的ID
+      const systemNotification1 = new SystemNotification({
+        toUser: toUser1.id,
+        notificationTitle: "Notification 1",
+        notificationContent: "Content 1",
+      });
+      await systemNotification1.save();
+
+      const systemNotification2 = new SystemNotification({
+        toUser: toUser2.id,
+        notificationTitle: "Notification 2",
+        notificationContent: "Content 2",
+      });
+      await systemNotification2.save();
+
+      systemNotificationIds = [systemNotification1.id, systemNotification2.id];
+    });
+
+    it("should delete system notifications and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/systemNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: systemNotificationIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedSystemNotifications = await SystemNotification.find({
+              _id: { $in: systemNotificationIds },
+            });
+            expect(deletedSystemNotifications).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });

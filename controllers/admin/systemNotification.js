@@ -24,6 +24,19 @@ const createSystemNotification = async (req, res, next) => {
   }
 };
 
+const deleteSystemNotifications = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await SystemNotification.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createSystemNotification,
+  deleteSystemNotifications,
 };
