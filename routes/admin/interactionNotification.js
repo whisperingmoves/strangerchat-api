@@ -4,7 +4,7 @@ const interactionNotificationController = require("../../controllers/admin/inter
 
 const router = express.Router();
 
-// 通知
+// 交互类通知路由
 router.post(
   "/interactionNotifications",
   adminAuth,
