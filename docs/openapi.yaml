@@ -8001,6 +8001,130 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/posts:
+    post:
+      summary: 创建帖子
+      tags:
+        - 帖子
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+                - author
+              properties:
+                content:
+                  type: string
+                  description: 帖子内容
+                  example: "这是一个帖子"
+                author:
+                  type: string
+                  description: 作者的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                city:
+                  type: string
+                  description: 帖子所属城市
+                  example: "New York"
+                location:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: "Point"
+                    coordinates:
+                      type: array
+                      items:
+                        type: number
+                      example: [ 40.7128, -74.0060 ]
+                images:
+                  type: array
+                  items:
+                    type: string
+                  description: 帖子的图片链接列表
+                  example: [ "image1.jpg", "image2.jpg" ]
+                visibility:
+                  type: integer
+                  description: 帖子可见性（非必填字段）:0=公开可见,1=主页可见,2=自己可见
+                  example: 0
+                  enum: [ 0, 1, 2 ]
+                atUsers:
+                  type: array
+                  items:
+                    type: string
+                  description: 帖子@的用户列表
+                  example: [ "60f372a9515b5f001f4b3a9f", "60f372a9515b5f001f4b3aa0" ]
+                heatCount:
+                  type: integer
+                  description: 帖子的热度计数
+                  example: 100
+                viewsCount:
+                  type: integer
+                  description: 帖子的浏览量计数
+                  example: 50
+                likes:
+                  type: array
+                  items:
+                    type: string
+                  description: 帖子的点赞用户列表
+                  example: [ "60f372a9515b5f001f4b3a9f", "60f372a9515b5f001f4b3aa0" ]
+                collects:
+                  type: array
+                  items:
+                    type: string
+                  description: 帖子的收藏用户列表
+                  example: [ "60f372a9515b5f001f4b3a9f", "60f372a9515b5f001f4b3aa0" ]
+                shares:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - sharePlatform
+                    properties:
+                      sharePlatform:
+                        type: integer
+                        enum: [ 1, 2, 3 ]
+                        description: 分享平台，1-微信，2-QQ，3-微博
+                        example: 1
+                      sharedAt:
+                        type: string
+                        format: date-time
+                        description: 分享时间
+                        example: "2023-08-16T10:30:00Z"
+                  description: 帖子的分享记录列表
+                  example:
+                    - sharePlatform: 1
+                      sharedAt: "2023-08-16T10:30:00Z"
+                    - sharePlatform: 2
+                      sharedAt: "2023-08-16T11:00:00Z"
+      responses:
+        201:
+          description: 帖子创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 帖子 ID
+                    example: 6133a6e2f7dcb80021a7e28a
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
