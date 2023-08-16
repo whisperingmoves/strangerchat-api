@@ -15,5 +15,10 @@ router.delete(
   adminAuth,
   statusNotificationController.deleteStatusNotifications
 );
+router.get(
+  "/statusNotifications",
+  adminAuth,
+  statusNotificationController.getStatusNotificationList
+);
 
 module.exports = router;

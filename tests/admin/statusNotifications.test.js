@@ -204,4 +204,113 @@ describe("StatusNotifications Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/statusNotifications", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const statusNotification1 = new StatusNotification({
+        toUser: toUser1.id,
+        user: user1.id,
+        statusType: 0,
+      });
+      await statusNotification1.save();
+
+      const statusNotification2 = new StatusNotification({
+        toUser: toUser2.id,
+        user: user2.id,
+        statusType: 1,
+      });
+      await statusNotification2.save();
+    });
+
+    it("should get a paginated list of status notifications", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/statusNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter status notifications by toUser", (done) => {
+      const toUser = toUser1.id; // 替换为实际的接收通知的用户ID
+
+      chai
+        .request(app)
+        .get("/admin/statusNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ toUser })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].toUser.id).to.equal(toUser);
+          done();
+        });
+    });
+
+    it("should filter status notifications by user", (done) => {
+      const user = user1.id; // 替换为实际的触发通知的用户ID
+
+      chai
+        .request(app)
+        .get("/admin/statusNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ user })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].user.id).to.equal(user);
+          done();
+        });
+    });
+
+    it("should filter status notifications by statusType", (done) => {
+      const statusType = 0; // 替换为实际的状态类型
+
+      chai
+        .request(app)
+        .get("/admin/statusNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ statusType })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].statusType).to.equal(statusType);
+          done();
+        });
+    });
+
+    it("should sort status notifications by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/statusNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

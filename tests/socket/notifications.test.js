@@ -1164,6 +1164,16 @@ describe("Notifications Socket", () => {
       ],
     });
 
+    // 删除关联的状态类通知
+    await StatusNotification.deleteMany({
+      $or: [
+        { toUser: user._id },
+        { user: user._id },
+        { toUser: otherUser._id },
+        { user: otherUser._id },
+      ],
+    });
+
     const promises = nearbyUsers.map((userInfo) => {
       return new Promise((resolve, reject) => {
         User.deleteOne({ _id: userInfo.userId })
