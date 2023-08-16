@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -390,6 +390,81 @@ describe("InteractionNotifications Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/interactionNotifications/:interactionNotificationId", () => {
+    let interactionNotificationId;
+
+    before((done) => {
+      // 创建交互类通知
+      const newInteractionNotification = {
+        toUser: toUser1.id,
+        user: user1.id,
+        interactionType: 0,
+        post: post1.id,
+        comment: comment1.id,
+        interactionTime: new Date(),
+        readStatus: 0,
+      };
+
+      InteractionNotification.create(
+        newInteractionNotification,
+        (err, interactionNotification) => {
+          interactionNotificationId = interactionNotification._id; // 保存新增交互类通知的ID
+          done();
+        }
+      );
+    });
+
+    it("should update an interaction notification", (done) => {
+      const updatedInteractionNotification = {
+        toUser: toUser2.id,
+        user: user2.id,
+        interactionType: 1,
+        post: post2.id,
+        comment: comment2.id,
+        interactionTime: new Date(),
+        readStatus: 1,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/interactionNotifications/${interactionNotificationId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedInteractionNotification)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          InteractionNotification.findById(
+            interactionNotificationId,
+            (err, interactionNotification) => {
+              expect(interactionNotification.toUser.toString()).to.equal(
+                updatedInteractionNotification.toUser
+              );
+              expect(interactionNotification.user.toString()).to.equal(
+                updatedInteractionNotification.user
+              );
+              expect(interactionNotification.interactionType).to.equal(
+                updatedInteractionNotification.interactionType
+              );
+              expect(interactionNotification.post.toString()).to.equal(
+                updatedInteractionNotification.post
+              );
+              expect(interactionNotification.comment.toString()).to.equal(
+                updatedInteractionNotification.comment
+              );
+              expect(interactionNotification.interactionTime).to.eql(
+                new Date(updatedInteractionNotification.interactionTime)
+              );
+              expect(interactionNotification.readStatus).to.equal(
+                updatedInteractionNotification.readStatus
+              );
+              done();
+            }
+          );
         });
     });
   });

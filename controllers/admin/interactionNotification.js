@@ -107,8 +107,48 @@ const getInteractionNotificationList = async (req, res, next) => {
   }
 };
 
+const updateInteractionNotification = async (req, res, next) => {
+  try {
+    const { interactionNotificationId } = req.params;
+    const {
+      toUser,
+      user,
+      interactionType,
+      post,
+      comment,
+      interactionTime,
+      readStatus,
+    } = req.body;
+
+    const interactionNotification =
+      await InteractionNotification.findByIdAndUpdate(
+        interactionNotificationId,
+        {
+          toUser,
+          user,
+          interactionType,
+          post,
+          comment,
+          interactionTime,
+          readStatus,
+          updatedAt: Date.now(),
+        },
+        { new: true }
+      );
+
+    if (!interactionNotification) {
+      return res.status(404).json({ message: "交互类通知不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createInteractionNotification,
   deleteInteractionNotifications,
   getInteractionNotificationList,
+  updateInteractionNotification,
 };

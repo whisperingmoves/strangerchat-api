@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   interactionNotificationController.getInteractionNotificationList
 );
+router.put(
+  "/interactionNotifications/:interactionNotificationId",
+  adminAuth,
+  interactionNotificationController.updateInteractionNotification
+);
 
 module.exports = router;
