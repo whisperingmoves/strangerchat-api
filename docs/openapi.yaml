@@ -7283,6 +7283,73 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/statusNotifications/{statusNotificationId}:
+    put:
+      summary: 修改状态类通知
+      tags:
+        - 通知
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: statusNotificationId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 状态类通知的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - toUser
+                - user
+                - statusType
+              properties:
+                toUser:
+                  type: string
+                  description: 接收通知的用户的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                user:
+                  type: string
+                  description: 触发通知的用户的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9f
+                statusType:
+                  type: integer
+                  description: 状态类型
+                  enum: [ 0, 1 ]
+                  example: 0
+                statusTime:
+                  type: string
+                  format: date-time
+                  description: 状态时间
+                  example: 2023-08-16T12:34:56Z
+                readStatus:
+                  type: integer
+                  description: 通知的已读状态
+                  enum: [ 0, 1 ]
+                  example: 0
+                  default: 0
+      responses:
+        200:
+          description: 状态类通知修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

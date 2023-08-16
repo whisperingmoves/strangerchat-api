@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   statusNotificationController.getStatusNotificationList
 );
+router.put(
+  "/statusNotifications/:statusNotificationId",
+  adminAuth,
+  statusNotificationController.updateStatusNotification
+);
 
 module.exports = router;

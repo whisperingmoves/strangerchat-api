@@ -94,8 +94,37 @@ const getStatusNotificationList = async (req, res, next) => {
   }
 };
 
+const updateStatusNotification = async (req, res, next) => {
+  try {
+    const { statusNotificationId } = req.params;
+    const { toUser, user, statusType, statusTime, readStatus } = req.body;
+
+    const statusNotification = await StatusNotification.findByIdAndUpdate(
+      statusNotificationId,
+      {
+        toUser,
+        user,
+        statusType,
+        statusTime,
+        readStatus,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!statusNotification) {
+      return res.status(404).json({ message: "状态类通知不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createStatusNotification,
   deleteStatusNotifications,
   getStatusNotificationList,
+  updateStatusNotification,
 };

@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -310,6 +310,71 @@ describe("StatusNotifications Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/statusNotifications/:statusNotificationId", () => {
+    let statusNotificationId;
+
+    before((done) => {
+      // 创建状态类通知
+      const newStatusNotification = {
+        toUser: toUser1.id,
+        user: user1.id,
+        statusType: 0,
+        statusTime: new Date(),
+        readStatus: 0,
+      };
+
+      StatusNotification.create(
+        newStatusNotification,
+        (err, statusNotification) => {
+          statusNotificationId = statusNotification._id; // 保存新增状态类通知的ID
+          done();
+        }
+      );
+    });
+
+    it("should update a status notification", (done) => {
+      const updatedStatusNotification = {
+        toUser: toUser2.id,
+        user: user2.id,
+        statusType: 1,
+        statusTime: new Date(),
+        readStatus: 1,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/statusNotifications/${statusNotificationId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedStatusNotification)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          StatusNotification.findById(
+            statusNotificationId,
+            (err, statusNotification) => {
+              expect(statusNotification.toUser.toString()).to.equal(
+                updatedStatusNotification.toUser
+              );
+              expect(statusNotification.user.toString()).to.equal(
+                updatedStatusNotification.user
+              );
+              expect(statusNotification.statusType).to.equal(
+                updatedStatusNotification.statusType
+              );
+              expect(statusNotification.statusTime).to.eql(
+                new Date(updatedStatusNotification.statusTime)
+              );
+              expect(statusNotification.readStatus).to.equal(
+                updatedStatusNotification.readStatus
+              );
+              done();
+            }
+          );
         });
     });
   });
