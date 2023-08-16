@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const mongoose = require("mongoose");
 
 const getStoryList = async (req, res, next) => {
   let { page = "1", pageSize = "10" } = req.query;
@@ -9,7 +10,10 @@ const getStoryList = async (req, res, next) => {
   try {
     const aggregateQuery = [
       {
-        $match: { images: { $exists: true, $ne: [] } },
+        $match: {
+          images: { $exists: true, $ne: [] },
+          author: { $ne: mongoose.Types.ObjectId(req.user.userId) }, // 排除当前登录用户
+        },
       },
       {
         $sort: { createdAt: -1 },
