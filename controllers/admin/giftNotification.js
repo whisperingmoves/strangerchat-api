@@ -95,8 +95,39 @@ const getGiftNotificationList = async (req, res, next) => {
   }
 };
 
+const updateGiftNotification = async (req, res, next) => {
+  try {
+    const { giftNotificationId } = req.params;
+    const { toUser, user, giftQuantity, giftName, giftTime, readStatus } =
+      req.body;
+
+    const giftNotification = await GiftNotification.findByIdAndUpdate(
+      giftNotificationId,
+      {
+        toUser,
+        user,
+        giftQuantity,
+        giftName,
+        giftTime,
+        readStatus,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!giftNotification) {
+      return res.status(404).json({ message: "礼物类通知不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createGiftNotification,
   deleteGiftNotifications,
   getGiftNotificationList,
+  updateGiftNotification,
 };

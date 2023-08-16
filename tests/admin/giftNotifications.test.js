@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -299,6 +299,73 @@ describe("GiftNotifications Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/giftNotifications/:giftNotificationId", () => {
+    let giftNotificationId;
+
+    before((done) => {
+      // 创建礼物类通知
+      const newGiftNotification = {
+        toUser: toUser1.id,
+        user: user1.id,
+        giftQuantity: 10,
+        giftName: "Gift 1",
+        giftTime: new Date(),
+        readStatus: 0,
+      };
+
+      GiftNotification.create(newGiftNotification, (err, giftNotification) => {
+        giftNotificationId = giftNotification._id; // 保存新增礼物类通知的ID
+        done();
+      });
+    });
+
+    it("should update a gift notification", (done) => {
+      const updatedGiftNotification = {
+        toUser: toUser2.id,
+        user: user2.id,
+        giftQuantity: 5,
+        giftName: "Gift 2",
+        giftTime: new Date(),
+        readStatus: 1,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/giftNotifications/${giftNotificationId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedGiftNotification)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          GiftNotification.findById(
+            giftNotificationId,
+            (err, giftNotification) => {
+              expect(giftNotification.toUser.toString()).to.equal(
+                updatedGiftNotification.toUser
+              );
+              expect(giftNotification.user.toString()).to.equal(
+                updatedGiftNotification.user
+              );
+              expect(giftNotification.giftQuantity).to.equal(
+                updatedGiftNotification.giftQuantity
+              );
+              expect(giftNotification.giftName).to.equal(
+                updatedGiftNotification.giftName
+              );
+              expect(giftNotification.giftTime).to.eql(
+                new Date(updatedGiftNotification.giftTime)
+              );
+              expect(giftNotification.readStatus).to.equal(
+                updatedGiftNotification.readStatus
+              );
+              done();
+            }
+          );
         });
     });
   });

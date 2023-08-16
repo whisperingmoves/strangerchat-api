@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   giftNotificationController.getGiftNotificationList
 );
+router.put(
+  "/giftNotifications/:giftNotificationId",
+  adminAuth,
+  giftNotificationController.updateGiftNotification
+);
 
 module.exports = router;
