@@ -7690,6 +7690,75 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/systemNotifications:
+    post:
+      summary: 创建系统类通知
+      tags:
+        - 通知
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - toUser
+                - notificationTitle
+                - notificationContent
+              properties:
+                toUser:
+                  type: string
+                  description: 接收通知的用户的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                notificationTitle:
+                  type: string
+                  description: 通知标题
+                  example: "系统通知"
+                notificationContent:
+                  type: string
+                  description: 通知内容
+                  example: "这是一条系统通知"
+                notificationTime:
+                  type: string
+                  format: date-time
+                  description: 通知时间
+                  example: 2023-08-16T12:34:56Z
+                readStatus:
+                  type: integer
+                  description: 通知的已读状态
+                  enum: [ 0, 1 ]
+                  example: 0
+                  default: 0
+      responses:
+        201:
+          description: 系统类通知创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 通知的唯一标识符
+                    example: 6133a6e2f7dcb80021a7e28a
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
