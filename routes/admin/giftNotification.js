@@ -15,5 +15,10 @@ router.delete(
   adminAuth,
   giftNotificationController.deleteGiftNotifications
 );
+router.get(
+  "/giftNotifications",
+  adminAuth,
+  giftNotificationController.getGiftNotificationList
+);
 
 module.exports = router;

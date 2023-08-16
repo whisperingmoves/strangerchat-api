@@ -32,7 +32,71 @@ const deleteGiftNotifications = async (req, res, next) => {
   }
 };
 
+const getGiftNotificationList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      toUser,
+      user,
+      sort = "updatedAt",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const filter = {};
+    if (toUser) filter["toUser"] = toUser;
+    if (user) filter["user"] = user;
+
+    const [total, giftNotifications] = await Promise.all([
+      GiftNotification.countDocuments(filter),
+      GiftNotification.find(filter)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .populate("toUser", "username")
+        .populate("user", "username")
+        .select("-__v")
+        .lean(),
+    ]);
+
+    const formattedGiftNotifications = giftNotifications.map(
+      (notification) => ({
+        id: notification._id,
+        toUser: {
+          id: notification.toUser._id,
+          username: notification.toUser.username,
+        },
+        user: {
+          id: notification.user._id,
+          username: notification.user.username,
+        },
+        giftQuantity: notification.giftQuantity,
+        giftName: notification.giftName,
+        giftTime: notification.giftTime,
+        readStatus: notification.readStatus,
+        createdAt: notification.createdAt,
+        updatedAt: notification.updatedAt,
+      })
+    );
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedGiftNotifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createGiftNotification,
   deleteGiftNotifications,
+  getGiftNotificationList,
 };

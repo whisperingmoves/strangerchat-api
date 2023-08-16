@@ -207,4 +207,99 @@ describe("GiftNotifications Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/giftNotifications", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const giftNotification1 = new GiftNotification({
+        toUser: toUser1.id,
+        user: user1.id,
+        giftQuantity: 5,
+        giftName: "Gift 1",
+      });
+      await giftNotification1.save();
+
+      const giftNotification2 = new GiftNotification({
+        toUser: toUser2.id,
+        user: user2.id,
+        giftQuantity: 3,
+        giftName: "Gift 2",
+      });
+      await giftNotification2.save();
+    });
+
+    it("should get a paginated list of gift notifications", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/giftNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter gift notifications by toUser", (done) => {
+      const toUser = toUser1.id; // 替换为实际的接收通知的用户ID
+
+      chai
+        .request(app)
+        .get("/admin/giftNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ toUser })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].toUser.id).to.equal(toUser);
+          done();
+        });
+    });
+
+    it("should filter gift notifications by user", (done) => {
+      const user = user1.id; // 替换为实际的触发通知的用户ID
+
+      chai
+        .request(app)
+        .get("/admin/giftNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ user })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].user.id).to.equal(user);
+          done();
+        });
+    });
+
+    it("should sort gift notifications by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/giftNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

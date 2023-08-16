@@ -1174,6 +1174,16 @@ describe("Notifications Socket", () => {
       ],
     });
 
+    // 删除关联的礼物类通知
+    await GiftNotification.deleteMany({
+      $or: [
+        { toUser: user._id },
+        { user: user._id },
+        { toUser: otherUser._id },
+        { user: otherUser._id },
+      ],
+    });
+
     const promises = nearbyUsers.map((userInfo) => {
       return new Promise((resolve, reject) => {
         User.deleteOne({ _id: userInfo.userId })
