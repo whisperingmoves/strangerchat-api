@@ -34,6 +34,14 @@ const interactionNotificationSchema = new mongoose.Schema({
     enum: [0, 1], // 通知的已读状态 (0: 未读, 1: 已读, 默认值: 0)
     default: 0,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // 定义虚拟字段 id

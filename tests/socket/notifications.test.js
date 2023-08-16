@@ -1154,6 +1154,16 @@ describe("Notifications Socket", () => {
     // 删除相关的金币交易记录
     await CoinTransaction.deleteMany({ userId: user.id });
 
+    // 删除关联的交互类通知
+    await InteractionNotification.deleteMany({
+      $or: [
+        { toUser: user._id },
+        { user: user._id },
+        { toUser: otherUser._id },
+        { user: otherUser._id },
+      ],
+    });
+
     const promises = nearbyUsers.map((userInfo) => {
       return new Promise((resolve, reject) => {
         User.deleteOne({ _id: userInfo.userId })
