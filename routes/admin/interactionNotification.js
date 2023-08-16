@@ -10,5 +10,10 @@ router.post(
   adminAuth,
   interactionNotificationController.createInteractionNotification
 );
+router.delete(
+  "/interactionNotifications",
+  adminAuth,
+  interactionNotificationController.deleteInteractionNotifications
+);
 
 module.exports = router;

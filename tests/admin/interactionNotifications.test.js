@@ -12,6 +12,7 @@ const AdminUser = require("../../models/AdminUser");
 const User = require("../../models/User");
 const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
+const InteractionNotification = require("../../models/InteractionNotification");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -223,6 +224,60 @@ describe("InteractionNotifications Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/interactionNotifications", () => {
+    let interactionNotificationIds; // 用于存储交互类通知的ID
+
+    beforeEach(async () => {
+      // 创建两个交互类通知模型并获取它们的ID
+      const interactionNotification1 = new InteractionNotification({
+        toUser: user1.id,
+        user: user2.id,
+        interactionType: 0,
+        post: post1.id,
+      });
+      await interactionNotification1.save();
+
+      const interactionNotification2 = new InteractionNotification({
+        toUser: user1.id,
+        user: user2.id,
+        interactionType: 1,
+        post: post2.id,
+        comment: comment1.id,
+      });
+      await interactionNotification2.save();
+
+      interactionNotificationIds = [
+        interactionNotification1.id,
+        interactionNotification2.id,
+      ];
+    });
+
+    it("should delete interaction notifications and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/interactionNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: interactionNotificationIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedInteractionNotifications =
+              await InteractionNotification.find({
+                _id: { $in: interactionNotificationIds },
+              });
+            expect(deletedInteractionNotifications).to.be.an("array").that.is
+              .empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });

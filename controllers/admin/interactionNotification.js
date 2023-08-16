@@ -28,6 +28,19 @@ const createInteractionNotification = async (req, res, next) => {
   }
 };
 
+const deleteInteractionNotifications = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await InteractionNotification.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createInteractionNotification,
+  deleteInteractionNotifications,
 };
