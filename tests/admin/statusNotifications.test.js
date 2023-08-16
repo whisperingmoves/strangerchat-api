@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
 const User = require("../../models/User");
+const StatusNotification = require("../../models/StatusNotification");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -154,6 +155,52 @@ describe("StatusNotifications Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/statusNotifications", () => {
+    let statusNotificationIds; // 用于存储状态类通知的ID
+
+    beforeEach(async () => {
+      // 创建两个状态类通知模型并获取它们的ID
+      const statusNotification1 = new StatusNotification({
+        toUser: toUser1.id,
+        user: user1.id,
+        statusType: 0,
+      });
+      await statusNotification1.save();
+
+      const statusNotification2 = new StatusNotification({
+        toUser: toUser2.id,
+        user: user2.id,
+        statusType: 1,
+      });
+      await statusNotification2.save();
+
+      statusNotificationIds = [statusNotification1.id, statusNotification2.id];
+    });
+
+    it("should delete status notifications and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/statusNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: statusNotificationIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedStatusNotifications = await StatusNotification.find({
+              _id: { $in: statusNotificationIds },
+            });
+            expect(deletedStatusNotifications).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });

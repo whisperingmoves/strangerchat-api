@@ -10,5 +10,10 @@ router.post(
   adminAuth,
   statusNotificationController.createStatusNotification
 );
+router.delete(
+  "/statusNotifications",
+  adminAuth,
+  statusNotificationController.deleteStatusNotifications
+);
 
 module.exports = router;

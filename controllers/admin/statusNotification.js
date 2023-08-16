@@ -18,6 +18,19 @@ const createStatusNotification = async (req, res, next) => {
   }
 };
 
+const deleteStatusNotifications = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await StatusNotification.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createStatusNotification,
+  deleteStatusNotifications,
 };
