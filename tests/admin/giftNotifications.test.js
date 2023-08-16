@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
 const User = require("../../models/User");
+const GiftNotification = require("../../models/GiftNotification");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -155,6 +156,54 @@ describe("GiftNotifications Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/giftNotifications", () => {
+    let giftNotificationIds; // 用于存储礼物类通知的ID
+
+    beforeEach(async () => {
+      // 创建两个礼物类通知模型并获取它们的ID
+      const giftNotification1 = new GiftNotification({
+        toUser: toUser1.id,
+        user: user1.id,
+        giftQuantity: 5,
+        giftName: "Gift 1",
+      });
+      await giftNotification1.save();
+
+      const giftNotification2 = new GiftNotification({
+        toUser: toUser2.id,
+        user: user2.id,
+        giftQuantity: 10,
+        giftName: "Gift 2",
+      });
+      await giftNotification2.save();
+
+      giftNotificationIds = [giftNotification1.id, giftNotification2.id];
+    });
+
+    it("should delete gift notifications and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/giftNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: giftNotificationIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedGiftNotifications = await GiftNotification.find({
+              _id: { $in: giftNotificationIds },
+            });
+            expect(deletedGiftNotifications).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });

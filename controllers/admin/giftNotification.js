@@ -20,6 +20,19 @@ const createGiftNotification = async (req, res, next) => {
   }
 };
 
+const deleteGiftNotifications = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await GiftNotification.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createGiftNotification,
+  deleteGiftNotifications,
 };
