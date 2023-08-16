@@ -38,6 +38,19 @@ const createPost = async (req, res, next) => {
   }
 };
 
+const deletePosts = async (req, res, next) => {
+  try {
+    const { ids } = req.query;
+
+    await Post.deleteMany({ _id: { $in: ids } });
+
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createPost,
+  deletePosts,
 };

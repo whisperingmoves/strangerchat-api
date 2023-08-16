@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
 const User = require("../../models/User");
+const Post = require("../../models/Post");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -269,6 +270,50 @@ describe("Post Admin API", () => {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property("id");
           done();
+        });
+    });
+  });
+
+  describe("DELETE /admin/posts", () => {
+    let postIds; // 用于存储帖子的ID
+
+    beforeEach(async () => {
+      // 创建两个帖子模型并获取它们的ID
+      const post1 = new Post({
+        content: "Post 1",
+        author: author1.id,
+      });
+      await post1.save();
+
+      const post2 = new Post({
+        content: "Post 2",
+        author: author2.id,
+      });
+      await post2.save();
+
+      postIds = [post1.id, post2.id];
+    });
+
+    it("should delete posts and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/posts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: postIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedPosts = await Post.find({
+              _id: { $in: postIds },
+            });
+            expect(deletedPosts).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });
