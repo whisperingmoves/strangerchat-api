@@ -156,4 +156,81 @@ describe("SystemNotifications Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/systemNotifications", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const systemNotification1 = new SystemNotification({
+        toUser: toUser1.id,
+        notificationTitle: "Notification 1",
+        notificationContent: "This is notification 1",
+      });
+      await systemNotification1.save();
+
+      const systemNotification2 = new SystemNotification({
+        toUser: toUser2.id,
+        notificationTitle: "Notification 2",
+        notificationContent: "This is notification 2",
+      });
+      await systemNotification2.save();
+    });
+
+    it("should get a paginated list of system notifications", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/systemNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter system notifications by toUser", (done) => {
+      const toUser = toUser1.id; // 替换为实际的接收通知的用户ID
+
+      chai
+        .request(app)
+        .get("/admin/systemNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ toUser })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].toUser.id).to.equal(toUser);
+          done();
+        });
+    });
+
+    it("should sort system notifications by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/systemNotifications")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

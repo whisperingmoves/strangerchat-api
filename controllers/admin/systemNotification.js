@@ -36,7 +36,64 @@ const deleteSystemNotifications = async (req, res, next) => {
   }
 };
 
+const getSystemNotificationList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      toUser,
+      sort = "updatedAt",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const filter = {};
+    if (toUser) filter["toUser"] = toUser;
+
+    const [total, systemNotifications] = await Promise.all([
+      SystemNotification.countDocuments(filter),
+      SystemNotification.find(filter)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .populate("toUser", "username")
+        .select("-__v")
+        .lean(),
+    ]);
+
+    const formattedSystemNotifications = systemNotifications.map(
+      (notification) => ({
+        id: notification._id,
+        toUser: {
+          id: notification.toUser._id,
+          username: notification.toUser.username,
+        },
+        notificationTitle: notification.notificationTitle,
+        notificationContent: notification.notificationContent,
+        notificationTime: notification.notificationTime,
+        readStatus: notification.readStatus,
+        createdAt: notification.createdAt,
+        updatedAt: notification.updatedAt,
+      })
+    );
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedSystemNotifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createSystemNotification,
   deleteSystemNotifications,
+  getSystemNotificationList,
 };

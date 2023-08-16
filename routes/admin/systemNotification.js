@@ -15,5 +15,10 @@ router.delete(
   adminAuth,
   systemNotificationController.deleteSystemNotifications
 );
+router.get(
+  "/systemNotifications",
+  adminAuth,
+  systemNotificationController.getSystemNotificationList
+);
 
 module.exports = router;

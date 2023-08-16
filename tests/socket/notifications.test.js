@@ -1184,6 +1184,11 @@ describe("Notifications Socket", () => {
       ],
     });
 
+    // 删除关联的系统类通知
+    await SystemNotification.deleteMany({
+      $or: [{ toUser: user._id }, { toUser: otherUser._id }],
+    });
+
     const promises = nearbyUsers.map((userInfo) => {
       return new Promise((resolve, reject) => {
         User.deleteOne({ _id: userInfo.userId })
