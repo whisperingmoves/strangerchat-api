@@ -1,6 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const { it, describe, beforeEach } = require("mocha");
+const { it, describe, beforeEach, before } = require("mocha");
 const app = require("../../app");
 const {
   generateRandomUsername,
@@ -230,6 +230,69 @@ describe("SystemNotifications Admin API", () => {
 
           expect(res.body.items).to.deep.equal(sortedItems);
           done();
+        });
+    });
+  });
+
+  describe("PUT /admin/systemNotifications/:systemNotificationId", () => {
+    let systemNotificationId;
+
+    before((done) => {
+      // 创建系统类通知
+      const newSystemNotification = {
+        toUser: toUser1.id,
+        notificationTitle: "Notification 1",
+        notificationContent: "This is notification 1",
+      };
+
+      SystemNotification.create(
+        newSystemNotification,
+        (err, systemNotification) => {
+          systemNotificationId = systemNotification._id; // 保存新增系统类通知的ID
+          done();
+        }
+      );
+    });
+
+    it("should update a system notification", (done) => {
+      const updatedSystemNotification = {
+        toUser: toUser2.id,
+        notificationTitle: "Notification 2",
+        notificationContent: "This is notification 2",
+        notificationTime: new Date(),
+        readStatus: 1,
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/systemNotifications/${systemNotificationId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedSystemNotification)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          SystemNotification.findById(
+            systemNotificationId,
+            (err, systemNotification) => {
+              expect(systemNotification.toUser.toString()).to.equal(
+                updatedSystemNotification.toUser
+              );
+              expect(systemNotification.notificationTitle).to.equal(
+                updatedSystemNotification.notificationTitle
+              );
+              expect(systemNotification.notificationContent).to.equal(
+                updatedSystemNotification.notificationContent
+              );
+              expect(systemNotification.notificationTime).to.eql(
+                new Date(updatedSystemNotification.notificationTime)
+              );
+              expect(systemNotification.readStatus).to.equal(
+                updatedSystemNotification.readStatus
+              );
+              done();
+            }
+          );
         });
     });
   });

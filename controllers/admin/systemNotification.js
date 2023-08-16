@@ -92,8 +92,43 @@ const getSystemNotificationList = async (req, res, next) => {
   }
 };
 
+const updateSystemNotification = async (req, res, next) => {
+  try {
+    const { systemNotificationId } = req.params;
+    const {
+      toUser,
+      notificationTitle,
+      notificationContent,
+      notificationTime,
+      readStatus,
+    } = req.body;
+
+    const systemNotification = await SystemNotification.findByIdAndUpdate(
+      systemNotificationId,
+      {
+        toUser,
+        notificationTitle,
+        notificationContent,
+        notificationTime,
+        readStatus,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!systemNotification) {
+      return res.status(404).json({ message: "系统类通知不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createSystemNotification,
   deleteSystemNotifications,
   getSystemNotificationList,
+  updateSystemNotification,
 };

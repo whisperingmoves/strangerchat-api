@@ -20,5 +20,10 @@ router.get(
   adminAuth,
   systemNotificationController.getSystemNotificationList
 );
+router.put(
+  "/systemNotifications/:systemNotificationId",
+  adminAuth,
+  systemNotificationController.updateSystemNotification
+);
 
 module.exports = router;
