@@ -317,4 +317,109 @@ describe("Post Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/posts", () => {
+    beforeEach(async () => {
+      // 创建测试数据
+      const post1 = new Post({
+        content: "这是一条帖子内容",
+        author: author1.id,
+        visibility: 0,
+        heatCount: 100,
+        viewsCount: 50,
+        shares: [
+          { sharePlatform: 1, sharedAt: new Date("2023-08-16T10:30:00Z") },
+          { sharePlatform: 2, sharedAt: new Date("2023-08-16T11:00:00Z") },
+        ],
+      });
+      await post1.save();
+
+      const post2 = new Post({
+        content: "这是另一条帖子内容",
+        author: author2.id,
+        visibility: 1,
+        heatCount: 200,
+        viewsCount: 100,
+        shares: [
+          { sharePlatform: 1, sharedAt: new Date("2023-08-16T09:30:00Z") },
+          { sharePlatform: 3, sharedAt: new Date("2023-08-16T11:30:00Z") },
+        ],
+      });
+      await post2.save();
+    });
+
+    it("should get a paginated list of posts", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/posts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter posts by author", (done) => {
+      const authorId = author1.id; // 替换为实际的作者ID
+
+      chai
+        .request(app)
+        .get("/admin/posts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ author: authorId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].author.id).to.equal(authorId);
+          done();
+        });
+    });
+
+    it("should filter posts by keyword", (done) => {
+      const keyword = "帖子内容";
+
+      chai
+        .request(app)
+        .get("/admin/posts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ keyword })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].content).to.include(keyword);
+          done();
+        });
+    });
+
+    it("should sort posts by updatedAt in descending order", (done) => {
+      const sort = "updatedAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/posts")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+          done();
+        });
+    });
+  });
 });

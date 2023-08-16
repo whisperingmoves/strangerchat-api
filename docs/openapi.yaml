@@ -8160,6 +8160,218 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: 分页获取帖子列表
+      tags:
+        - 帖子
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: author
+          schema:
+            type: string
+          description: 作者用户 ID
+        - name: keyword
+          in: query
+          description: 匹配关键词
+          schema:
+            type: string
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ createdAt, updatedAt ]
+            default: updatedAt
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+      responses:
+        200:
+          description: 成功获取帖子列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - content
+                        - author
+                        - visibility
+                        - heatCount
+                        - viewsCount
+                        - createdAt
+                        - updatedAt
+                      properties:
+                        id:
+                          type: string
+                          description: 帖子 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        content:
+                          type: string
+                          description: 帖子内容
+                          example: "这是一条帖子内容"
+                        city:
+                          type: string
+                          description: 城市
+                          example: "New York"
+                        author:
+                          type: object
+                          required:
+                            - id
+                            - username
+                          properties:
+                            id:
+                              type: string
+                              description: 作者 ID
+                              example: 6133a6e2f7dcb80021a7e28b
+                            username:
+                              type: string
+                              description: 作者用户名
+                              example: "JohnDoe"
+                        location:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              description: 位置类型
+                              example: "Point"
+                            coordinates:
+                              type: array
+                              items:
+                                type: number
+                              description: 经纬度坐标
+                              example: [ 40.7128, -74.0060 ]
+                        images:
+                          type: array
+                          items:
+                            type: string
+                          description: 帖子图片列表
+                          example: [ "/images/post1.jpg", "/images/post2.jpg" ]
+                        visibility:
+                          type: integer
+                          description: 帖子可见性（非必填字段）:0=公开可见,1=主页可见,2=自己可见
+                          example: 0
+                          enum: [ 0, 1, 2 ]
+                        atUsers:
+                          type: array
+                          items:
+                            type: string
+                            description: 用户 ID
+                          description: 被提及的用户列表
+                          example: [ "6133a6e2f7dcb80021a7e28c", "6133a6e2f7dcb80021a7e28d" ]
+                        heatCount:
+                          type: integer
+                          description: 热度计数
+                          example: 100
+                        viewsCount:
+                          type: integer
+                          description: 浏览次数
+                          example: 50
+                        likes:
+                          type: array
+                          items:
+                            type: string
+                            description: 用户 ID
+                          description: 点赞用户列表
+                          example: [ "6133a6e2f7dcb80021a7e28e", "6133a6e2f7dcb80021a7e28f" ]
+                        collects:
+                          type: array
+                          items:
+                            type: string
+                            description: 用户 ID
+                          description: 收藏用户列表
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 帖子创建时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: 帖子更新时间
+                          example: "2023-08-09T10:52:00.000Z"
+                        shares:
+                          type: array
+                          items:
+                            type: object
+                            required:
+                              - sharePlatform
+                            properties:
+                              sharePlatform:
+                                type: integer
+                                enum: [ 1, 2, 3 ]
+                                description: 分享平台，1-微信，2-QQ，3-微博
+                                example: 1
+                              sharedAt:
+                                type: string
+                                format: date-time
+                                description: 分享时间
+                                example: "2023-08-16T10:30:00Z"
+                          description: 帖子的分享记录列表
+                          example:
+                            - sharePlatform: 1
+                              sharedAt: "2023-08-16T10:30:00Z"
+                            - sharePlatform: 2
+                              sharedAt: "2023-08-16T11:00:00Z"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
