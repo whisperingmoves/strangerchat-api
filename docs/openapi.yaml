@@ -8581,6 +8581,41 @@ paths:
           $ref: '#/components/responses/Forbidden'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: 删除评论
+      tags:
+        - 评论
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: ids
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+            example: [ "6133a6e2f7dcb80021a7e28a", "6133a6e2f7dcb80021a7e28b" ]
+          style: form
+          explode: true
+          description: 需要删除的评论 ID 列表
+      responses:
+        204:
+          description: 评论删除成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

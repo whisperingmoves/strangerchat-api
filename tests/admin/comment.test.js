@@ -11,6 +11,7 @@ const config = require("../../config");
 const AdminUser = require("../../models/AdminUser");
 const User = require("../../models/User");
 const Post = require("../../models/Post");
+const Comment = require("../../models/Comment");
 const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const expect = chai.expect;
@@ -283,6 +284,52 @@ describe("Comment Admin API", () => {
 
               done();
             });
+        });
+    });
+  });
+
+  describe("DELETE /admin/comments", () => {
+    let commentIds; // 用于存储评论的ID
+
+    beforeEach(async () => {
+      // 创建两个评论模型并获取它们的ID
+      const comment1 = new Comment({
+        content: "Comment 1",
+        post: post1.id,
+        author: author2.id,
+      });
+      await comment1.save();
+
+      const comment2 = new Comment({
+        content: "Comment 2",
+        post: post2.id,
+        author: author1.id,
+      });
+      await comment2.save();
+
+      commentIds = [comment1.id, comment2.id];
+    });
+
+    it("should delete comments and verify deletion", (done) => {
+      chai
+        .request(app)
+        .delete("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ ids: commentIds })
+        .end(async (err, res) => {
+          try {
+            expect(res).to.have.status(204);
+
+            // Verify deletion
+            const deletedComments = await Comment.find({
+              _id: { $in: commentIds },
+            });
+            expect(deletedComments).to.be.an("array").that.is.empty;
+
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
     });
   });
