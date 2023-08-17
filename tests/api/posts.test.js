@@ -923,56 +923,69 @@ describe("Posts API", () => {
         content: "Test Post 1",
         author: user1.id,
         atUsers: [user1._id, user2._id],
+        visibility: 0, // 设置 visibility 值为 0，公开可见
       });
       const post2 = new Post({
         content: "Test Post 2",
         author: user1.id,
         atUsers: [user1._id, user2._id],
+        visibility: 1, // 设置 visibility 值为 1，主页可见
+      });
+      const post3 = new Post({
+        content: "Test Post 3",
+        author: user1.id,
+        atUsers: [user1._id, user2._id],
+        visibility: 2, // 设置 visibility 值为 2，自己可见
       });
       await post1.save();
       await post2.save();
+      await post3.save();
     });
 
-    it("should get user posts list", (done) => {
-      chai
+    it("should get user posts list excluding visibility 2 posts", async () => {
+      const res = await chai
         .request(app)
         .get(`/users/${user1.id}/posts`)
-        .set("Authorization", `Bearer ${token}`)
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.an("array");
+        .set("Authorization", `Bearer ${token}`);
 
-          res.body.forEach((post) => {
-            post.should.have.property("postId");
-            post.should.have.property("createTime");
-            post.should.have.property("content");
-            post.should.have.property("atUsers");
+      res.should.have.status(200);
+      res.body.should.be.an("array");
 
-            post.postId.should.be.a("string");
-            post.createTime.should.be.a("number");
-            post.content.should.be.a("string");
+      res.body.forEach((post) => {
+        post.should.have.property("postId");
+        post.should.have.property("createTime");
+        post.should.have.property("content");
+        post.should.have.property("atUsers");
 
-            post.atUsers.should.be.an("array").and.have.lengthOf(2);
+        post.postId.should.be.a("string");
+        post.createTime.should.be.a("number");
+        post.content.should.be.a("string");
 
-            post.atUsers.forEach((user) => {
-              user.should.have.property("id");
-              user.should.have.property("username");
+        post.atUsers.should.be.an("array").and.have.lengthOf(2);
 
-              user.id.should.be.a("string");
-              user.username.should.be.a("string");
-            });
+        post.atUsers.forEach((user) => {
+          user.should.have.property("id");
+          user.should.have.property("username");
 
-            if (post.hasOwnProperty("images")) {
-              post.images.should.be.an("array");
-            }
-
-            if (post.hasOwnProperty("city")) {
-              post.city.should.be.a("string");
-            }
-          });
-
-          done();
+          user.id.should.be.a("string");
+          user.username.should.be.a("string");
         });
+
+        if (post.hasOwnProperty("images")) {
+          post.images.should.be.an("array");
+        }
+
+        if (post.hasOwnProperty("city")) {
+          post.city.should.be.a("string");
+        }
+      });
+
+      // 验证排除了 visibility 值为 2 的帖子
+      res.body.forEach(async (post) => {
+        const postModel = await Post.findById(post.postId);
+        const { visibility } = postModel;
+        visibility.should.not.equal(2);
+      });
     });
 
     it("should return 401 if user is not authenticated", (done) => {

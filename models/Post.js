@@ -30,7 +30,7 @@ const postSchema = new mongoose.Schema({
   ],
   visibility: {
     type: Number,
-    enum: [0, 1, 2],
+    enum: [0, 1, 2], // 帖子可见性:0=公开可见,1=主页可见,2=自己可见
     default: 0,
   },
   atUsers: [

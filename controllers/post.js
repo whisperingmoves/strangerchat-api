@@ -825,7 +825,7 @@ const getUserPosts = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const posts = await Post.find({ author: userId })
+    const posts = await Post.find({ author: userId, visibility: { $ne: 2 } })
       .populate("atUsers", "id username")
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
