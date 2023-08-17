@@ -13,6 +13,7 @@ const jwt = require("jsonwebtoken");
 const { generateMobile } = require("../helper");
 const User = require("../../models/User");
 const ChatConversation = require("../../models/ChatConversation");
+const ChatMessage = require("../../models/ChatMessage");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
@@ -201,6 +202,56 @@ describe("ChatConversations Admin API", () => {
             }
           );
         });
+    });
+
+    it("should delete associated chat messages when deleting chat conversations", (done) => {
+      // 创建一个聊天会话
+      const newConversation = {
+        userId1: caller1.id,
+        userId2: recipient1.id,
+      };
+
+      ChatConversation.create(newConversation, (err, conversation) => {
+        // 创建关联的聊天消息
+        const message1 = {
+          conversationId: conversation._id,
+          senderId: caller1.id,
+          recipientId: recipient1.id,
+          content: "Hello",
+        };
+
+        const message2 = {
+          conversationId: conversation._id,
+          senderId: recipient1.id,
+          recipientId: caller1.id,
+          content: "Hi",
+        };
+
+        ChatMessage.create([message1, message2], (err, messages) => {
+          const chatMessageIds = messages.map((message) =>
+            message._id.toHexString()
+          );
+
+          // 删除聊天会话
+          chai
+            .request(app)
+            .delete("/admin/chatConversations")
+            .set("Authorization", `Bearer ${adminToken}`)
+            .query({ ids: [conversation._id.toHexString()] })
+            .end((err, res) => {
+              expect(res).to.have.status(204);
+
+              // 验证关联的聊天消息是否被删除
+              ChatMessage.find(
+                { _id: { $in: chatMessageIds } },
+                (err, messages) => {
+                  expect(messages).to.have.lengthOf(0);
+                  done();
+                }
+              );
+            });
+        });
+      });
     });
   });
 
