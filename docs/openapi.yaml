@@ -8517,6 +8517,70 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/comments:
+    post:
+      summary: 创建评论
+      tags:
+        - 评论
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+                - post
+                - author
+              properties:
+                content:
+                  type: string
+                  description: 评论内容
+                  example: "这是一个评论"
+                post:
+                  type: string
+                  description: 评论所属帖子的唯一标识符
+                  example: 6133a6e2f7dcb80021a7e28a
+                author:
+                  type: string
+                  description: 评论作者的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                parentId:
+                  type: string
+                  description: 父评论的唯一标识符（可选字段）
+                  example: 6133a6e2f7dcb80021a7e28b
+                likes:
+                  type: array
+                  items:
+                    type: string
+                  description: 评论的点赞用户列表
+                  example: [ "60f372a9515b5f001f4b3a9f", "60f372a9515b5f001f4b3aa0" ]
+      responses:
+        201:
+          description: 评论创建成功
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: string
+                    description: 评论 ID
+                    example: 6133a6e2f7dcb80021a7e28b
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:
