@@ -455,6 +455,11 @@ const getHotPosts = async (req, res, next) => {
         },
       },
       {
+        $match: {
+          visibility: 0, // 添加 visibility 值为 0 的筛选条件
+        },
+      },
+      {
         $project: {
           postId: "$_id",
           userId: "$author",
@@ -486,7 +491,9 @@ const getLatestPosts = async (req, res, next) => {
   filter = parseInt(filter);
 
   try {
-    const query = {};
+    const query = {
+      visibility: 0, // 添加 visibility 值为 0 的筛选条件
+    };
 
     if (keyword) {
       query.content = { $regex: keyword, $options: "i" };
@@ -570,7 +577,9 @@ const getRecommendedPosts = async (req, res, next) => {
   let { page = "1", pageSize = "10", longitude, latitude } = req.query;
   page = parseInt(page, 10);
   pageSize = parseInt(pageSize, 10);
-  const query = {};
+  const query = {
+    visibility: 0, // 添加 visibility 值为 0 的筛选条件
+  };
 
   if (longitude && latitude) {
     query["location.coordinates"] = {
@@ -715,7 +724,10 @@ const getFollowedUsersPosts = async (req, res, next) => {
     const currentUser = await User.findById(req.user.userId);
     const followedUserIds = currentUser.following;
 
-    const posts = await Post.find({ author: { $in: followedUserIds } })
+    const posts = await Post.find({
+      author: { $in: followedUserIds },
+      visibility: 0, // 添加 visibility 值为 0 的筛选条件
+    })
       .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
