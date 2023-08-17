@@ -1,4 +1,5 @@
 const Gift = require("../../models/Gift");
+const GiftHistory = require("../../models/GiftHistory");
 
 const createGift = async (req, res, next) => {
   try {
@@ -16,7 +17,11 @@ const deleteGifts = async (req, res, next) => {
   try {
     const { ids } = req.query;
 
+    // 删除礼物
     await Gift.deleteMany({ _id: { $in: ids } });
+
+    // 删除关联礼物历史
+    await GiftHistory.deleteMany({ gift: { $in: ids } });
 
     res.sendStatus(204);
   } catch (error) {
