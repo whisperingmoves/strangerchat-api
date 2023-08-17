@@ -333,4 +333,134 @@ describe("Comment Admin API", () => {
         });
     });
   });
+
+  describe("GET /admin/comments", () => {
+    let comment1;
+    let comment2;
+
+    beforeEach(async () => {
+      // 创建测试数据
+      comment1 = new Comment({
+        content: "这是一条评论内容",
+        post: post1.id,
+        author: author1.id,
+      });
+      await comment1.save();
+
+      comment2 = new Comment({
+        content: "这是另一条评论内容",
+        post: post2.id,
+        author: author2.id,
+        parentId: comment1.id,
+      });
+      await comment2.save();
+    });
+
+    it("should get a paginated list of comments", (done) => {
+      const page = 1;
+      const pageSize = 10;
+
+      chai
+        .request(app)
+        .get("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ page, pageSize })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property("page", page);
+          expect(res.body).to.have.property("pageSize", pageSize);
+          expect(res.body).to.have.property("total");
+          expect(res.body).to.have.property("items").to.be.an("array");
+          done();
+        });
+    });
+
+    it("should filter comments by post", (done) => {
+      const postId = post1.id; // 替换为实际的帖子ID
+
+      chai
+        .request(app)
+        .get("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ postId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].post).to.equal(postId);
+          done();
+        });
+    });
+
+    it("should filter comments by author", (done) => {
+      const authorId = author1.id; // 替换为实际的作者ID
+
+      chai
+        .request(app)
+        .get("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ author: authorId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].author.id).to.equal(authorId);
+          done();
+        });
+    });
+
+    it("should filter comments by parent comment", (done) => {
+      const parentId = comment1.id; // 替换为实际的父评论ID
+
+      chai
+        .request(app)
+        .get("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ parentId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].parentId).to.equal(parentId);
+          done();
+        });
+    });
+
+    it("should filter comments by keyword", (done) => {
+      const keyword = "评论内容";
+
+      chai
+        .request(app)
+        .get("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ keyword })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+          expect(res.body.items[0].content).to.include(keyword);
+          done();
+        });
+    });
+
+    it("should sort comments by createdAt in descending order", (done) => {
+      const sort = "createdAt";
+      const order = "desc";
+
+      chai
+        .request(app)
+        .get("/admin/comments")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .query({ sort, order })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.items).to.be.an("array");
+
+          const sortedItems = res.body.items.slice(0); // Create a copy of the items array
+          sortedItems.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          expect(res.body.items).to.deep.equal(sortedItems);
+
+          done();
+        });
+    });
+  });
 });

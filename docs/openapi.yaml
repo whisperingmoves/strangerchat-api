@@ -8287,7 +8287,6 @@ paths:
                           type: object
                           required:
                             - id
-                            - username
                           properties:
                             id:
                               type: string
@@ -8612,6 +8611,161 @@ paths:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: 分页获取评论列表
+      tags:
+        - 评论
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 每页大小
+        - in: query
+          name: postId
+          schema:
+            type: string
+          description: 帖子 ID
+        - in: query
+          name: author
+          schema:
+            type: string
+          description: 评论作者的用户 ID
+        - in: query
+          name: parentId
+          schema:
+            type: string
+          description: 父评论 ID
+        - name: keyword
+          in: query
+          description: 匹配关键词
+          schema:
+            type: string
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ createdAt, updatedAt ]
+            default: updatedAt
+          description: 排序字段
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: 排序方式
+      responses:
+        200:
+          description: 成功获取评论列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - page
+                  - pageSize
+                  - total
+                  - items
+                properties:
+                  page:
+                    type: integer
+                    description: 当前页码
+                    example: 1
+                    minimum: 1
+                  pageSize:
+                    type: integer
+                    description: 每页大小
+                    example: 10
+                    minimum: 1
+                    maximum: 100
+                  total:
+                    type: integer
+                    description: 总记录数
+                    example: 100
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - content
+                        - post
+                        - author
+                        - createdAt
+                        - updatedAt
+                      properties:
+                        id:
+                          type: string
+                          description: 评论 ID
+                          example: 6133a6e2f7dcb80021a7e28a
+                        content:
+                          type: string
+                          description: 评论内容
+                          example: "这是一条评论内容"
+                        post:
+                          type: string
+                          description: 帖子 ID
+                          example: 6133a6e2f7dcb80021a7e28b
+                        author:
+                          type: object
+                          required:
+                            - id
+                          properties:
+                            id:
+                              type: string
+                              description: 评论作者 ID
+                              example: 6133a6e2f7dcb80021a7e28c
+                            username:
+                              type: string
+                              description: 评论作者用户名
+                              example: "JohnDoe"
+                        parentId:
+                          type: string
+                          description: 父评论 ID
+                          example: 6133a6e2f7dcb80021a7e28d
+                        likes:
+                          type: array
+                          items:
+                            type: string
+                            description: 用户 ID
+                          description: 点赞用户列表
+                          example: [ "6133a6e2f7dcb80021a7e28e", "6133a6e2f7dcb80021a7e28f" ]
+                        createdAt:
+                          type: string
+                          format: date-time
+                          description: 评论创建时间
+                          example: "2023-08-09T10:51:00.000Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          description: 评论更新时间
+                          example: "2023-08-09T10:52:00.000Z"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
         429:
           $ref: '#/components/responses/TooManyRequests'
         500:

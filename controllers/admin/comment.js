@@ -30,7 +30,68 @@ const deleteComments = async (req, res, next) => {
   }
 };
 
+const getCommentList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      pageSize = 10,
+      postId,
+      author,
+      parentId,
+      keyword,
+      sort = "updatedAt",
+      order = "desc",
+    } = req.query;
+
+    const skip = (page - 1) * pageSize;
+
+    const sortQuery = {};
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const filter = {};
+    if (postId) filter["post"] = postId;
+    if (author) filter["author"] = author;
+    if (parentId) filter["parentId"] = parentId;
+    if (keyword) filter["content"] = { $regex: keyword, $options: "i" };
+
+    const [total, comments] = await Promise.all([
+      Comment.countDocuments(filter),
+      Comment.find(filter)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(parseInt(pageSize))
+        .populate("author", "username")
+        .select("-__v")
+        .lean(),
+    ]);
+
+    const formattedComments = comments.map((comment) => ({
+      id: comment._id,
+      content: comment.content,
+      post: comment.post,
+      author: {
+        id: comment.author._id,
+        username: comment.author.username,
+      },
+      parentId: comment.parentId,
+      likes: comment.likes.length ? comment.likes : undefined,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+    }));
+
+    res.status(200).json({
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      total,
+      items: formattedComments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createComment,
   deleteComments,
+  getCommentList,
 };

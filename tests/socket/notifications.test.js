@@ -6,6 +6,7 @@ const app = require("../../app");
 const config = require("../../config");
 const User = require("../../models/User");
 const Post = require("../../models/Post");
+const Comment = require("../../models/Comment");
 const InteractionNotification = require("../../models/InteractionNotification");
 const StatusNotification = require("../../models/StatusNotification");
 const GiftNotification = require("../../models/GiftNotification");
@@ -1147,6 +1148,9 @@ describe("Notifications Socket", () => {
 
     // 删除测试帖子
     await Post.deleteOne({ author: user.id });
+
+    // 删除测试评论
+    await Comment.deleteOne({ author: user.id });
 
     // 删除相关的礼物历史记录
     await GiftHistory.deleteMany({ receiver: user.id });
