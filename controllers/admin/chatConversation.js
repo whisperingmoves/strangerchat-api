@@ -1,4 +1,5 @@
 const ChatConversation = require("../../models/ChatConversation");
+const ChatMessage = require("../../models/ChatMessage");
 
 const createChatConversation = async (req, res, next) => {
   try {
@@ -23,6 +24,9 @@ const deleteChatConversations = async (req, res, next) => {
 
     // 删除聊天会话
     await ChatConversation.deleteMany({ _id: { $in: ids } });
+
+    // 删除关联聊天消息
+    await ChatMessage.deleteMany({ conversationId: { $in: ids } });
 
     res.sendStatus(204);
   } catch (error) {
