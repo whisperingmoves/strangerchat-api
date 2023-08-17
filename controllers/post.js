@@ -818,6 +818,43 @@ const getMyPosts = async (req, res, next) => {
   }
 };
 
+const getUserPosts = async (req, res, next) => {
+  let { page = "1", pageSize = "10" } = req.query;
+  page = parseInt(page);
+  pageSize = parseInt(pageSize);
+  const { userId } = req.params;
+
+  try {
+    const posts = await Post.find({ author: userId })
+      .populate("atUsers", "id username")
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+
+    const formattedPosts = posts.map((post) => {
+      return {
+        postId: post._id,
+        createTime: Math.floor(post.createdAt.getTime() / 1000),
+        content: post.content,
+        images: post.images,
+        city: post.city,
+        atUsers:
+          post.atUsers && post.atUsers.length > 0
+            ? post.atUsers.map((user) => ({
+                id: user._id,
+                username: user.username,
+              }))
+            : undefined,
+      };
+    });
+
+    res.status(200).json(formattedPosts);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMyPostDetails = async (req, res, next) => {
   const { postId } = req.params;
   const userId = req.user.userId; // 当前登录用户的ID
@@ -882,5 +919,6 @@ module.exports = {
   getRecommendedPosts,
   getFollowedUsersPosts,
   getMyPosts,
+  getUserPosts,
   getMyPostDetails,
 };

@@ -1561,6 +1561,106 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
+  /users/{userId}/posts:
+    get:
+      summary: 获取用户帖子列表
+      tags:
+        - 用户
+      parameters:
+        - name: userId
+          in: path
+          description: 用户 ID
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            example: 1
+        - name: pageSize
+          in: query
+          description: 每页数据量
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        200:
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - postId
+                    - createTime
+                    - content
+                  properties:
+                    postId:
+                      type: string
+                      description: 帖子唯一ID
+                      example: 6133a6e2f7dcb80021a7e28a
+                    createTime:
+                      type: integer
+                      format: unix timestamp
+                      description: 帖子创建时间
+                      example: 1578518245
+                    content:
+                      type: string
+                      description: 帖子文字内容
+                      example: 今天天气真好!
+                    images:
+                      type: array
+                      maxItems: 9
+                      items:
+                        type: string
+                        format: url
+                        description: 图片URL
+                        example: /uploads/image1.png
+                    city:
+                      type: string
+                      format: city name
+                      description: 帖子发布时用户所在城市名称
+                      example: 北京
+                    atUsers:
+                      type: array
+                      description: 艾特用户列表
+                      items:
+                        type: object
+                        description: 用户信息
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: string
+                            description: 用户ID
+                            example: 6133a6e2f7dcb80021a7e28c
+                          username:
+                            type: string
+                            description: 用户名
+                            example: "JaneDoe"
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
   /users/me/posts/{postId}:
     get:
       summary: 获取我的帖子详情

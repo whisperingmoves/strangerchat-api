@@ -894,6 +894,98 @@ describe("Posts API", () => {
     });
   });
 
+  describe("GET /users/:userId/posts", () => {
+    let user1;
+    let user2;
+
+    beforeEach(async () => {
+      // 创建并保存测试帖子
+      user1 = new User({
+        mobile: generateMobile(),
+        gender: "male",
+        birthday: new Date(),
+        avatar: "avatar1.jpg",
+        username: "atUser1",
+      });
+      user2 = new User({
+        mobile: generateMobile(),
+        gender: "female",
+        birthday: new Date(),
+        avatar: "avatar2.jpg",
+        username: "atUser2",
+      });
+      await user1.save();
+      await user2.save();
+      user.following = [user1.id, user2.id];
+      await user.save();
+
+      const post1 = new Post({
+        content: "Test Post 1",
+        author: user1.id,
+        atUsers: [user1._id, user2._id],
+      });
+      const post2 = new Post({
+        content: "Test Post 2",
+        author: user1.id,
+        atUsers: [user1._id, user2._id],
+      });
+      await post1.save();
+      await post2.save();
+    });
+
+    it("should get user posts list", (done) => {
+      chai
+        .request(app)
+        .get(`/users/${user1.id}/posts`)
+        .set("Authorization", `Bearer ${token}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an("array");
+
+          res.body.forEach((post) => {
+            post.should.have.property("postId");
+            post.should.have.property("createTime");
+            post.should.have.property("content");
+            post.should.have.property("atUsers");
+
+            post.postId.should.be.a("string");
+            post.createTime.should.be.a("number");
+            post.content.should.be.a("string");
+
+            post.atUsers.should.be.an("array").and.have.lengthOf(2);
+
+            post.atUsers.forEach((user) => {
+              user.should.have.property("id");
+              user.should.have.property("username");
+
+              user.id.should.be.a("string");
+              user.username.should.be.a("string");
+            });
+
+            if (post.hasOwnProperty("images")) {
+              post.images.should.be.an("array");
+            }
+
+            if (post.hasOwnProperty("city")) {
+              post.city.should.be.a("string");
+            }
+          });
+
+          done();
+        });
+    });
+
+    it("should return 401 if user is not authenticated", (done) => {
+      chai
+        .request(app)
+        .get(`/users/${user1.id}/posts`)
+        .end((err, res) => {
+          res.should.have.status(401);
+          done();
+        });
+    });
+  });
+
   describe("GET /users/me/posts/{postId}", () => {
     let postId;
     let postsToken;

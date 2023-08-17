@@ -36,6 +36,7 @@ router.post(
   userController.uploadAvatar
 );
 router.get("/users/me/posts", auth, postController.getMyPosts);
+router.get("/users/:userId/posts", auth, postController.getUserPosts);
 router.get("/users/me/posts/:postId", auth, postController.getMyPostDetails);
 router.post("/users/:userId/follow", auth, userController.followUser);
 router.get("/users/following", auth, userController.getFollowingUsers);
