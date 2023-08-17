@@ -8770,6 +8770,71 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         500:
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/comments/{commentId}:
+    put:
+      summary: 修改评论
+      tags:
+        - 评论
+        - 后台管理
+      security:
+        - JWTAuth: [ admin ]
+      parameters:
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+          description: 评论的 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+                - post
+                - author
+              properties:
+                content:
+                  type: string
+                  description: 评论内容
+                  example: "这是一个评论"
+                post:
+                  type: string
+                  description: 评论所属帖子的唯一标识符
+                  example: 6133a6e2f7dcb80021a7e28a
+                author:
+                  type: string
+                  description: 评论作者的唯一标识符
+                  example: 60f372a9515b5f001f4b3a9e
+                parentId:
+                  type: string
+                  description: 父评论的唯一标识符（可选字段）
+                  example: 6133a6e2f7dcb80021a7e28b
+                likes:
+                  type: array
+                  items:
+                    type: string
+                  description: 评论的点赞用户列表
+                  example: [ "60f372a9515b5f001f4b3a9f", "60f372a9515b5f001f4b3aa0" ]
+      responses:
+        200:
+          description: 评论修改成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
 components:
   responses:
     Unauthorized:

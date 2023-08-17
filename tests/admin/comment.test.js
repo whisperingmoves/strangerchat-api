@@ -463,4 +463,60 @@ describe("Comment Admin API", () => {
         });
     });
   });
+
+  describe("PUT /admin/comments/:commentId", () => {
+    let comment1;
+    let comment2;
+
+    beforeEach(async () => {
+      // 创建测试数据
+      comment1 = new Comment({
+        content: "这是一条评论内容",
+        post: post1.id,
+        author: author1.id,
+      });
+      await comment1.save();
+
+      comment2 = new Comment({
+        content: "这是另一条评论内容",
+        post: post2.id,
+        author: author2.id,
+        parentId: comment1.id,
+      });
+      await comment2.save();
+    });
+
+    it("should update a comment", (done) => {
+      const updatedComment = {
+        content: "更新后的评论内容",
+        post: post2.id, // 假设存在一个名为 postId 的帖子
+        author: author2.id,
+        parentId: comment2.id, // 假设存在一个名为 parentId 的父评论
+        likes: [likeUser1.id, likeUser2.id],
+      };
+
+      chai
+        .request(app)
+        .put(`/admin/comments/${comment1.id}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send(updatedComment)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+
+          // 验证修改是否生效
+          Comment.findById(comment1.id, (err, comment) => {
+            expect(comment.content).to.equal(updatedComment.content);
+            expect(comment.post.toString()).to.equal(updatedComment.post);
+            expect(comment.author.toString()).to.equal(updatedComment.author);
+            expect(comment.parentId.toString()).to.equal(
+              updatedComment.parentId
+            );
+            expect(comment.likes.map((user) => user.toString())).to.deep.equal(
+              updatedComment.likes
+            );
+            done();
+          });
+        });
+    });
+  });
 });

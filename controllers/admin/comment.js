@@ -90,8 +90,37 @@ const getCommentList = async (req, res, next) => {
   }
 };
 
+const updateComment = async (req, res, next) => {
+  try {
+    const { commentId } = req.params;
+    const { content, post, author, parentId, likes } = req.body;
+
+    const comment = await Comment.findByIdAndUpdate(
+      commentId,
+      {
+        content,
+        post,
+        author,
+        parentId,
+        likes,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+
+    if (!comment) {
+      return res.status(404).json({ message: "评论不存在" });
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createComment,
   deleteComments,
   getCommentList,
+  updateComment,
 };
