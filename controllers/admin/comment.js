@@ -1,4 +1,5 @@
 const Comment = require("../../models/Comment");
+const InteractionNotification = require("../../models/InteractionNotification");
 
 const createComment = async (req, res, next) => {
   try {
@@ -22,7 +23,11 @@ const deleteComments = async (req, res, next) => {
   try {
     const { ids } = req.query;
 
-    await Comment.deleteMany({ _id: { $in: ids } });
+    // 删除评论和关联的子评论
+    await cascadeDeleteComments(ids);
+
+    // 删除关联交互类通知
+    await InteractionNotification.deleteMany({ comment: { $in: ids } });
 
     res.sendStatus(204);
   } catch (error) {
@@ -117,6 +122,28 @@ const updateComment = async (req, res, next) => {
     next(error);
   }
 };
+
+// 级联删除评论及其子评论
+async function cascadeDeleteComments(commentIds) {
+  // 删除评论和关联的子评论
+  async function deleteComment(commentId) {
+    // 查找当前评论的子评论
+    const childComments = await Comment.find({ parentId: commentId });
+
+    // 递归删除子评论
+    for (const childComment of childComments) {
+      await deleteComment(childComment._id);
+    }
+
+    // 删除当前评论
+    await Comment.deleteOne({ _id: commentId });
+  }
+
+  // 逐个删除评论及其子评论
+  for (const commentId of commentIds) {
+    await deleteComment(commentId);
+  }
+}
 
 module.exports = {
   createComment,
