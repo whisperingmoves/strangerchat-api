@@ -672,7 +672,7 @@ const getRecommendedPosts = async (req, res, next) => {
     });
 
     const followedAuthors = await User.findById(userId, "following").lean();
-    const followedAuthorIds = followedAuthors.following;
+    const followedAuthorIds = followedAuthors.following.map(item => item.toHexString());
 
     const recommendedPosts = await Promise.all(
       posts.map(async (post) => {
@@ -696,7 +696,7 @@ const getRecommendedPosts = async (req, res, next) => {
           commentCount: commentCounts[post._id.toString()] || 0,
           postId: post._id,
           isLiked: post.likes.includes(userId) ? 1 : 0,
-          isFollowed: followedAuthorIds.includes(post.author._id) ? 1 : 0,
+          isFollowed: followedAuthorIds.includes(post.author._id.toHexString()) ? 1 : 0,
           conversationId,
           atUsers:
             post.atUsers && post.atUsers.length > 0
