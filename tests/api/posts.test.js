@@ -553,6 +553,27 @@ describe("Posts API", () => {
         });
     });
 
+    it("should get latest posts list with keyword", (done) => {
+      const keyword = "T"; // 设置关键词
+
+      chai
+        .request(app)
+        .get("/posts/latest")
+        .set("Authorization", `Bearer ${token}`)
+        .query({ keyword }) // 将关键词作为查询参数传递
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an("array");
+
+          res.body.forEach((post) => {
+            // 验证帖子是否匹配关键词
+            post.content.should.include(keyword);
+          });
+
+          done();
+        });
+    });
+
     it("should return 401 if user is not authenticated", (done) => {
       chai
         .request(app)
