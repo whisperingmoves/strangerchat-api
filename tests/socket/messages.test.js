@@ -575,6 +575,7 @@ describe("Messages Socket", () => {
 
             for (const messagesData of messages) {
               // 验证消息对象的结构和属性
+              chai.expect(messagesData).to.have.property("conversationId");
               chai.expect(messagesData).to.have.property("messageId");
               chai.expect(messagesData).to.have.property("senderId");
               chai.expect(messagesData).to.have.property("recipientId");
@@ -583,6 +584,7 @@ describe("Messages Socket", () => {
               chai.expect(messagesData).to.have.property("readStatus");
 
               // 验证消息对象的属性值
+              chai.expect(messagesData.conversationId).to.be.a("string");
               chai.expect(messagesData.messageId).to.be.a("string");
               chai.expect(messagesData.senderId).to.be.a("string");
               chai.expect(messagesData.recipientId).to.be.a("string");
@@ -591,6 +593,7 @@ describe("Messages Socket", () => {
               chai.expect(messagesData.readStatus).to.be.a("number");
 
               // 验证消息对象的属性值与预期值是否匹配
+              chai.expect(messagesData.conversationId).to.equal(conversationId);
               chai.expect(messagesData.messageId).to.equal(messageId);
               chai.expect(messagesData.senderId).to.equal(user.id);
               chai.expect(messagesData.recipientId).to.equal(otherUser.id);

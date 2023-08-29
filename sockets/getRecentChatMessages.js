@@ -55,6 +55,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       } = message;
 
       const recentMessage = {
+        conversationId,
         messageId,
         senderId: senderId,
         recipientId: recipientId,

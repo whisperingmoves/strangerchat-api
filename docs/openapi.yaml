@@ -9350,12 +9350,17 @@ components:
       items:
         type: object
         required:
+          - conversationId
           - messageId
           - senderId
           - recipientId
           - sentTime
           - content
         properties:
+          conversationId:
+            type: string
+            description: 聊天会话的ID
+            example: "123456"
           messageId:
             type: string
             description: 消息的ID
