@@ -144,6 +144,69 @@ describe("Users API", () => {
     });
   });
 
+  describe("POST /users/:userId/block", () => {
+    let blockedUserId;
+
+    beforeEach(async () => {
+      // 创建一个测试用户
+      const createUserResponse = await chai
+        .request(app)
+        .post("/users/register")
+        .send({
+          mobile: generateMobile(),
+          gender: "male",
+          birthday: "2023-07-30",
+          avatar: "avatar.png",
+        });
+
+      blockedUserId = createUserResponse.body.userId;
+    });
+
+    it("should block user when action is 1", (done) => {
+      chai
+        .request(app)
+        .post(`/users/${blockedUserId}/block?action=1`)
+        .set("Authorization", `Bearer ${token}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          done();
+        });
+    });
+
+    it("should unblock user when action is 0", (done) => {
+      // 首先拉黑用户
+      chai
+        .request(app)
+        .post(`/users/${blockedUserId}/block?action=1`)
+        .set("Authorization", `Bearer ${token}`)
+        .end(() => {
+          // 然后取消拉黑
+          chai
+            .request(app)
+            .post(`/users/${blockedUserId}/block?action=0`)
+            .set("Authorization", `Bearer ${token}`)
+            .end((err, res) => {
+              res.should.have.status(200);
+              done();
+            });
+        });
+    });
+
+    it("should return an error when trying to unblock a user not blocked", (done) => {
+      chai
+        .request(app)
+        .post(`/users/${blockedUserId}/block?action=0`)
+        .set("Authorization", `Bearer ${token}`)
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.body.should.have
+            .property("message")
+            .equal("用户未被拉黑，无法取消拉黑");
+          done();
+        });
+    });
+  });
+
   describe("GET /users/following", () => {
     let userId1;
     let userId2;

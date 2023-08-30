@@ -60,6 +60,7 @@ describe("Users Admin API", () => {
           coordinates: [-73.9857, 40.7484],
         },
         following: [],
+        blockedUsers: [],
         receivedGiftRankings: [],
         online: 1,
       };
@@ -173,6 +174,7 @@ describe("Users Admin API", () => {
           coordinates: [-73.9857, 40.7484],
         },
         following: [],
+        blockedUsers: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         receivedGiftRankings: [],
@@ -199,6 +201,7 @@ describe("Users Admin API", () => {
           coordinates: [-118.2437, 34.0522],
         },
         following: [],
+        blockedUsers: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         receivedGiftRankings: [],
@@ -309,6 +312,7 @@ describe("Users Admin API", () => {
           coordinates: [-73.9857, 40.7484],
         },
         following: [],
+        blockedUsers: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         receivedGiftRankings: [],
@@ -348,6 +352,7 @@ describe("Users Admin API", () => {
           coordinates: [-118.2437, 34.0522],
         },
         following: [],
+        blockedUsers: [],
         receivedGiftRankings: [],
         online: 0,
       };
@@ -380,6 +385,7 @@ describe("Users Admin API", () => {
               updatedUser.location.coordinates
             );
             expect(user.following).to.deep.equal(updatedUser.following);
+            expect(user.blockedUsers).to.deep.equal(updatedUser.blockedUsers);
             expect(user.receivedGiftRankings).to.deep.equal(
               updatedUser.receivedGiftRankings
             );

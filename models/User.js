@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
     },
   },
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // 拉黑的用户列表
   createdAt: {
     type: Date,
     default: Date.now,
@@ -69,6 +70,21 @@ userSchema.methods.unfollowUser = async function (userId) {
   if (index !== -1) {
     this.following.splice(index, 1);
     this.followingCount--;
+    await this.save();
+  }
+};
+
+userSchema.methods.blockUser = async function (userId) {
+  if (this.blockedUsers.indexOf(userId) === -1) {
+    this.blockedUsers.push(userId);
+    await this.save();
+  }
+};
+
+userSchema.methods.unblockUser = async function (userId) {
+  const index = this.blockedUsers.indexOf(userId);
+  if (index !== -1) {
+    this.blockedUsers.splice(index, 1);
     await this.save();
   }
 };

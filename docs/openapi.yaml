@@ -1029,6 +1029,43 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
+  /users/{userId}/block:
+    post:
+      summary: 拉黑用户/取消拉黑
+      tags:
+        - 用户
+      parameters:
+        - name: userId
+          in: path
+          description: 被拉黑用户的ID
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+        - name: action
+          in: query
+          description: 拉黑操作，取值为1（拉黑）或0（取消拉黑）
+          required: true
+          schema:
+            type: integer
+            enum: [ 0, 1 ]
+            example: 1
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
   /posts/{postId}/comment:
     post:
       summary: 评论帖子/回复评论
@@ -3720,8 +3757,14 @@ paths:
                   type: array
                   items:
                     type: string
-                    format: uuid
+                    description: 用户 ID
                   description: 关注的用户列表
+                blockedUsers:
+                  type: array
+                  items:
+                    type: string
+                    description: 用户 ID
+                  description: 拉黑的用户列表
                 receivedGiftRankings:
                   type: array
                   items:
@@ -3729,7 +3772,6 @@ paths:
                     properties:
                       userId:
                         type: string
-                        format: uuid
                         description: 用户 ID
                       lastRanking:
                         type: integer
@@ -3962,8 +4004,14 @@ paths:
                           type: array
                           items:
                             type: string
-                            format: uuid
+                            description: 用户 ID
                           description: 关注的用户列表
+                        blockedUsers:
+                          type: array
+                          items:
+                            type: string
+                            description: 用户 ID
+                          description: 拉黑的用户列表
                         createdAt:
                           type: string
                           format: date-time
@@ -3981,7 +4029,6 @@ paths:
                             properties:
                               userId:
                                 type: string
-                                format: uuid
                                 description: 用户 ID
                               lastRanking:
                                 type: integer
@@ -4108,8 +4155,14 @@ paths:
                   type: array
                   items:
                     type: string
-                    format: uuid
+                    description: 用户 ID
                   description: 关注的用户列表
+                blockedUsers:
+                  type: array
+                  items:
+                    type: string
+                    description: 用户 ID
+                  description: 拉黑的用户列表
                 receivedGiftRankings:
                   type: array
                   items:
@@ -4117,7 +4170,6 @@ paths:
                     properties:
                       userId:
                         type: string
-                        format: uuid
                         description: 用户 ID
                       lastRanking:
                         type: integer

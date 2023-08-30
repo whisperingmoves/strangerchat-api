@@ -19,6 +19,7 @@ const createUser = async (req, res, next) => {
       lastCheckDate,
       location,
       following,
+      blockedUsers,
       receivedGiftRankings,
       online,
     } = req.body;
@@ -40,6 +41,7 @@ const createUser = async (req, res, next) => {
       lastCheckDate,
       location,
       following,
+      blockedUsers,
       receivedGiftRankings,
       online,
     });
@@ -109,6 +111,7 @@ const getUserList = async (req, res, next) => {
       lastCheckDate: user.lastCheckDate,
       location: user.location,
       following: user.following,
+      blockedUsers: user.blockedUsers,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       receivedGiftRankings: user.receivedGiftRankings,

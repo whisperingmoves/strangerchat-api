@@ -164,6 +164,46 @@ const followUser = async (req, res, next) => {
   }
 };
 
+const blockUser = async (req, res, next) => {
+  const { userId } = req.params;
+  const { action } = req.query;
+
+  try {
+    // 检查被拉黑用户是否存在
+    const blockedUser = await User.findById(userId);
+    if (!blockedUser) {
+      return res.status(404).json({ message: "被拉黑用户不存在" });
+    }
+
+    // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
+    const currentUserId = req.user.userId;
+
+    if (action === "1") {
+      // 检查被拉黑用户是否已被拉黑
+      if (blockedUser.blockedUsers.includes(currentUserId)) {
+        return res.status(400).json({ message: "用户已被拉黑" });
+      }
+
+      await blockedUser.blockUser(currentUserId);
+    } else if (action === "0") {
+      // 检查被拉黑用户是否未被拉黑
+      if (!blockedUser.blockedUsers.includes(currentUserId)) {
+        return res.status(400).json({ message: "用户未被拉黑，无法取消拉黑" });
+      }
+
+      await blockedUser.unblockUser(currentUserId);
+    } else {
+      return res.status(400).json({ message: "无效的拉黑操作" });
+    }
+
+    await blockedUser.save();
+
+    res.json({});
+  } catch (err) {
+    next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+  }
+};
+
 const getFollowingUsers = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -557,6 +597,7 @@ module.exports = {
   register,
   uploadAvatar,
   followUser,
+  blockUser,
   getFollowingUsers,
   getFollowers,
   getFriends,
