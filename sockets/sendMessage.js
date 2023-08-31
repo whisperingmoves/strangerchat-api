@@ -6,7 +6,7 @@ const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
-    const { conversationId, opponentUserId, content } = data;
+    const { conversationId, clientMessageId, opponentUserId, content } = data;
 
     // 查找指定的聊天会话
     const conversation = await ChatConversation.findById(conversationId);
@@ -49,6 +49,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       type: 7,
       data: {
         conversationId: conversationId,
+        clientMessageId,
         messageId: message.id,
         senderId: userId,
         recipientId: opponentUserId,

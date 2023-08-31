@@ -9223,6 +9223,7 @@ components:
       type: object
       required:
         - conversationId
+        - clientMessageId
         - opponentUserId
         - content
       properties:
@@ -9230,6 +9231,10 @@ components:
           type: string
           description: 聊天会话的ID
           example: "abc123"
+        clientMessageId:
+          type: string
+          description: 客户端生成的消息的ID
+          example: "123456"
         opponentUserId:
           type: string
           description: 对方用户ID
@@ -9463,6 +9468,10 @@ components:
         conversationId:
           type: string
           description: 聊天会话的ID
+          example: "123456"
+        clientMessageId:
+          type: string
+          description: 客户端生成的消息的ID
           example: "123456"
         messageId:
           type: string
