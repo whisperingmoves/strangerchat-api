@@ -9179,8 +9179,13 @@ components:
     createChatConversation:
       type: object
       required:
+        - clientConversationId
         - opponentUserId
       properties:
+        clientConversationId:
+          type: string
+          description: 客户端生成的聊天会话的ID
+          example: "123456"
         opponentUserId:
           type: string
           description: 对方用户ID
@@ -9278,6 +9283,10 @@ components:
         - opponentUserId
         - opponentAvatar
       properties:
+        clientConversationId:
+          type: string
+          description: 客户端生成的聊天会话的ID
+          example: "123456"
         conversationId:
           type: string
           description: 聊天会话的ID

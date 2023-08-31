@@ -163,6 +163,7 @@ describe("Messages Socket", () => {
 
           // 验证会话对象的结构和属性
           const conversation = message.data;
+          chai.expect(conversation).to.have.property("clientConversationId");
           chai.expect(conversation).to.have.property("conversationId");
           chai.expect(conversation).to.have.property("opponentUserId");
           chai.expect(conversation).to.have.property("opponentAvatar");
@@ -171,6 +172,7 @@ describe("Messages Socket", () => {
           chai.expect(conversation).to.have.property("opponentDistance");
 
           // 验证会话对象的属性值
+          chai.expect(conversation.clientConversationId).to.be.a("string");
           chai.expect(conversation.conversationId).to.be.a("string");
           chai.expect(conversation.opponentUserId).to.be.a("string");
           chai.expect(conversation.opponentAvatar).to.be.a("string");
@@ -179,6 +181,7 @@ describe("Messages Socket", () => {
           chai.expect(conversation.opponentDistance).to.be.a("number");
 
           // 验证会话对象的属性值与预期值是否匹配
+          chai.expect(conversation.clientConversationId).to.equal("1");
           chai.expect(conversation.opponentUserId).to.equal(user.id);
           chai.expect(conversation.opponentAvatar).to.equal(user.avatar);
           chai.expect(conversation.opponentUsername).to.equal(user.username);
@@ -204,6 +207,7 @@ describe("Messages Socket", () => {
       otherSocket.emit("messages", {
         type: 0,
         data: {
+          clientConversationId: "1",
           opponentUserId: user.id,
         },
       });

@@ -7,7 +7,7 @@ const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
-    const { opponentUserId } = data;
+    const { clientConversationId, opponentUserId } = data;
 
     // 创建聊天会话
     const conversation = await ChatConversation.create({
@@ -23,6 +23,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     // 组装推送给当前用户的数据
     const currentUserData = {
+      clientConversationId,
       conversationId: conversation.id,
       opponentUserId: opponentUser.id,
       opponentAvatar: opponentUser.avatar,
