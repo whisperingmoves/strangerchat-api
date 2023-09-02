@@ -51,6 +51,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         recipientId,
         sentTime,
         content,
+        type,
         readStatus,
       } = message;
 
@@ -60,6 +61,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         senderId: senderId,
         recipientId: recipientId,
         sentTime: Math.floor(sentTime.getTime() / 1000),
+        type,
         content,
         readStatus,
       };

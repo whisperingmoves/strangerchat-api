@@ -24,6 +24,11 @@ const chatMessageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  type: {
+    type: Number,
+    enum: [0, 1, 2, 3, 4, 5], // 消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+    default: 0,
+  },
   readStatus: {
     type: Number,
     enum: [0, 1], // 消息的已读状态 (0: 未读, 1: 已读, 默认值: 0)

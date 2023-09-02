@@ -9243,6 +9243,19 @@ components:
           type: string
           description: 消息的内容
           example: "Hello, how are you?"
+        type:
+          type: integer
+          format: int32
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+          description: 消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+          example: 0
+          default: 0
     markMessageAsRead:
       type: object
       required:
@@ -9447,6 +9460,19 @@ components:
             type: string
             description: 消息的内容
             example: "你好，Alice！"
+          type:
+            type: integer
+            format: int32
+            enum:
+              - 0
+              - 1
+              - 2
+              - 3
+              - 4
+              - 5
+            description: 消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+            example: 0
+            default: 0
           readStatus:
             type: integer
             enum:
@@ -9493,6 +9519,19 @@ components:
           type: integer
           description: 消息发送的时间，精确到秒的UNIX时间戳
           example: 1627862400
+        type:
+          type: integer
+          format: int32
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+          description: 消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+          example: 0
+          default: 0
         readStatus:
           type: integer
           enum:
