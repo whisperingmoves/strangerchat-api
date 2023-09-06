@@ -2,6 +2,7 @@ const User = require("../models/User");
 const mongoose = require("mongoose");
 const { calculateDistance } = require("../utils/distanceUtils");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const emitWithLogging = require("../middlewares/emitWithLogging");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -25,7 +26,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
       }));
       if (userIdSocketMap[userId]) {
         userIdSocketMap[userId].forEach((socketId) => {
-          io.to(socketId).emit("notifications", {
+          emitWithLogging(io.to(socketId), "notifications", {
             type: 0,
             data: { users },
           });
@@ -78,7 +79,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
       }));
       if (userIdSocketMap[userId]) {
         userIdSocketMap[userId].forEach((socketId) => {
-          io.to(socketId).emit("notifications", {
+          emitWithLogging(io.to(socketId), "notifications", {
             type: 0,
             data: { users },
           });

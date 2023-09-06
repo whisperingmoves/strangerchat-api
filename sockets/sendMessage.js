@@ -1,6 +1,7 @@
 const ChatConversation = require("../models/ChatConversation");
 const ChatMessage = require("../models/ChatMessage");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const emitWithLogging = require("../middlewares/emitWithLogging");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -63,7 +64,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     if (userIdSocketMap[userId]) {
       for (const socketId of userIdSocketMap[userId]) {
-        io.to(socketId).emit("notifications", senderNotification);
+        emitWithLogging(io.to(socketId), "notifications", senderNotification);
       }
     }
 
@@ -84,7 +85,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     if (userIdSocketMap[opponentUserId]) {
       for (const socketId of userIdSocketMap[opponentUserId]) {
-        io.to(socketId).emit("notifications", recipientNotification);
+        emitWithLogging(io.to(socketId), "notifications", recipientNotification);
       }
     }
   } catch (error) {

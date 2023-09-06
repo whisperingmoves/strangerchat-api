@@ -2,6 +2,7 @@ const { calculateDistance } = require("../utils/distanceUtils");
 const ChatConversation = require("../models/ChatConversation");
 const User = require("../models/User");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const emitWithLogging = require("../middlewares/emitWithLogging");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -60,7 +61,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     const currentUserSockets = userIdSocketMap[userId];
     if (currentUserSockets) {
       currentUserSockets.forEach((socketId) => {
-        io.to(socketId).emit("notifications", {
+        emitWithLogging(io.to(socketId), "notifications", {
           type: 3,
           data: currentUserData,
         });
@@ -71,7 +72,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     const opponentUserSockets = userIdSocketMap[opponentUserId];
     if (opponentUserSockets) {
       opponentUserSockets.forEach((socketId) => {
-        io.to(socketId).emit("notifications", {
+        emitWithLogging(io.to(socketId), "notifications", {
           type: 3,
           data: opponentUserData,
         });

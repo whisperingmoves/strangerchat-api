@@ -14,6 +14,7 @@ const errorMiddleware = require("./middlewares/error");
 const notFoundMiddleware = require("./middlewares/notFound");
 const socketAuthMiddleware = require("./middlewares/socketAuth");
 const requestLoggerMiddleware = require("./middlewares/requestLogger");
+const socketLoggerMiddleware = require("./middlewares/socketLogger");
 const rateLimiterMiddleware = require("./middlewares/rateLimiter");
 const sockets = require("./sockets");
 const ErrorMonitorService = require("./services/ErrorMonitorService");
@@ -87,6 +88,9 @@ app.use(errorMiddleware);
 
 // socket.io鉴权
 io.use(socketAuthMiddleware);
+
+// socket.io日志
+io.use(socketLoggerMiddleware);
 
 // socket.io控制器
 io.on("connect", (socket) => {

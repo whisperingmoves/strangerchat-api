@@ -3,6 +3,7 @@ const StatusNotification = require("../models/StatusNotification");
 const GiftNotification = require("../models/GiftNotification");
 const SystemNotification = require("../models/SystemNotification");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const emitWithLogging = require("../middlewares/emitWithLogging");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -33,7 +34,7 @@ module.exports = async (io, userIdSocketMap, userId) => {
     };
     if (userIdSocketMap[userId]) {
       userIdSocketMap[userId].forEach((socketId) => {
-        io.to(socketId).emit("notifications", {
+        emitWithLogging(io.to(socketId), "notifications", {
           type: 2,
           data: unreadNotificationsCount,
         });
