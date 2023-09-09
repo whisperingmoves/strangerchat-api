@@ -9,6 +9,8 @@ module.exports = {
   postUploadPath: process.env.POST_UPLOAD_PATH || "./public/uploads/posts/",
   bundleUploadPath:
     process.env.BUNDLE_UPLOAD_PATH || "./public/uploads/bundles/",
+  messageUploadPath:
+    process.env.MESSAGE_UPLOAD_PATH || "./public/uploads/messages/",
   jwtSecret: process.env.JWT_SECRET || "a long random string",
   generateVerifyCode() {
     // 生成6位数验证码的函数

@@ -73,7 +73,11 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     if (userIdSocketMap[opponentUserId]) {
       for (const socketId of userIdSocketMap[opponentUserId]) {
-        emitWithLogging(io.to(socketId), "notifications", recipientNotification);
+        emitWithLogging(
+          io.to(socketId),
+          "notifications",
+          recipientNotification
+        );
       }
     }
   } catch (error) {

@@ -187,4 +187,60 @@ describe("Uploads API", () => {
         });
     });
   });
+
+  describe("POST /uploadMessage", () => {
+    it("should upload message image successfully", (done) => {
+      const filePath = path.join(__dirname, "test.png");
+      chai
+        .request(app)
+        .post("/uploadMessage")
+        .set("Authorization", `Bearer ${uploadToken}`) // 使用 JWT 认证
+        .attach("message", fs.createReadStream(filePath), {
+          filename: "test.png",
+        })
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.have.property("url");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("should return 400 if message image is invalid", (done) => {
+      chai
+        .request(app)
+        .post("/uploadMessage")
+        .set("Authorization", `Bearer ${uploadToken}`) // 使用 JWT 认证
+        .send({
+          // 无效的消息图片字段
+        })
+        .then((res) => {
+          res.should.have.status(400);
+          res.body.should.have.property("message");
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+
+    it("should return 401 if JWT token is not provided", (done) => {
+      const filePath = path.join(__dirname, "test.png");
+      chai
+        .request(app)
+        .post("/uploadMessage")
+        .attach("message", fs.createReadStream(filePath), {
+          filename: "test.png",
+        })
+        .then((res) => {
+          res.should.have.status(401);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+  });
 });

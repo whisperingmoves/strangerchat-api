@@ -3150,6 +3150,51 @@ paths:
         200:
           description: 消息推送成功
 
+  /uploadMessage:
+    post:
+      summary: 上传消息图片
+      tags:
+        - 资源
+      security:
+        - JWTAuth: [ upload ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: 消息图片
+            encoding:
+              avatar:
+                contentType: image/*
+      responses:
+        200:
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+                    description: 图片URL
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
   /uploadBundle:
     post:
       summary: 上传 Bundle 文件

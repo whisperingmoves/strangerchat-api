@@ -54,7 +54,11 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     if (userIdSocketMap[message.senderId.toString()]) {
       for (const socketId of userIdSocketMap[message.senderId.toString()]) {
-        emitWithLogging(io.to(socketId), "notifications", recipientNotification);
+        emitWithLogging(
+          io.to(socketId),
+          "notifications",
+          recipientNotification
+        );
       }
     }
   } catch (error) {

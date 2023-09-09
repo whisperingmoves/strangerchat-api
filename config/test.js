@@ -7,6 +7,7 @@ module.exports = {
   avatarUploadPath: "./public/uploads/avatars-test/",
   postUploadPath: "./public/uploads/posts-test/",
   bundleUploadPath: "./public/uploads/bundles-test/",
+  messageUploadPath: "./public/uploads/messages-test/",
   jwtSecret: "a-secret-string-for-test",
   generateVerifyCode() {
     // 生成6位数验证码的函数
