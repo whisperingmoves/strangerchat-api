@@ -1,14 +1,48 @@
 const ChatConversation = require("../models/ChatConversation");
 const ChatMessage = require("../models/ChatMessage");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const GiftService = require("../services/GiftService");
 const emitWithLogging = require("../middlewares/emitWithLogging");
+const User = require("../models/User");
+const Gift = require("../models/Gift");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
 module.exports = async (io, userIdSocketMap, userId, data) => {
   try {
-    const { conversationId, clientMessageId, opponentUserId, content, type } =
-      data;
+    const {
+      conversationId,
+      clientMessageId,
+      opponentUserId,
+      content,
+      type,
+      giftId,
+    } = data;
+
+    if (type === 5 && giftId) {
+      // 接收礼物的用户
+      const receiver = await User.findById(opponentUserId);
+
+      // 礼物
+      const gift = await Gift.findById(giftId);
+
+      // 检查当前用户的金币余额是否足够购买礼物
+      const sender = await User.findById(userId);
+      if (sender.coinBalance < gift.value) {
+        console.error("金币余额不足");
+
+        return;
+      }
+
+      await GiftService.sendGift(
+        sender,
+        receiver,
+        gift,
+        1,
+        io,
+        userIdSocketMap
+      );
+    }
 
     // 查找指定的聊天会话
     const conversation = await ChatConversation.findById(conversationId);

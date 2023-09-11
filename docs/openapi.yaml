@@ -9340,6 +9340,10 @@ components:
           description: 消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
           example: 0
           default: 0
+        giftId:
+          type: string
+          description: 礼物 ID
+          example: 6133a6e2f7dcb80021a7e28a
     markMessageAsRead:
       type: object
       required:
