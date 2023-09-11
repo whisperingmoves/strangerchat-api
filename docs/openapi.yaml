@@ -5162,6 +5162,19 @@ paths:
                   type: string
                   description: 最后一条消息的内容
                   example: Hello, how are you?
+                lastMessageType:
+                  type: integer
+                  format: int32
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                    - 3
+                    - 4
+                    - 5
+                  description: 最后一条消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+                  example: 0
+                  default: 0
               example:
                 userId1: 6133a6e2f7dcb80021a7e28a
                 userId2: 6133a6e2f7dcb80021a7e28b
@@ -5355,6 +5368,19 @@ paths:
                           type: string
                           description: 最后一条消息内容
                           example: "你好，今天天气真好！"
+                        lastMessageType:
+                          type: integer
+                          format: int32
+                          enum:
+                            - 0
+                            - 1
+                            - 2
+                            - 3
+                            - 4
+                            - 5
+                          description: 最后一条消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+                          example: 0
+                          default: 0
                         createdAt:
                           type: string
                           format: date-time
@@ -5416,6 +5442,19 @@ paths:
                   type: string
                   description: 最后一条消息的内容
                   example: "你好，今天天气真好！"
+                lastMessageType:
+                  type: integer
+                  format: int32
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                    - 3
+                    - 4
+                    - 5
+                  description: 最后一条消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+                  example: 0
+                  default: 0
               required:
                 - userId1
                 - userId2
@@ -9419,6 +9458,19 @@ components:
             type: string
             description: 最后一条消息的内容
             example: "你好，Alice！"
+          lastMessageType:
+            type: integer
+            format: int32
+            enum:
+              - 0
+              - 1
+              - 2
+              - 3
+              - 4
+              - 5
+            description: 最后一条消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+            example: 0
+            default: 0
           unreadCount:
             type: integer
             description: 未读消息的数量
@@ -9464,6 +9516,19 @@ components:
           type: string
           description: 最后一条消息的内容
           example: "你好，Alice！"
+        lastMessageType:
+          type: integer
+          format: int32
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+          description: 最后一条消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+          example: 0
+          default: 0
         unreadCount:
           type: integer
           description: 未读消息的数量

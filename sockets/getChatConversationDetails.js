@@ -73,6 +73,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         ? Math.floor(conversation.lastMessageTime.getTime() / 1000)
         : undefined,
       lastMessageContent: truncatedContent || undefined,
+      lastMessageType: conversation.lastMessageType,
       unreadCount,
     };
 

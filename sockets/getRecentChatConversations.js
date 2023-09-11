@@ -88,6 +88,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
           conversation.lastMessageTime.getTime() / 1000
         ),
         lastMessageContent: truncatedContent,
+        lastMessageType: conversation.lastMessageType,
         unreadCount,
       };
 

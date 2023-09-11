@@ -45,6 +45,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     // 更新会话的lastMessageTime和lastMessageContent字段
     conversation.lastMessageTime = message.sentTime;
     conversation.lastMessageContent = content;
+    conversation.lastMessageType = type;
     await conversation.save();
 
     // 向发送者推送消息

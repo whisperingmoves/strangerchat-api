@@ -17,6 +17,11 @@ const chatConversationSchema = new mongoose.Schema({
   lastMessageContent: {
     type: String,
   },
+  lastMessageType: {
+    type: Number,
+    enum: [0, 1, 2, 3, 4, 5], // 最后一条消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
