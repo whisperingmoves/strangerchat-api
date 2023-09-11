@@ -54,13 +54,6 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     const opponentUsername = opponentUser.username;
     const opponentAvatar = opponentUser.avatar;
 
-    // 截取最后一条消息的内容，限制长度为100
-    const lastMessageContent = conversation.lastMessageContent || "";
-    const truncatedContent =
-      lastMessageContent.length > 100
-        ? lastMessageContent.substring(0, 100) + "..."
-        : lastMessageContent;
-
     // 构造聊天会话详情数据
     const chatConversationDetails = {
       conversationId,
@@ -72,7 +65,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       lastMessageTime: conversation.lastMessageTime
         ? Math.floor(conversation.lastMessageTime.getTime() / 1000)
         : undefined,
-      lastMessageContent: truncatedContent || undefined,
+      lastMessageContent: conversation.lastMessageContent,
       lastMessageType: conversation.lastMessageType,
       unreadCount,
     };

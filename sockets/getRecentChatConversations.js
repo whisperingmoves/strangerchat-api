@@ -13,23 +13,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
     // 准备查询条件
     const query = {
-      $and: [
-        {
-          $or: [
-            {
-              $and: [
-                { lastMessageContent: { $exists: true } },
-                { lastMessageContent: { $ne: null } },
-                { lastMessageContent: { $ne: "" } },
-              ],
-            },
-            { lastMessageContent: { $exists: false } },
-          ],
-        },
-        {
-          $or: [{ userId1: userId }, { userId2: userId }],
-        },
-      ],
+      $or: [{ userId1: userId }, { userId2: userId }],
     };
 
     if (timestamp) {
@@ -65,12 +49,6 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         }
       }
 
-      const lastMessageContent = conversation.lastMessageContent || "";
-      const truncatedContent =
-        lastMessageContent.length > 100
-          ? lastMessageContent.substring(0, 100) + "..."
-          : lastMessageContent;
-
       const unreadCount = await ChatMessage.countDocuments({
         conversationId: conversation._id,
         recipientId: userId,
@@ -84,10 +62,10 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         opponentUsername: opponentUser.username,
         opponentOnlineStatus: opponentUser.online || 0,
         opponentDistance: opponentDistance || undefined,
-        lastMessageTime: Math.floor(
-          conversation.lastMessageTime.getTime() / 1000
-        ),
-        lastMessageContent: truncatedContent,
+        lastMessageTime: conversation.lastMessageTime
+          ? Math.floor(conversation.lastMessageTime.getTime() / 1000)
+          : undefined,
+        lastMessageContent: conversation.lastMessageContent,
         lastMessageType: conversation.lastMessageType,
         unreadCount,
       };
