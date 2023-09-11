@@ -3,7 +3,13 @@ const ChatMessage = require("../../models/ChatMessage");
 
 const createChatConversation = async (req, res, next) => {
   try {
-    const { userId1, userId2, lastMessageTime, lastMessageContent, lastMessageType } = req.body;
+    const {
+      userId1,
+      userId2,
+      lastMessageTime,
+      lastMessageContent,
+      lastMessageType,
+    } = req.body;
 
     const chatConversation = await ChatConversation.create({
       userId1,
@@ -99,7 +105,13 @@ const getChatConversationList = async (req, res, next) => {
 
 const updateChatConversation = async (req, res, next) => {
   try {
-    const { userId1, userId2, lastMessageTime, lastMessageContent, lastMessageType } = req.body;
+    const {
+      userId1,
+      userId2,
+      lastMessageTime,
+      lastMessageContent,
+      lastMessageType,
+    } = req.body;
     const { conversationId } = req.params;
 
     const conversation = await ChatConversation.findByIdAndUpdate(
