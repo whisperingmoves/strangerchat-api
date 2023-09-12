@@ -12,6 +12,7 @@ const {
 } = require("./helper");
 const pushNearestUsers = require("../sockets/pushNearestUsers");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
+const pushCoinBalance = require("../sockets/pushCoinBalance");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
@@ -479,6 +480,14 @@ const performCheckin = async (req, res, next) => {
     user.lastCheckDate = today;
     user.coinBalance += coinReward;
     await user.save();
+
+    // 推送用户金币余额
+    pushCoinBalance(
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      userId,
+      user.coinBalance
+    ).then();
 
     res.status(200).json({
       checkedDays: checkedDays,

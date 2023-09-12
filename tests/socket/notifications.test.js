@@ -298,7 +298,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after liking and unliking a post", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -368,7 +368,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after receiving a comment and comment deletion", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -444,7 +444,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after a post is shared", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -497,7 +497,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after receiving a @ of a post", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -551,7 +551,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after post is collected and uncollected", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -627,7 +627,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after liking and unliking a comment", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -719,7 +719,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after receiving a reply to a comment", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -789,7 +789,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after receiving a reply to a comment and deleting the reply", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -881,7 +881,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after following and unfollowing a user", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -951,7 +951,7 @@ describe("Notifications Socket", () => {
 
   it("should receive unread notifications count via WebSocket after another user visits the user profile", (done) => {
     // 创建带有认证信息的 WebSocket 连接
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -1004,7 +1004,7 @@ describe("Notifications Socket", () => {
   });
 
   it("should receive unread notifications count via WebSocket after receiving a gift from another user", (done) => {
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -1072,7 +1072,7 @@ describe("Notifications Socket", () => {
   });
 
   it("should receive unread notifications count via WebSocket after purchasing a coin product", (done) => {
-    const socket = ioClient(`http://localhost:${config.port}`, {
+    socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
         token: token,
       },
@@ -1134,6 +1134,95 @@ describe("Notifications Socket", () => {
             });
         }
       });
+    });
+  });
+
+  it("should receive coin balance via WebSocket after perform checkin", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token: token,
+      },
+    });
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 13) {
+          return;
+        }
+
+        if (message.data.coinBalance === 10) {
+          done();
+        } else {
+          done(new Error("Unexpected coin balance"));
+        }
+      });
+
+      chai
+          .request(app)
+          .post("/users/checkin/check")
+          .set("Authorization", `Bearer ${token}`)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.an("object");
+            res.body.should.have
+                .property("checkedDays")
+                .that.is.a("number")
+                .within(0, 7);
+          });
+    });
+  });
+
+  it("should receive coin balance via WebSocket after send a gift", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token: otherToken,
+      },
+    });
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 13) {
+          return;
+        }
+
+        if (message.data.coinBalance === 90) {
+          done();
+        } else {
+          done(new Error("Unexpected coin balance"));
+        }
+      });
+
+      Gift.create(
+          {
+            image: "example.jpg",
+            name: "Example Gift",
+            value: 10,
+          },
+          (error, createdGift) => {
+            if (error) {
+              done(error);
+            } else {
+              const giftId = createdGift.id;
+
+              const sendGiftData = {
+                receiverId: user.id,
+                giftId: giftId,
+                quantity: 1,
+              };
+
+              chai
+                  .request(app)
+                  .post("/gifts/send")
+                  .set("Authorization", `Bearer ${otherToken}`)
+                  .send(sendGiftData)
+                  .end((giftErr) => {
+                    if (giftErr) {
+                      done(giftErr);
+                    }
+                  });
+            }
+          }
+      );
     });
   });
 

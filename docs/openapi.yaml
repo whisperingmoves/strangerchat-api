@@ -3057,6 +3057,7 @@ paths:
                     - 10
                     - 11
                     - 12
+                    - 13
                   description: |
                     消息类型:
                       0表示距离最近用户列表
@@ -3072,6 +3073,7 @@ paths:
                       10表示WebRTC的Offer信令
                       11表示WebRTC的Answer信令
                       12表示WebRTC的ICE Candidate信令
+                      13表示金币余额
                   example: 0
                 data:
                   type: object
@@ -3089,6 +3091,7 @@ paths:
                     - $ref: '#/components/schemas/voiceCall'
                     - $ref: '#/components/schemas/webrtcSdp'
                     - $ref: '#/components/schemas/webrtcCandidate'
+                    - $ref: '#/components/schemas/coinBalance'
       responses:
         200:
           description: 消息推送成功
@@ -9250,6 +9253,14 @@ components:
         online:
           type: integer
           description: 当前系统在线总人数
+          example: 12345
+          minimum: 0
+    coinBalance:
+      type: object
+      properties:
+        coinBalance:
+          type: integer
+          description: 当前用户金币余额
           example: 12345
           minimum: 0
     unreadNotificationsCount:
