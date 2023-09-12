@@ -2,6 +2,7 @@ const User = require("../models/User");
 const pushNearestUsers = require("./pushNearestUsers");
 const pushOnlineUsers = require("./pushOnlineUsers");
 const pushUnreadNotificationsCount = require("./pushUnreadNotificationsCount");
+const pushCoinBalance = require("./pushCoinBalance");
 const { processOnlineUsers } = require("../controllers/helper");
 const createChatConversation = require("./createChatConversation");
 const getRecentChatConversations = require("./getRecentChatConversations");
@@ -28,8 +29,10 @@ module.exports = (io, socket, userIdSocketMap) => {
   // 将用户的在线状态设置为 1
   User.findByIdAndUpdate(userId, { online: 1 }, { new: false })
     .exec()
-    .then(() => {
+    .then((user) => {
       console.log(`User ${userId} online`);
+
+      pushCoinBalance(io, userIdSocketMap, userId, user.coinBalance).then();
     })
     .catch((error) => {
       errorMonitoringService.monitorError(error).then();

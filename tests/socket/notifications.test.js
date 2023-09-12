@@ -1146,7 +1146,7 @@ describe("Notifications Socket", () => {
 
     socket.on("connect", () => {
       socket.on("notifications", (message) => {
-        if (message.type !== 13) {
+        if (message.type !== 13 || message.data.coinBalance === 0) {
           return;
         }
 
@@ -1158,17 +1158,17 @@ describe("Notifications Socket", () => {
       });
 
       chai
-          .request(app)
-          .post("/users/checkin/check")
-          .set("Authorization", `Bearer ${token}`)
-          .end((err, res) => {
-            res.should.have.status(200);
-            res.body.should.be.an("object");
-            res.body.should.have
-                .property("checkedDays")
-                .that.is.a("number")
-                .within(0, 7);
-          });
+        .request(app)
+        .post("/users/checkin/check")
+        .set("Authorization", `Bearer ${token}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.an("object");
+          res.body.should.have
+            .property("checkedDays")
+            .that.is.a("number")
+            .within(0, 7);
+        });
     });
   });
 
@@ -1181,7 +1181,7 @@ describe("Notifications Socket", () => {
 
     socket.on("connect", () => {
       socket.on("notifications", (message) => {
-        if (message.type !== 13) {
+        if (message.type !== 13 || message.data.coinBalance === 100) {
           return;
         }
 
@@ -1193,35 +1193,35 @@ describe("Notifications Socket", () => {
       });
 
       Gift.create(
-          {
-            image: "example.jpg",
-            name: "Example Gift",
-            value: 10,
-          },
-          (error, createdGift) => {
-            if (error) {
-              done(error);
-            } else {
-              const giftId = createdGift.id;
+        {
+          image: "example.jpg",
+          name: "Example Gift",
+          value: 10,
+        },
+        (error, createdGift) => {
+          if (error) {
+            done(error);
+          } else {
+            const giftId = createdGift.id;
 
-              const sendGiftData = {
-                receiverId: user.id,
-                giftId: giftId,
-                quantity: 1,
-              };
+            const sendGiftData = {
+              receiverId: user.id,
+              giftId: giftId,
+              quantity: 1,
+            };
 
-              chai
-                  .request(app)
-                  .post("/gifts/send")
-                  .set("Authorization", `Bearer ${otherToken}`)
-                  .send(sendGiftData)
-                  .end((giftErr) => {
-                    if (giftErr) {
-                      done(giftErr);
-                    }
-                  });
-            }
+            chai
+              .request(app)
+              .post("/gifts/send")
+              .set("Authorization", `Bearer ${otherToken}`)
+              .send(sendGiftData)
+              .end((giftErr) => {
+                if (giftErr) {
+                  done(giftErr);
+                }
+              });
           }
+        }
       );
     });
   });
