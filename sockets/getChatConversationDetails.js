@@ -21,6 +21,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       return;
     }
 
+    const currentUser = await User.findById(userId);
+
     // 查找对方用户信息
     const opponentUserId =
       conversation.userId1.toString() === userId
@@ -34,7 +36,6 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     // 计算对方用户距离当前用户的距离
     let opponentDistance;
     if (opponentUser.location && opponentUser.location.coordinates) {
-      const currentUser = await User.findById(userId);
       if (currentUser.location && currentUser.location.coordinates) {
         opponentDistance = calculateDistance(
           currentUser.location.coordinates,
@@ -68,6 +69,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       lastMessageContent: conversation.lastMessageContent,
       lastMessageType: conversation.lastMessageType,
       unreadCount,
+      isFollowed: currentUser.following.includes(opponentUser.id) ? 1 : 0,
+      isBlocked: currentUser.blockedUsers.includes(opponentUser.id) ? 1 : 0,
     };
 
     // 向用户推送聊天会话详情数据

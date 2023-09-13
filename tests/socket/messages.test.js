@@ -170,6 +170,8 @@ describe("Messages Socket", () => {
           chai.expect(conversation).to.have.property("opponentUsername");
           chai.expect(conversation).to.have.property("opponentOnlineStatus");
           chai.expect(conversation).to.have.property("opponentDistance");
+          chai.expect(conversation).to.have.property("isFollowed");
+          chai.expect(conversation).to.have.property("isBlocked");
 
           // 验证会话对象的属性值
           chai.expect(conversation.clientConversationId).to.be.a("string");
@@ -179,6 +181,8 @@ describe("Messages Socket", () => {
           chai.expect(conversation.opponentUsername).to.be.a("string");
           chai.expect(conversation.opponentOnlineStatus).to.be.a("number");
           chai.expect(conversation.opponentDistance).to.be.a("number");
+          chai.expect(conversation.isFollowed).to.be.within(0, 1);
+          chai.expect(conversation.isBlocked).to.be.within(0, 1);
 
           // 验证会话对象的属性值与预期值是否匹配
           chai.expect(conversation.clientConversationId).to.equal("1");
@@ -189,6 +193,8 @@ describe("Messages Socket", () => {
           chai
             .expect(conversation.opponentDistance)
             .to.be.equal(opponentDistance);
+          chai.expect(conversation.isFollowed).to.equal(0);
+          chai.expect(conversation.isBlocked).to.equal(0);
 
           // 设置断言标志为true
           otherSocketAssertion = true;
@@ -291,6 +297,8 @@ describe("Messages Socket", () => {
               chai.expect(conversation).to.have.property("lastMessageTime");
               chai.expect(conversation).to.have.property("lastMessageContent");
               chai.expect(conversation).to.have.property("unreadCount");
+              chai.expect(conversation).to.have.property("isFollowed");
+              chai.expect(conversation).to.have.property("isBlocked");
 
               // 验证会话对象的属性值
               chai.expect(conversation.conversationId).to.be.a("string");
@@ -302,6 +310,8 @@ describe("Messages Socket", () => {
               chai.expect(conversation.lastMessageTime).to.be.a("number");
               chai.expect(conversation.lastMessageContent).to.be.a("string");
               chai.expect(conversation.unreadCount).to.be.a("number");
+              chai.expect(conversation.isFollowed).to.be.within(0, 1);
+              chai.expect(conversation.isBlocked).to.be.within(0, 1);
 
               // 验证会话对象的属性值与预期值是否匹配
               chai.expect(conversation.opponentUserId).to.equal(otherUser.id);
@@ -316,6 +326,8 @@ describe("Messages Socket", () => {
                 .expect(conversation.opponentDistance)
                 .to.be.equal(opponentDistance);
               chai.expect(conversation.unreadCount).to.be.equal(0);
+              chai.expect(conversation.isFollowed).to.be.equal(0);
+              chai.expect(conversation.isBlocked).to.be.equal(0);
 
               done();
             }
@@ -433,6 +445,8 @@ describe("Messages Socket", () => {
             chai.expect(conversation).to.have.property("lastMessageTime");
             chai.expect(conversation).to.have.property("lastMessageContent");
             chai.expect(conversation).to.have.property("unreadCount");
+            chai.expect(conversation).to.have.property("isFollowed");
+            chai.expect(conversation).to.have.property("isBlocked");
 
             // 验证会话对象的属性值
             chai.expect(conversation.conversationId).to.be.a("string");
@@ -444,6 +458,8 @@ describe("Messages Socket", () => {
             chai.expect(conversation.lastMessageTime).to.be.a("number");
             chai.expect(conversation.lastMessageContent).to.be.a("string");
             chai.expect(conversation.unreadCount).to.be.a("number");
+            chai.expect(conversation.isFollowed).to.be.within(0, 1);
+            chai.expect(conversation.isBlocked).to.be.within(0, 1);
 
             // 验证会话对象的属性值与预期值是否匹配
             chai.expect(conversation.conversationId).to.equal(conversationId);
@@ -461,6 +477,8 @@ describe("Messages Socket", () => {
               .expect(conversation.lastMessageContent)
               .to.be.equal(lastMessageContent);
             chai.expect(conversation.unreadCount).to.be.equal(1);
+            chai.expect(conversation.isFollowed).to.be.equal(0);
+            chai.expect(conversation.isBlocked).to.be.equal(0);
 
             done();
           }

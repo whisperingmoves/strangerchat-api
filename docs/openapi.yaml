@@ -480,6 +480,14 @@ paths:
                             type: string
                             description: 用户名
                             example: "JaneDoe"
+                    isBlocked:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已拉黑作者（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -599,6 +607,14 @@ paths:
                         - 0
                         - 1
                       description: 是否已关注作者（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+                    isBlocked:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已拉黑作者（非必填字段，默认为0，0表示否，1表示是）
                       example: 1
                       default: 0
                     conversationId:
@@ -747,6 +763,14 @@ paths:
                         - 0
                         - 1
                       description: 是否已关注作者（非必填字段，默认为0，0表示否，1表示是）
+                      example: 1
+                      default: 0
+                    isBlocked:
+                      type: integer
+                      enum:
+                        - 0
+                        - 1
+                      description: 是否已拉黑作者（非必填字段，默认为0，0表示否，1表示是）
                       example: 1
                       default: 0
                     conversationId:
@@ -1324,6 +1348,14 @@ paths:
                     type: integer
                     default: 0
                     description: 当前登录用户是否已关注作者:0=否,1=是
+                  isBlocked:
+                    type: integer
+                    enum:
+                      - 0
+                      - 1
+                    description: 是否已拉黑作者（非必填字段，默认为0，0表示否，1表示是）
+                    example: 1
+                    default: 0
                   images:
                     type: array
                     maxItems: 9
@@ -9429,6 +9461,22 @@ components:
           type: number
           description: 对方用户距离当前用户的距离（以公里为单位）
           example: 2.5
+        isFollowed:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 是否已关注对方用户（非必填字段，默认为0，0表示否，1表示是）
+          example: 1
+          default: 0
+        isBlocked:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 是否已拉黑对方用户（非必填字段，默认为0，0表示否，1表示是）
+          example: 1
+          default: 0
     recentConversations:
       type: array
       items:
@@ -9489,6 +9537,22 @@ components:
             description: 未读消息的数量
             example: 3
             default: 0
+          isFollowed:
+            type: integer
+            enum:
+              - 0
+              - 1
+            description: 是否已关注对方用户（非必填字段，默认为0，0表示否，1表示是）
+            example: 1
+            default: 0
+          isBlocked:
+            type: integer
+            enum:
+              - 0
+              - 1
+            description: 是否已拉黑对方用户（非必填字段，默认为0，0表示否，1表示是）
+            example: 1
+            default: 0
     conversationDetails:
       type: object
       required:
@@ -9546,6 +9610,22 @@ components:
           type: integer
           description: 未读消息的数量
           example: 3
+          default: 0
+        isFollowed:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 是否已关注对方用户（非必填字段，默认为0，0表示否，1表示是）
+          example: 1
+          default: 0
+        isBlocked:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 是否已拉黑对方用户（非必填字段，默认为0，0表示否，1表示是）
+          example: 1
           default: 0
     recentMessages:
       type: array

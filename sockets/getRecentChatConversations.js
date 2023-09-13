@@ -29,6 +29,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
     // let conversationCount = 0;
     let batch = [];
 
+    const currentUser = await User.findById(userId);
+
     // 遍历游标获取会话
     for await (const conversation of cursor) {
       const opponentUserId =
@@ -40,7 +42,6 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
 
       let opponentDistance;
       if (opponentUser.location && opponentUser.location.coordinates) {
-        const currentUser = await User.findById(userId);
         if (currentUser.location && currentUser.location.coordinates) {
           opponentDistance = calculateDistance(
             currentUser.location.coordinates,
@@ -68,6 +69,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         lastMessageContent: conversation.lastMessageContent,
         lastMessageType: conversation.lastMessageType,
         unreadCount,
+        isFollowed: currentUser.following.includes(opponentUser.id) ? 1 : 0,
+        isBlocked: currentUser.blockedUsers.includes(opponentUser.id) ? 1 : 0,
       };
 
       batch.push(conversationData);

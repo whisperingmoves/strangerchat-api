@@ -31,6 +31,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       opponentUsername: opponentUser.username,
       opponentOnlineStatus: opponentUser.online,
       opponentDistance: undefined, // 距离为undefined，因为没有位置信息
+      isFollowed: currentUser.following.includes(opponentUser.id) ? 1 : 0,
+      isBlocked: currentUser.blockedUsers.includes(opponentUser.id) ? 1 : 0,
     };
 
     // 组装推送给对方用户的数据
@@ -41,6 +43,8 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       opponentUsername: currentUser.username,
       opponentOnlineStatus: currentUser.online,
       opponentDistance: undefined, // 距离为undefined，因为没有位置信息
+      isFollowed: opponentUser.following.includes(currentUser.id) ? 1 : 0,
+      isBlocked: opponentUser.blockedUsers.includes(currentUser.id) ? 1 : 0,
     };
 
     // 如果参与会话的双方的用户模型的location字段不为空并且location.coordinates不为空，则计算距离

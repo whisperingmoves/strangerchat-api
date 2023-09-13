@@ -371,6 +371,13 @@ const getPostDetails = async (req, res, next) => {
       .countDocuments()
       .exec();
 
+    const isBlocked = await User.findOne({
+      _id: req.user.userId,
+      blockedUsers: post.author._id,
+    })
+      .countDocuments()
+      .exec();
+
     const commentCount = await Comment.countDocuments({ post: postId });
 
     // 将帖子的浏览次数加1
@@ -393,6 +400,7 @@ const getPostDetails = async (req, res, next) => {
       authorName: post.author.username,
       createTime: Math.floor(post.createdAt.getTime() / 1000),
       isFollowed: isFollowed ? 1 : 0,
+      isBlocked: isBlocked ? 1 : 0,
       images: post.images,
       content: post.content,
       city: post.city,
@@ -532,6 +540,12 @@ const getLatestPosts = async (req, res, next) => {
         })
           .countDocuments()
           .exec();
+        const isBlocked = await User.findOne({
+          _id: req.user.userId,
+          blockedUsers: post.author._id,
+        })
+          .countDocuments()
+          .exec();
 
         const conversation = await ChatConversation.findOne({
           $or: [
@@ -555,6 +569,7 @@ const getLatestPosts = async (req, res, next) => {
           postId: post._id,
           isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
           isFollowed: isFollowed ? 1 : 0,
+          isBlocked: isBlocked ? 1 : 0,
           conversationId,
           atUsers:
             post.atUsers && post.atUsers.length > 0
@@ -676,6 +691,11 @@ const getRecommendedPosts = async (req, res, next) => {
       item.toHexString()
     );
 
+    const blockedAuthors = await User.findById(userId, "blockedUsers").lean();
+    const blockedAuthorIds = blockedAuthors.blockedUsers.map((item) =>
+      item.toHexString()
+    );
+
     const recommendedPosts = await Promise.all(
       posts.map(async (post) => {
         const conversation = await ChatConversation.findOne({
@@ -699,6 +719,9 @@ const getRecommendedPosts = async (req, res, next) => {
           postId: post._id,
           isLiked: post.likes.includes(userId) ? 1 : 0,
           isFollowed: followedAuthorIds.includes(post.author._id.toHexString())
+            ? 1
+            : 0,
+          isBlocked: blockedAuthorIds.includes(post.author._id.toHexString())
             ? 1
             : 0,
           conversationId,
@@ -751,6 +774,14 @@ const getFollowedUsersPosts = async (req, res, next) => {
       commentCountsMap.set(count._id.toString(), count.count);
     });
 
+    const blockedAuthors = await User.findById(
+      req.user.userId,
+      "blockedUsers"
+    ).lean();
+    const blockedAuthorIds = blockedAuthors.blockedUsers.map((item) =>
+      item.toHexString()
+    );
+
     const formattedPosts = await Promise.all(
       posts.map(async (post) => {
         const postId = post._id.toString();
@@ -787,6 +818,9 @@ const getFollowedUsersPosts = async (req, res, next) => {
                   username: user.username,
                 }))
               : undefined,
+          isBlocked: blockedAuthorIds.includes(post.author._id.toHexString())
+            ? 1
+            : 0,
         };
       })
     );
