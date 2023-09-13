@@ -19,6 +19,19 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       giftId,
     } = data;
 
+    const isBlocked = await User.findOne({
+      _id: opponentUserId,
+      blockedUsers: userId,
+    })
+      .countDocuments()
+      .exec();
+
+    if (isBlocked) {
+      console.error("用户被拉黑");
+
+      return;
+    }
+
     if (type === 5 && giftId) {
       // 接收礼物的用户
       const receiver = await User.findById(opponentUserId);
