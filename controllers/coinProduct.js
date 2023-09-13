@@ -5,6 +5,7 @@ const PaymentService = require("../services/PaymentService");
 const SystemNotification = require("../models/SystemNotification");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const mongoose = require("mongoose");
+const pushCoinBalance = require("../sockets/pushCoinBalance");
 
 const getCoinProductList = async (req, res, next) => {
   try {
@@ -90,6 +91,14 @@ const buyCoinProduct = async (req, res, next) => {
       req.app.get("userIdSocketMap"),
       userId
     );
+
+    // 推送用户金币余额
+    pushCoinBalance(
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      userId,
+      user.coinBalance
+    ).then();
 
     res.status(200).json({ message: "购买成功" });
   } catch (error) {

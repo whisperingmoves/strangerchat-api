@@ -1226,6 +1226,60 @@ describe("Notifications Socket", () => {
     });
   });
 
+  it("should receive coin balance via WebSocket after buy coin product", (done) => {
+    // 创建一个金币商品
+    CoinProduct.create(
+      {
+        coins: 100,
+        originalPrice: 1000,
+        price: 900,
+        currency: "CNY",
+      },
+      (error, result) => {
+        if (error) {
+          done(error);
+        }
+
+        const productId = result.id;
+
+        // 生成一个随机字符串作为凭据
+        const receipt = Math.random().toString(36).substr(2, 10);
+
+        socket = ioClient(`http://localhost:${config.port}`, {
+          auth: {
+            token: token,
+          },
+        });
+
+        socket.on("connect", () => {
+          socket.on("notifications", (message) => {
+            if (message.type !== 13 || message.data.coinBalance === 0) {
+              return;
+            }
+
+            if (message.data.coinBalance === 100) {
+              done();
+            } else {
+              done(new Error("Unexpected coin balance"));
+            }
+          });
+
+          // 购买金币商品
+          chai
+            .request(app)
+            .post(`/products/coins/${productId}/buy`)
+            .set("Authorization", `Bearer ${token}`)
+            .send({ receipt })
+            .end((coinProductErr) => {
+              if (coinProductErr) {
+                done(coinProductErr);
+              }
+            });
+        });
+      }
+    );
+  });
+
   afterEach(async () => {
     // 关闭 WebSocket 连接
     if (socket.connected) {
