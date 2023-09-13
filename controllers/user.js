@@ -113,7 +113,7 @@ const followUser = async (req, res, next) => {
         return res.status(400).json({ message: "用户已被关注" });
       }
 
-      await follower.followUser(followedUser);
+      await follower.followUser(userId);
       followedUser.followersCount++;
 
       // 创建状态类通知
@@ -138,7 +138,7 @@ const followUser = async (req, res, next) => {
         return res.status(400).json({ message: "用户未被关注，无法取消关注" });
       }
 
-      await follower.unfollowUser(followedUser);
+      await follower.unfollowUser(userId);
       followedUser.followersCount--;
 
       // 删除状态类通知
@@ -179,25 +179,27 @@ const blockUser = async (req, res, next) => {
     // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
     const currentUserId = req.user.userId;
 
+    const currentUser = await User.findById(currentUserId);
+
     if (action === "1") {
       // 检查被拉黑用户是否已被拉黑
-      if (blockedUser.blockedUsers.includes(currentUserId)) {
+      if (currentUser.blockedUsers.includes(userId)) {
         return res.status(400).json({ message: "用户已被拉黑" });
       }
 
-      await blockedUser.blockUser(currentUserId);
+      await currentUser.blockUser(userId);
     } else if (action === "0") {
       // 检查被拉黑用户是否未被拉黑
-      if (!blockedUser.blockedUsers.includes(currentUserId)) {
+      if (!currentUser.blockedUsers.includes(userId)) {
         return res.status(400).json({ message: "用户未被拉黑，无法取消拉黑" });
       }
 
-      await blockedUser.unblockUser(currentUserId);
+      await currentUser.unblockUser(userId);
     } else {
       return res.status(400).json({ message: "无效的拉黑操作" });
     }
 
-    await blockedUser.save();
+    await currentUser.save();
 
     res.json({});
   } catch (err) {
