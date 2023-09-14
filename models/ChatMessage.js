@@ -24,6 +24,10 @@ const chatMessageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  contentLength: {
+    type: Number,
+    required: false,
+  },
   type: {
     type: Number,
     enum: [0, 1, 2, 3, 4, 5], // 消息类型 (0表示文本, 1表示语音，2表示图片，3表示视频，4表示音频，5表示礼物)

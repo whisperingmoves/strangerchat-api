@@ -15,6 +15,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       clientMessageId,
       opponentUserId,
       content,
+      contentLength,
       type,
       giftId,
     } = data;
@@ -85,6 +86,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
       recipientId: opponentUserId,
       content: content,
       type,
+      contentLength,
     });
 
     await message.save();
@@ -105,6 +107,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         senderId: userId,
         recipientId: opponentUserId,
         content: content,
+        contentLength,
         sentTime: Math.floor(message.sentTime.getTime() / 1000),
         type,
         readStatus: message.readStatus,
@@ -126,6 +129,7 @@ module.exports = async (io, userIdSocketMap, userId, data) => {
         senderId: userId,
         recipientId: opponentUserId,
         content: content,
+        contentLength,
         sentTime: Math.floor(message.sentTime.getTime() / 1000),
         type,
         readStatus: message.readStatus,

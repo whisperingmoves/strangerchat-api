@@ -9370,6 +9370,10 @@ components:
           type: string
           description: 消息的内容
           example: "Hello, how are you?"
+        contentLength:
+          type: number
+          description: 消息的内容长度（仅针对语音消息，单位是秒）
+          example: 30
         type:
           type: integer
           format: int32
@@ -9663,6 +9667,10 @@ components:
             type: string
             description: 消息的内容
             example: "你好，Alice！"
+          contentLength:
+            type: number
+            description: 消息的内容长度（仅针对语音消息，单位是秒）
+            example: 30
           type:
             type: integer
             format: int32
@@ -9718,6 +9726,10 @@ components:
           type: string
           description: 消息的内容
           example: "Hello, how are you?"
+        contentLength:
+          type: number
+          description: 消息的内容长度（仅针对语音消息，单位是秒）
+          example: 30
         sentTime:
           type: integer
           description: 消息发送的时间，精确到秒的UNIX时间戳
