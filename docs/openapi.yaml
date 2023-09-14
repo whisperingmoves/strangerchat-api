@@ -3187,7 +3187,7 @@ paths:
 
   /uploadMessage:
     post:
-      summary: 上传消息图片
+      summary: 上传消息媒体资源
       tags:
         - 资源
       security:
@@ -3203,10 +3203,10 @@ paths:
                 avatar:
                   type: string
                   format: binary
-                  description: 消息图片
+                  description: 消息媒体资源 URI
             encoding:
               avatar:
-                contentType: image/*
+                contentType: media/*
       responses:
         200:
           description: 上传成功
@@ -3218,7 +3218,7 @@ paths:
                 properties:
                   url:
                     type: string
-                    description: 图片URL
+                    description: 消息媒体资源 URL
         400:
           $ref: '#/components/responses/BadRequest'
         403:
