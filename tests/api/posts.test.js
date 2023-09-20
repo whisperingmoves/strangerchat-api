@@ -359,6 +359,7 @@ describe("Posts API", () => {
           res.should.have.status(200);
           res.body.should.have.property("authorId");
           res.body.should.have.property("authorAvatar");
+          res.body.should.have.property("authorGender");
           res.body.should.have.property("createTime");
           res.body.should.have.property("content");
           res.body.should.have.property("postId");

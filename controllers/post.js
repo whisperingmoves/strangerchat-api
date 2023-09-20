@@ -348,7 +348,7 @@ const getPostDetails = async (req, res, next) => {
     }
 
     const post = await Post.findById(postId)
-      .populate("author", "id avatar username")
+      .populate("author", "id avatar gender username")
       .populate("likes", "id")
       .populate("collects", "id")
       .populate("atUsers", "id username")
@@ -397,6 +397,7 @@ const getPostDetails = async (req, res, next) => {
     const postDetails = {
       authorId: post.author._id,
       authorAvatar: post.author.avatar,
+      authorGender: post.author.gender,
       authorName: post.author.username,
       createTime: Math.floor(post.createdAt.getTime() / 1000),
       isFollowed: isFollowed ? 1 : 0,
