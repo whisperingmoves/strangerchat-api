@@ -9221,6 +9221,14 @@ components:
           type: string
           description: 评论ID
           example: 6133a6e2f7dcb80021a7e28a
+        isLiked:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 是否已点赞（非必填字段，默认为0，0表示否，1表示是）
+          example: 1
+          default: 0
     FollowUser:
       type: array
       description: 用户列表

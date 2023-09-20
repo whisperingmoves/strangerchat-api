@@ -245,6 +245,7 @@ const getCommentReplies = async (req, res, next) => {
       createTime: Math.floor(reply.createdAt.getTime() / 1000),
       content: reply.content,
       commentId: reply.id,
+      isLiked: reply.likes.includes(req.user.userId) ? 1 : 0,
     }));
 
     res.status(200).json(formattedReplies);
@@ -284,6 +285,7 @@ const getPostComments = async (req, res, next) => {
       createTime: Math.floor(comment.createdAt.getTime() / 1000),
       content: comment.content,
       commentId: comment.id,
+      isLiked: comment.likes.includes(req.user.userId) ? 1 : 0,
     }));
 
     res.status(200).json(formattedComments);
