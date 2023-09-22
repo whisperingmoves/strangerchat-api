@@ -359,10 +359,10 @@ const getPostDetails = async (req, res, next) => {
     }
 
     const isLiked = post.likes.some(
-      (like) => like.userId.toString() === req.user.userId
+      (like) => like.id.toString() === req.user.userId
     );
     const isCollected = post.collects.some(
-      (collect) => collect.userId.toString() === req.user.userId
+      (collect) => collect.id.toString() === req.user.userId
     );
     const isFollowed = await User.findOne({
       _id: req.user.userId,
