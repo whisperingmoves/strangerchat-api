@@ -568,7 +568,7 @@ const getLatestPosts = async (req, res, next) => {
           likeCount: post.likes.length,
           commentCount: commentCount,
           postId: post._id,
-          isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
+          isLiked: post.likes.map(item => item._id.toHexString()).includes(req.user.userId) ? 1 : 0,
           isFollowed: isFollowed ? 1 : 0,
           isBlocked: isBlocked ? 1 : 0,
           conversationId,
@@ -718,7 +718,7 @@ const getRecommendedPosts = async (req, res, next) => {
           likeCount: post.likes.length,
           commentCount: commentCounts[post._id.toString()] || 0,
           postId: post._id,
-          isLiked: post.likes.includes(userId) ? 1 : 0,
+          isLiked: post.likes.map(item => item._id.toHexString()).includes(userId) ? 1 : 0,
           isFollowed: followedAuthorIds.includes(post.author._id.toHexString())
             ? 1
             : 0,
@@ -810,7 +810,7 @@ const getFollowedUsersPosts = async (req, res, next) => {
           likeCount: post.likes.length,
           commentCount: commentCount,
           postId: postId,
-          isLiked: post.likes.includes(req.user.userId) ? 1 : 0,
+          isLiked: post.likes.map(item => item._id.toHexString()).includes(req.user.userId) ? 1 : 0,
           conversationId,
           atUsers:
             post.atUsers && post.atUsers.length > 0
