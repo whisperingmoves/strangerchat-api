@@ -528,6 +528,7 @@ describe("Posts API", () => {
             post.content.should.be.a("string");
             post.likeCount.should.be.a("number");
             post.commentCount.should.be.a("number");
+            post.shareCount.should.be.a("number");
             post.isLiked.should.be.within(0, 1);
             post.isFollowed.should.be.within(0, 1);
             post.isBlocked.should.be.within(0, 1);
@@ -656,6 +657,7 @@ describe("Posts API", () => {
             post.should.have.property("postId");
             post.should.have.property("likeCount");
             post.should.have.property("commentCount");
+            post.should.have.property("shareCount");
             post.should.have.property("isLiked");
             post.should.have.property("isFollowed");
             post.should.have.property("isBlocked");
@@ -666,6 +668,7 @@ describe("Posts API", () => {
             post.postId.should.be.a("string");
             post.likeCount.should.be.a("number");
             post.commentCount.should.be.a("number");
+            post.shareCount.should.be.a("number");
             post.isLiked.should.be.within(0, 1);
             post.isFollowed.should.be.within(0, 1);
             post.isBlocked.should.be.within(0, 1);
@@ -773,6 +776,7 @@ describe("Posts API", () => {
             post.should.have.property("postId");
             post.should.have.property("likeCount");
             post.should.have.property("commentCount");
+            post.should.have.property("shareCount");
             post.should.have.property("isLiked");
             post.should.have.property("isBlocked");
 
@@ -783,6 +787,7 @@ describe("Posts API", () => {
             post.postId.should.be.a("string");
             post.likeCount.should.be.a("number");
             post.commentCount.should.be.a("number");
+            post.shareCount.should.be.a("number");
             post.isLiked.should.be.within(0, 1);
             post.isBlocked.should.be.within(0, 1);
 

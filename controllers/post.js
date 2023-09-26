@@ -567,6 +567,7 @@ const getLatestPosts = async (req, res, next) => {
           city: post.city,
           likeCount: post.likes.length,
           commentCount: commentCount,
+          shareCount: post.shares.length,
           postId: post._id,
           isLiked: post.likes.map(item => item._id.toHexString()).includes(req.user.userId) ? 1 : 0,
           isFollowed: isFollowed ? 1 : 0,
@@ -717,6 +718,7 @@ const getRecommendedPosts = async (req, res, next) => {
           city: post.city,
           likeCount: post.likes.length,
           commentCount: commentCounts[post._id.toString()] || 0,
+          shareCount: post.shares.length,
           postId: post._id,
           isLiked: post.likes.map(item => item._id.toHexString()).includes(userId) ? 1 : 0,
           isFollowed: followedAuthorIds.includes(post.author._id.toHexString())
@@ -809,6 +811,7 @@ const getFollowedUsersPosts = async (req, res, next) => {
           city: post.city,
           likeCount: post.likes.length,
           commentCount: commentCount,
+          shareCount: post.shares.length,
           postId: postId,
           isLiked: post.likes.map(item => item._id.toHexString()).includes(req.user.userId) ? 1 : 0,
           conversationId,

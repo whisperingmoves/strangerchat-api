@@ -448,6 +448,11 @@ paths:
                       type: integer
                       default: 0
                       description: 评论数
+                    shareCount:
+                      type: integer
+                      default: 0
+                      description: 分享数
+                      example: 5
                     postId:
                       type: string
                       description: 帖子ID
@@ -588,6 +593,11 @@ paths:
                       type: integer
                       default: 0
                       description: 评论数
+                      example: 5
+                    shareCount:
+                      type: integer
+                      default: 0
+                      description: 分享数
                       example: 5
                     postId:
                       type: string
@@ -744,6 +754,11 @@ paths:
                       type: integer
                       default: 0
                       description: 评论数（非必填字段，默认为0）
+                      example: 5
+                    shareCount:
+                      type: integer
+                      default: 0
+                      description: 分享数
                       example: 5
                     postId:
                       type: string
