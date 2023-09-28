@@ -251,11 +251,9 @@ describe("Post Admin API", () => {
         collects: [collectUser1.id, collectUser2.id],
         shares: [
           {
-            sharePlatform: 1,
             sharedAt: "2023-08-16T10:30:00Z",
           },
           {
-            sharePlatform: 2,
             sharedAt: "2023-08-16T11:00:00Z",
           },
         ],
@@ -328,8 +326,8 @@ describe("Post Admin API", () => {
         heatCount: 100,
         viewsCount: 50,
         shares: [
-          { sharePlatform: 1, sharedAt: new Date("2023-08-16T10:30:00Z") },
-          { sharePlatform: 2, sharedAt: new Date("2023-08-16T11:00:00Z") },
+          { sharedAt: new Date("2023-08-16T10:30:00Z") },
+          { sharedAt: new Date("2023-08-16T11:00:00Z") },
         ],
       });
       await post1.save();
@@ -341,8 +339,8 @@ describe("Post Admin API", () => {
         heatCount: 200,
         viewsCount: 100,
         shares: [
-          { sharePlatform: 1, sharedAt: new Date("2023-08-16T09:30:00Z") },
-          { sharePlatform: 3, sharedAt: new Date("2023-08-16T11:30:00Z") },
+          { sharedAt: new Date("2023-08-16T09:30:00Z") },
+          { sharedAt: new Date("2023-08-16T11:30:00Z") },
         ],
       });
       await post2.save();
@@ -457,11 +455,9 @@ describe("Post Admin API", () => {
         collects: [collectUser1.id, collectUser2.id],
         shares: [
           {
-            sharePlatform: 1,
             sharedAt: new Date("2023-08-16T10:30:00Z"),
           },
           {
-            sharePlatform: 2,
             sharedAt: new Date("2023-08-16T11:00:00Z"),
           },
         ],

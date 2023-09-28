@@ -484,9 +484,7 @@ describe("Notifications Socket", () => {
         .request(app)
         .post(`/posts/${postId}/share`)
         .set("Authorization", `Bearer ${otherToken}`)
-        .send({
-          sharePlatform: 1,
-        })
+        .send({})
         .end((shareErr) => {
           if (shareErr) {
             done(shareErr);

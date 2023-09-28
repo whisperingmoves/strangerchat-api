@@ -1243,19 +1243,6 @@ paths:
           schema:
             type: string
             example: 6133a6e2f7dcb80021a7e28a
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - sharePlatform
-              properties:
-                sharePlatform:
-                  type: integer
-                  enum: [ 1, 2, 3 ]
-                  description: 分享平台，1-微信，2-QQ，3-微博
-                  example: 1
       responses:
         200:
           description: 成功
@@ -8395,14 +8382,7 @@ paths:
                   type: array
                   items:
                     type: object
-                    required:
-                      - sharePlatform
                     properties:
-                      sharePlatform:
-                        type: integer
-                        enum: [ 1, 2, 3 ]
-                        description: 分享平台，1-微信，2-QQ，3-微博
-                        example: 1
                       sharedAt:
                         type: string
                         format: date-time
@@ -8410,10 +8390,8 @@ paths:
                         example: "2023-08-16T10:30:00Z"
                   description: 帖子的分享记录列表
                   example:
-                    - sharePlatform: 1
-                      sharedAt: "2023-08-16T10:30:00Z"
-                    - sharePlatform: 2
-                      sharedAt: "2023-08-16T11:00:00Z"
+                    - sharedAt: "2023-08-16T10:30:00Z"
+                    - sharedAt: "2023-08-16T11:00:00Z"
       responses:
         201:
           description: 帖子创建成功
@@ -8653,14 +8631,7 @@ paths:
                           type: array
                           items:
                             type: object
-                            required:
-                              - sharePlatform
                             properties:
-                              sharePlatform:
-                                type: integer
-                                enum: [ 1, 2, 3 ]
-                                description: 分享平台，1-微信，2-QQ，3-微博
-                                example: 1
                               sharedAt:
                                 type: string
                                 format: date-time
@@ -8668,10 +8639,8 @@ paths:
                                 example: "2023-08-16T10:30:00Z"
                           description: 帖子的分享记录列表
                           example:
-                            - sharePlatform: 1
-                              sharedAt: "2023-08-16T10:30:00Z"
-                            - sharePlatform: 2
-                              sharedAt: "2023-08-16T11:00:00Z"
+                            - sharedAt: "2023-08-16T10:30:00Z"
+                            - sharedAt: "2023-08-16T11:00:00Z"
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -8773,14 +8742,7 @@ paths:
                   type: array
                   items:
                     type: object
-                    required:
-                      - sharePlatform
                     properties:
-                      sharePlatform:
-                        type: integer
-                        enum: [ 1, 2, 3 ]
-                        description: 分享平台，1-微信，2-QQ，3-微博
-                        example: 1
                       sharedAt:
                         type: string
                         format: date-time
@@ -8788,10 +8750,8 @@ paths:
                         example: "2023-08-16T10:30:00Z"
                   description: 帖子的分享记录列表
                   example:
-                    - sharePlatform: 1
-                      sharedAt: "2023-08-16T10:30:00Z"
-                    - sharePlatform: 2
-                      sharedAt: "2023-08-16T11:00:00Z"
+                    - sharedAt: "2023-08-16T10:30:00Z"
+                    - sharedAt: "2023-08-16T11:00:00Z"
       responses:
         200:
           description: 帖子修改成功

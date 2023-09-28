@@ -61,11 +61,6 @@ const postSchema = new mongoose.Schema({
   ],
   shares: [
     {
-      sharePlatform: {
-        type: Number,
-        enum: [1, 2, 3],
-        required: true,
-      },
       sharedAt: {
         type: Date,
         default: Date.now,

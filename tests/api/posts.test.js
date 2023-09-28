@@ -287,22 +287,9 @@ describe("Posts API", () => {
         .request(app)
         .post(`/posts/${postId}/share`)
         .set("Authorization", `Bearer ${token}`)
-        .send({ sharePlatform: 1 })
+        .send({})
         .end((err, res) => {
           res.should.have.status(200);
-          done();
-        });
-    });
-
-    it("should return an error when sharing a post to an invalid platform", (done) => {
-      chai
-        .request(app)
-        .post(`/posts/${postId}/share`)
-        .set("Authorization", `Bearer ${token}`)
-        .send({ sharePlatform: 4 })
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.have.property("message").equal("无效的分享平台");
           done();
         });
     });
