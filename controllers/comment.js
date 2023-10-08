@@ -273,6 +273,7 @@ const getPostComments = async (req, res, next) => {
     }
 
     const comments = await Comment.find({ post: postId })
+      .sort({ updatedAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate("author", "id avatar username")
