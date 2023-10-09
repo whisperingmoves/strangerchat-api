@@ -1105,6 +1105,35 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
+  /users/{userId}/report:
+    post:
+      summary: 举报用户
+      tags:
+        - 用户
+      parameters:
+        - name: userId
+          in: path
+          description: 被举报用户的ID
+          required: true
+          schema:
+            type: string
+            example: 6133a6e2f7dcb80021a7e28a
+      responses:
+        200:
+          description: 成功
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        429:
+          $ref: '#/components/responses/TooManyRequests'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
   /posts/{postId}/comment:
     post:
       summary: 评论帖子/回复评论

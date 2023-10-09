@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 const StatusNotification = require("../models/StatusNotification");
 const ChatConversation = require("../models/ChatConversation");
+const UserReport = require("../models/UserReport");
 const { sign } = require("jsonwebtoken");
 const config = require("../config");
 const {
@@ -200,6 +201,32 @@ const blockUser = async (req, res, next) => {
     }
 
     await currentUser.save();
+
+    res.json({});
+  } catch (err) {
+    next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
+  }
+};
+
+const reportUser = async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    // 检查被举报用户是否存在
+    const reportedUser = await User.findById(userId);
+    if (!reportedUser) {
+      return res.status(404).json({ message: "被举报用户不存在" });
+    }
+
+    // 获取当前用户的ID，假设用户认证信息保存在请求的user对象中
+    const reporterId = req.user.userId;
+
+    // 创建举报记录
+    const userReport = new UserReport({
+      user: reporterId,
+      reportedUser: userId,
+    });
+    await userReport.save();
 
     res.json({});
   } catch (err) {
@@ -615,4 +642,5 @@ module.exports = {
   performCheckin,
   updateUserProfile,
   getUserDetails,
+  reportUser,
 };

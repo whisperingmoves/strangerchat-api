@@ -40,6 +40,7 @@ router.get("/users/:userId/posts", auth, postController.getUserPosts);
 router.get("/users/me/posts/:postId", auth, postController.getMyPostDetails);
 router.post("/users/:userId/follow", auth, userController.followUser);
 router.post("/users/:userId/block", auth, userController.blockUser);
+router.post("/users/:userId/report", auth, userController.reportUser);
 router.get("/users/following", auth, userController.getFollowingUsers);
 router.get("/users/followers", auth, userController.getFollowers);
 router.get("/users/friends", auth, userController.getFriends);
