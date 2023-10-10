@@ -1521,58 +1521,6 @@ paths:
         500:
           $ref: '#/components/responses/InternalServerError'
 
-  /comments/{commentId}/replies:
-    get:
-      summary: 获取评论回复列表
-      tags:
-        - 评论
-      parameters:
-        - name: commentId
-          in: path
-          required: true
-          description: 评论ID
-          schema:
-            type: string
-            example: 6133a6e2f7dcb80021a7e28a
-        - name: page
-          in: query
-          description: 页码
-          schema:
-            type: integer
-            default: 1
-            minimum: 1
-            example: 1
-        - name: pageSize
-          in: query
-          description: 每页数据量
-          schema:
-            type: integer
-            default: 10
-            minimum: 1
-            maximum: 100
-            example: 10
-      responses:
-        200:
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Comment'
-        400:
-          $ref: '#/components/responses/BadRequest'
-        401:
-          $ref: '#/components/responses/Unauthorized'
-        403:
-          $ref: '#/components/responses/Forbidden'
-        404:
-          $ref: '#/components/responses/NotFound'
-        429:
-          $ref: '#/components/responses/TooManyRequests'
-        500:
-          $ref: '#/components/responses/InternalServerError'
-
   /users/me/posts:
     get:
       summary: 获取我的帖子列表
@@ -9238,6 +9186,14 @@ components:
           description: 是否已点赞（非必填字段，默认为0，0表示否，1表示是）
           example: 1
           default: 0
+        replyUserId:
+          type: string
+          description: 回复用户ID
+          example: 6133a6e2f7dcb80021a7e28a
+        replyUsername:
+          type: string
+          description: 回复用户名
+          example: 小明
     FollowUser:
       type: array
       description: 用户列表

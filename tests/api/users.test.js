@@ -145,34 +145,34 @@ describe("Users API", () => {
   });
 
   describe("POST /users/:userId/report", () => {
-        let reportedUserId;
+    let reportedUserId;
 
-        beforeEach(async () => {
-            // 创建一个测试用户
-            const createUserResponse = await chai
-                .request(app)
-                .post("/users/register")
-                .send({
-                    mobile: generateMobile(),
-                    gender: "male",
-                    birthday: "2023-07-30",
-                    avatar: "avatar.png",
-                });
-
-            reportedUserId = createUserResponse.body.userId;
+    beforeEach(async () => {
+      // 创建一个测试用户
+      const createUserResponse = await chai
+        .request(app)
+        .post("/users/register")
+        .send({
+          mobile: generateMobile(),
+          gender: "male",
+          birthday: "2023-07-30",
+          avatar: "avatar.png",
         });
 
-        it("should report user", (done) => {
-            chai
-                .request(app)
-                .post(`/users/${reportedUserId}/report`)
-                .set("Authorization", `Bearer ${token}`)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    done();
-                });
+      reportedUserId = createUserResponse.body.userId;
+    });
+
+    it("should report user", (done) => {
+      chai
+        .request(app)
+        .post(`/users/${reportedUserId}/report`)
+        .set("Authorization", `Bearer ${token}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          done();
         });
     });
+  });
 
   describe("POST /users/:userId/block", () => {
     let blockedUserId;

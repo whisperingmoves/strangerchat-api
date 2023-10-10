@@ -277,17 +277,30 @@ const getPostComments = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate("author", "id avatar username")
+      .populate({
+        path: "parentId",
+        populate: { path: "author", select: "id username" },
+      })
       .exec();
 
-    const formattedComments = comments.map((comment) => ({
-      userId: comment.author.id,
-      avatar: comment.author.avatar,
-      username: comment.author.username,
-      createTime: Math.floor(comment.createdAt.getTime() / 1000),
-      content: comment.content,
-      commentId: comment.id,
-      isLiked: comment.likes.includes(req.user.userId) ? 1 : 0,
-    }));
+    const formattedComments = comments.map((comment) => {
+      const formattedComment = {
+        userId: comment.author.id,
+        avatar: comment.author.avatar,
+        username: comment.author.username,
+        createTime: Math.floor(comment.createdAt.getTime() / 1000),
+        content: comment.content,
+        commentId: comment.id,
+        isLiked: comment.likes.includes(req.user.userId) ? 1 : 0,
+      };
+
+      if (comment.parentId) {
+        formattedComment.replyUserId = comment.parentId.author.id;
+        formattedComment.replyUsername = comment.parentId.author.username;
+      }
+
+      return formattedComment;
+    });
 
     res.status(200).json(formattedComments);
   } catch (err) {
