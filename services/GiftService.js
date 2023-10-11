@@ -2,6 +2,7 @@ const GiftHistory = require("../models/GiftHistory");
 const GiftNotification = require("../models/GiftNotification");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const pushCoinBalance = require("../sockets/pushCoinBalance");
+const pushGiftsReceived = require("../sockets/pushGiftsReceived");
 
 const sendGift = async (
   sender,
@@ -41,6 +42,14 @@ const sendGift = async (
 
   // 推送用户金币余额
   pushCoinBalance(io, userIdSocketMap, sender.id, sender.coinBalance).then();
+
+  // 推送用户收礼总数
+  pushGiftsReceived(
+    io,
+    userIdSocketMap,
+    receiver.id,
+    receiver.giftsReceived
+  ).then();
 };
 
 module.exports = {

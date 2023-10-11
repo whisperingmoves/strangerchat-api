@@ -13,6 +13,7 @@ const markMessageAsRead = require("./markMessageAsRead");
 const initiateVoiceCall = require("./initiateVoiceCall");
 const webrtcSignaling = require("./webrtcSignaling");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const pushGiftsReceived = require("./pushGiftsReceived");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -33,6 +34,8 @@ module.exports = (io, socket, userIdSocketMap) => {
       console.log(`User ${userId} online`);
 
       pushCoinBalance(io, userIdSocketMap, userId, user.coinBalance).then();
+
+      pushGiftsReceived(io, userIdSocketMap, userId, user.giftsReceived).then();
     })
     .catch((error) => {
       errorMonitoringService.monitorError(error).then();

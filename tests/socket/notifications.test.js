@@ -1278,6 +1278,60 @@ describe("Notifications Socket", () => {
     );
   });
 
+  it("should receive received gifts via WebSocket after send a gift", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token,
+      },
+    });
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 14 || message.data.giftsReceived === 0) {
+          return;
+        }
+
+        if (message.data.giftsReceived === 1) {
+          done();
+        } else {
+          done(new Error("Unexpected received gifts"));
+        }
+      });
+
+      Gift.create(
+        {
+          image: "example.jpg",
+          name: "Example Gift",
+          value: 10,
+        },
+        (error, createdGift) => {
+          if (error) {
+            done(error);
+          } else {
+            const giftId = createdGift.id;
+
+            const sendGiftData = {
+              receiverId: user.id,
+              giftId: giftId,
+              quantity: 1,
+            };
+
+            chai
+              .request(app)
+              .post("/gifts/send")
+              .set("Authorization", `Bearer ${otherToken}`)
+              .send(sendGiftData)
+              .end((giftErr) => {
+                if (giftErr) {
+                  done(giftErr);
+                }
+              });
+          }
+        }
+      );
+    });
+  });
+
   afterEach(async () => {
     // 关闭 WebSocket 连接
     if (socket.connected) {
