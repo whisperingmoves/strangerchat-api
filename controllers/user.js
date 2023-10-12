@@ -14,6 +14,7 @@ const {
 const pushNearestUsers = require("../sockets/pushNearestUsers");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const pushCoinBalance = require("../sockets/pushCoinBalance");
+const pushFollowersCount = require("../sockets/pushFollowersCount");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
@@ -132,6 +133,13 @@ const followUser = async (req, res, next) => {
           req.app.get("userIdSocketMap"),
           followedUser.id
         );
+
+        await pushFollowersCount(
+          req.app.get("io"),
+          req.app.get("userIdSocketMap"),
+          followedUser.id,
+          followedUser.followersCount
+        );
       }
     } else if (action === "0") {
       // 检查被关注用户是否未被关注
@@ -153,6 +161,13 @@ const followUser = async (req, res, next) => {
         req.app.get("io"),
         req.app.get("userIdSocketMap"),
         followedUser.id
+      );
+
+      await pushFollowersCount(
+        req.app.get("io"),
+        req.app.get("userIdSocketMap"),
+        followedUser.id,
+        followedUser.followersCount
       );
     } else {
       return res.status(400).json({ message: "无效的关注操作" });

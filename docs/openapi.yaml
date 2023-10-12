@@ -3075,6 +3075,7 @@ paths:
                     - 12
                     - 13
                     - 14
+                    - 15
                   description: |
                     消息类型:
                       0表示距离最近用户列表
@@ -3092,6 +3093,7 @@ paths:
                       12表示WebRTC的ICE Candidate信令
                       13表示金币余额
                       14表示收礼总数
+                      15表示被关注总数
                   example: 0
                 data:
                   type: object
@@ -3111,6 +3113,7 @@ paths:
                     - $ref: '#/components/schemas/webrtcCandidate'
                     - $ref: '#/components/schemas/coinBalance'
                     - $ref: '#/components/schemas/giftsReceived'
+                    - $ref: '#/components/schemas/followersCount'
       responses:
         200:
           description: 消息推送成功
@@ -9277,6 +9280,14 @@ components:
         giftsReceived:
           type: integer
           description: 当前用户收礼总数
+          example: 12345
+          minimum: 0
+    followersCount:
+      type: object
+      properties:
+        followersCount:
+          type: integer
+          description: 当前用户被关注总数
           example: 12345
           minimum: 0
     unreadNotificationsCount:

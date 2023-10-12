@@ -1332,6 +1332,39 @@ describe("Notifications Socket", () => {
     });
   });
 
+  it("should receive followers count via WebSocket after follow user", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token,
+      },
+    });
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 15 || message.data.followersCount === 0) {
+          return;
+        }
+
+        if (message.data.followersCount === 1) {
+          done();
+        } else {
+          done(new Error("Unexpected received gifts"));
+        }
+      });
+
+      chai
+        .request(app)
+        .post(`/users/${user.id}/follow?action=1`)
+        .set("Authorization", `Bearer ${otherToken}`)
+        .send({})
+        .end((followErr) => {
+          if (followErr) {
+            done(followErr);
+          }
+        });
+    });
+  });
+
   afterEach(async () => {
     // 关闭 WebSocket 连接
     if (socket.connected) {

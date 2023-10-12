@@ -14,6 +14,7 @@ const initiateVoiceCall = require("./initiateVoiceCall");
 const webrtcSignaling = require("./webrtcSignaling");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
 const pushGiftsReceived = require("./pushGiftsReceived");
+const pushFollowersCount = require("./pushFollowersCount");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -36,6 +37,13 @@ module.exports = (io, socket, userIdSocketMap) => {
       pushCoinBalance(io, userIdSocketMap, userId, user.coinBalance).then();
 
       pushGiftsReceived(io, userIdSocketMap, userId, user.giftsReceived).then();
+
+      pushFollowersCount(
+        io,
+        userIdSocketMap,
+        userId,
+        user.followersCount
+      ).then();
     })
     .catch((error) => {
       errorMonitoringService.monitorError(error).then();
