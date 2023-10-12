@@ -1365,6 +1365,38 @@ describe("Notifications Socket", () => {
     });
   });
 
+  it("should receive visitors count via WebSocket after visit user", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token,
+      },
+    });
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 16 || message.data.visitorsCount === 0) {
+          return;
+        }
+
+        if (message.data.visitorsCount === 1) {
+          done();
+        } else {
+          done(new Error("Unexpected received gifts"));
+        }
+      });
+
+      chai
+        .request(app)
+        .get(`/users/${user.id}`)
+        .set("Authorization", `Bearer ${otherToken}`)
+        .end((visitErr) => {
+          if (visitErr) {
+            done(visitErr);
+          }
+        });
+    });
+  });
+
   afterEach(async () => {
     // 关闭 WebSocket 连接
     if (socket.connected) {

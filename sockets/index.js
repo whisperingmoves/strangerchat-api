@@ -15,6 +15,7 @@ const webrtcSignaling = require("./webrtcSignaling");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
 const pushGiftsReceived = require("./pushGiftsReceived");
 const pushFollowersCount = require("./pushFollowersCount");
+const pushVisitorsCount = require("./pushVisitorsCount");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -44,6 +45,8 @@ module.exports = (io, socket, userIdSocketMap) => {
         userId,
         user.followersCount
       ).then();
+
+      pushVisitorsCount(io, userIdSocketMap, userId, user.visitorsCount).then();
     })
     .catch((error) => {
       errorMonitoringService.monitorError(error).then();

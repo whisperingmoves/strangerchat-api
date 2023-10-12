@@ -15,6 +15,7 @@ const pushNearestUsers = require("../sockets/pushNearestUsers");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const pushCoinBalance = require("../sockets/pushCoinBalance");
 const pushFollowersCount = require("../sockets/pushFollowersCount");
+const pushVisitorsCount = require("../sockets/pushVisitorsCount");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
@@ -608,7 +609,9 @@ const getUserDetails = async (req, res, next) => {
     }
 
     const user = await User.findById(userId)
-      .select("avatar username city followingCount followersCount")
+      .select(
+        "avatar username city followingCount followersCount visitorsCount"
+      )
       .exec();
 
     if (!user) {
@@ -621,6 +624,7 @@ const getUserDetails = async (req, res, next) => {
       city: user.city,
       followingCount: user.followingCount,
       followersCount: user.followersCount,
+      visitorsCount: user.visitorsCount,
     };
 
     // 如果当前登录用户不是该用户，则创建通知
@@ -637,6 +641,17 @@ const getUserDetails = async (req, res, next) => {
         req.app.get("io"),
         req.app.get("userIdSocketMap"),
         userId
+      );
+
+      user.visitorsCount++;
+      userDetails.visitorsCount++;
+      await user.save();
+
+      await pushVisitorsCount(
+        req.app.get("io"),
+        req.app.get("userIdSocketMap"),
+        userId,
+        user.visitorsCount
       );
     }
 

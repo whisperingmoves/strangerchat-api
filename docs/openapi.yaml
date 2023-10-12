@@ -2631,6 +2631,11 @@ paths:
                     description: 关注 ta 的用户数量
                     example: 20
                     default: 0
+                  visitorsCount:
+                    type: integer
+                    description: ta 的访客用户数量
+                    example: 20
+                    default: 0
         400:
           $ref: '#/components/responses/BadRequest'
         401:
@@ -3094,6 +3099,7 @@ paths:
                       13表示金币余额
                       14表示收礼总数
                       15表示被关注总数
+                      16表示访客总数
                   example: 0
                 data:
                   type: object
@@ -3114,6 +3120,7 @@ paths:
                     - $ref: '#/components/schemas/coinBalance'
                     - $ref: '#/components/schemas/giftsReceived'
                     - $ref: '#/components/schemas/followersCount'
+                    - $ref: '#/components/schemas/visitorsCount'
       responses:
         200:
           description: 消息推送成功
@@ -9288,6 +9295,14 @@ components:
         followersCount:
           type: integer
           description: 当前用户被关注总数
+          example: 12345
+          minimum: 0
+    visitorsCount:
+      type: object
+      properties:
+        visitorsCount:
+          type: integer
+          description: 当前用户访客总数
           example: 12345
           minimum: 0
     unreadNotificationsCount:
