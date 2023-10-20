@@ -339,6 +339,9 @@ describe("Users API", () => {
             if (user.hasOwnProperty("conversationId")) {
               user.conversationId.should.be.a("string");
             }
+            if (user.hasOwnProperty("isFollowed")) {
+              user.isFollowed.should.be.a("number");
+            }
           });
 
           done();
@@ -362,6 +365,7 @@ describe("Users API", () => {
               .with.length.greaterThan(0);
             user.should.have.property("username").that.is.a("string");
             user.should.have.property("latestPostContent").that.is.a("string");
+            user.should.have.property("isFollowed").that.is.a("number");
           });
 
           done();
@@ -388,6 +392,7 @@ describe("Users API", () => {
               .that.is.a("string")
               .that.includes("张");
             user.should.have.property("latestPostContent").that.is.a("string");
+            user.should.have.property("isFollowed").that.is.a("number");
           });
 
           done();
@@ -471,6 +476,12 @@ describe("Users API", () => {
         .request(app)
         .post(`/users/${userId}/follow?action=1`)
         .set("Authorization", `Bearer ${token2}`);
+
+      // 让我关注一个测试用户
+      await chai
+        .request(app)
+        .post(`/users/${userId}/follow?action=1`)
+        .set("Authorization", `Bearer ${token1}`);
     });
 
     it("should return an array of followers", (done) => {
@@ -497,6 +508,9 @@ describe("Users API", () => {
             if (user.hasOwnProperty("conversationId")) {
               user.conversationId.should.be.a("string");
             }
+            if (user.hasOwnProperty("isFollowed")) {
+              user.isFollowed.should.be.a("number");
+            }
           });
 
           done();
@@ -520,6 +534,7 @@ describe("Users API", () => {
               .with.length.greaterThan(0);
             user.should.have.property("username").that.is.a("string");
             user.should.have.property("latestPostContent").that.is.a("string");
+            user.should.have.property("isFollowed").that.is.a("number");
           });
 
           done();
@@ -666,6 +681,9 @@ describe("Users API", () => {
             if (user.hasOwnProperty("conversationId")) {
               user.conversationId.should.be.a("string");
             }
+            if (user.hasOwnProperty("isFollowed")) {
+              user.isFollowed.should.be.a("number");
+            }
           });
 
           done();
@@ -689,6 +707,7 @@ describe("Users API", () => {
               .with.length.greaterThan(0);
             user.should.have.property("username").that.is.a("string");
             user.should.have.property("latestPostContent").that.is.a("string");
+            user.should.have.property("isFollowed").that.is.a("number");
           });
 
           done();

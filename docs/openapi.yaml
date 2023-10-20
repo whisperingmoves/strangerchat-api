@@ -9236,6 +9236,14 @@ components:
             type: string
             description: 聊天会话的ID
             example: "6133a6e2f7dcb80021a7e28a"
+          isFollowed:
+            type: integer
+            enum:
+              - 0
+              - 1
+            description: 是否已关注（非必填字段，默认为0，0表示否，1表示是）
+            example: 1
+            default: 0
     nearestUsers:
       type: object
       properties:

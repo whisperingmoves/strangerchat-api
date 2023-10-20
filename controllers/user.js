@@ -318,6 +318,7 @@ const getFollowingUsers = async (req, res, next) => {
         username,
         latestPostContent,
         conversationId: conversationId || undefined,
+        isFollowed: 1,
       };
     });
 
@@ -334,6 +335,12 @@ const getFollowers = async (req, res, next) => {
     const skip = (page - 1) * pageSize;
     const keyword = req.query.keyword;
     const userId = req.user.userId;
+
+    const currentUser = await User.findById(userId).populate("following");
+
+    const followedUserIds = currentUser.following.map((item) =>
+      item.toHexString()
+    );
 
     const query = User.find(
       { following: userId },
@@ -393,6 +400,7 @@ const getFollowers = async (req, res, next) => {
         username,
         latestPostContent,
         conversationId: conversationId || undefined,
+        isFollowed: followedUserIds.includes(_id.toHexString()) ? 1 : 0,
       };
     });
 
@@ -470,6 +478,7 @@ const getFriends = async (req, res, next) => {
         username,
         latestPostContent,
         conversationId: conversationId || undefined,
+        isFollowed: 1,
       };
     });
 
