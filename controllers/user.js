@@ -336,7 +336,7 @@ const getFollowers = async (req, res, next) => {
     const keyword = req.query.keyword;
     const userId = req.user.userId;
 
-    const currentUser = await User.findById(userId).populate("following");
+    const currentUser = await User.findById(userId, "following").lean();
 
     const followedUserIds = currentUser.following.map((item) =>
       item.toHexString()
