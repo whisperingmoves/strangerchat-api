@@ -431,6 +431,9 @@ const getFriends = async (req, res, next) => {
 
     const users = await query.skip(skip).limit(pageSize).lean().exec();
 
+    // 获取互相关注的用户的总数
+    const totalCount = await query.countDocuments().lean().exec();
+
     const userIds = users.map((user) => user._id);
 
     const latestPosts = await Post.aggregate([
@@ -482,7 +485,12 @@ const getFriends = async (req, res, next) => {
       };
     });
 
-    res.status(200).json(formattedUsers);
+    const result = {
+      list: formattedUsers,
+      total: totalCount,
+    };
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

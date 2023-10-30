@@ -664,9 +664,10 @@ describe("Users API", () => {
         .set("Authorization", `Bearer ${token}`)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.be.an("array");
+          res.body.should.have.property("list").that.is.an("array");
+          res.body.should.have.property("total").that.is.a("number");
 
-          res.body.forEach((user) => {
+          res.body.list.forEach((user) => {
             user.should.have.property("userId").that.is.a("string");
             user.should.have
               .property("userAvatar")
@@ -686,6 +687,8 @@ describe("Users API", () => {
             }
           });
 
+          res.body.total.should.equal(2);
+
           done();
         });
     });
@@ -697,9 +700,9 @@ describe("Users API", () => {
         .set("Authorization", `Bearer ${token}`)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.be.an("array").with.lengthOf(1);
+          res.body.list.should.be.an("array").with.lengthOf(1);
 
-          res.body.forEach((user) => {
+          res.body.list.forEach((user) => {
             user.should.have.property("userId").that.is.a("string");
             user.should.have
               .property("userAvatar")
@@ -721,9 +724,9 @@ describe("Users API", () => {
         .set("Authorization", `Bearer ${token}`)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.be.an("array");
+          res.body.list.should.be.an("array");
 
-          res.body.forEach((user) => {
+          res.body.list.forEach((user) => {
             user.should.have.property("userId").that.is.a("string");
             user.should.have
               .property("userAvatar")
