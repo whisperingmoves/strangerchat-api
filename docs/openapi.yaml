@@ -1915,7 +1915,7 @@ paths:
                       type: string
                       description: 其他用户的 ID
                       example: 6133a6e2f7dcb80021a7e28a
-                    userName:
+                    username:
                       type: string
                       description: 其他用户的用户名
                       example: John Doe
@@ -2050,7 +2050,7 @@ paths:
                       type: string
                       description: 其他用户的 ID
                       example: 6133a6e2f7dcb80021a7e28a
-                    userName:
+                    username:
                       type: string
                       description: 其他用户的用户名
                       example: John Doe
@@ -2170,7 +2170,7 @@ paths:
                       type: string
                       description: 其他用户的 ID
                       example: 6133a6e2f7dcb80021a7e28a
-                    userName:
+                    username:
                       type: string
                       description: 其他用户的用户名
                       example: John Doe

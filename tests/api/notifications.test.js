@@ -70,8 +70,8 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             if (notification.hasOwnProperty("postImage")) {
@@ -107,8 +107,8 @@ describe("Notifications API", () => {
             notification.should.have.property("postId");
             notification.should.have.property("commentId");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             if (notification.hasOwnProperty("postImage")) {
@@ -143,8 +143,8 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             if (notification.hasOwnProperty("postImage")) {
@@ -179,8 +179,8 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             if (notification.hasOwnProperty("postImage")) {
@@ -216,8 +216,8 @@ describe("Notifications API", () => {
             notification.should.have.property("postId");
             notification.should.have.property("commentId");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             if (notification.hasOwnProperty("postImage")) {
@@ -253,8 +253,8 @@ describe("Notifications API", () => {
             notification.should.have.property("postId");
             notification.should.have.property("commentId");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             if (notification.hasOwnProperty("postImage")) {
@@ -408,8 +408,8 @@ describe("Notifications API", () => {
             notification.should.have.property("statusType");
             notification.should.have.property("statusTime");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             notification.statusType.should.be.within(0, 1);
@@ -565,8 +565,8 @@ describe("Notifications API", () => {
             notification.should.have.property("giftName");
             notification.should.have.property("giftTime");
 
-            if (notification.hasOwnProperty("userName")) {
-              notification.userName.should.be.a("string");
+            if (notification.hasOwnProperty("username")) {
+              notification.username.should.be.a("string");
             }
 
             notification.giftQuantity.should.be.a("number");
