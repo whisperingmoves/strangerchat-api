@@ -2271,6 +2271,7 @@ paths:
                   type: object
                   required:
                     - notificationId
+                    - notificationType
                     - notificationTitle
                     - notificationContent
                     - notificationTime
@@ -2279,6 +2280,12 @@ paths:
                       type: string
                       description: 通知的 ID
                       example: 6133a6e2f7dcb80021a7e28a
+                    notificationType:
+                      type: integer
+                      description: |
+                        通知类型 (0: 更新提醒, 1: 金币购买成功)
+                      enum: [ 0, 1 ]
+                      example: 0
                     notificationTitle:
                       type: string
                       description: 通知标题
@@ -7992,6 +7999,7 @@ paths:
               type: object
               required:
                 - toUser
+                - notificationType
                 - notificationTitle
                 - notificationContent
               properties:
@@ -7999,6 +8007,12 @@ paths:
                   type: string
                   description: 接收通知的用户的唯一标识符
                   example: 60f372a9515b5f001f4b3a9e
+                notificationType:
+                  type: integer
+                  description: |
+                    通知类型 (0: 更新提醒, 1: 金币购买成功)
+                  enum: [ 0, 1 ]
+                  example: 0
                 notificationTitle:
                   type: string
                   description: 通知标题
@@ -8159,6 +8173,7 @@ paths:
                       required:
                         - id
                         - toUser
+                        - notificationType
                         - notificationTitle
                         - notificationContent
                         - notificationTime
@@ -8183,6 +8198,12 @@ paths:
                               type: string
                               description: 接收通知的用户用户名
                               example: "JohnDoe"
+                        notificationType:
+                          type: integer
+                          description: |
+                            通知类型 (0: 更新提醒, 1: 金币购买成功)
+                          enum: [ 0, 1 ]
+                          example: 0
                         notificationTitle:
                           type: string
                           description: 通知标题
@@ -8247,6 +8268,7 @@ paths:
               type: object
               required:
                 - toUser
+                - notificationType
                 - notificationTitle
                 - notificationContent
               properties:
@@ -8254,6 +8276,12 @@ paths:
                   type: string
                   description: 接收通知的用户的唯一标识符
                   example: 60f372a9515b5f001f4b3a9e
+                notificationType:
+                  type: integer
+                  description: |
+                    通知类型 (0: 更新提醒, 1: 金币购买成功)
+                  enum: [ 0, 1 ]
+                  example: 0
                 notificationTitle:
                   type: string
                   description: 通知的标题

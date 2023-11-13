@@ -227,6 +227,7 @@ exports.getSystemNotifications = async (req, res, next) => {
     const formattedNotifications = notifications.map((notification) => {
       const {
         id,
+        notificationType,
         notificationTitle,
         notificationContent,
         notificationTime,
@@ -234,6 +235,7 @@ exports.getSystemNotifications = async (req, res, next) => {
       } = notification;
       return {
         notificationId: id,
+        notificationType,
         notificationTitle,
         notificationContent,
         notificationTime: Math.floor(notificationTime.getTime() / 1000),

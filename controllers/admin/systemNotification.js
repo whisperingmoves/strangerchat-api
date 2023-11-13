@@ -4,6 +4,7 @@ const createSystemNotification = async (req, res, next) => {
   try {
     const {
       toUser,
+      notificationType,
       notificationTitle,
       notificationContent,
       notificationTime,
@@ -12,6 +13,7 @@ const createSystemNotification = async (req, res, next) => {
 
     const systemNotification = await SystemNotification.create({
       toUser,
+      notificationType,
       notificationTitle,
       notificationContent,
       notificationTime,
@@ -72,6 +74,7 @@ const getSystemNotificationList = async (req, res, next) => {
           id: notification.toUser._id,
           username: notification.toUser.username,
         },
+        notificationType: notification.notificationType,
         notificationTitle: notification.notificationTitle,
         notificationContent: notification.notificationContent,
         notificationTime: notification.notificationTime,
@@ -97,6 +100,7 @@ const updateSystemNotification = async (req, res, next) => {
     const { systemNotificationId } = req.params;
     const {
       toUser,
+      notificationType,
       notificationTitle,
       notificationContent,
       notificationTime,
@@ -107,6 +111,7 @@ const updateSystemNotification = async (req, res, next) => {
       systemNotificationId,
       {
         toUser,
+        notificationType,
         notificationTitle,
         notificationContent,
         notificationTime,

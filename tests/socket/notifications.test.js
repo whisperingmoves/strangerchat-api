@@ -238,6 +238,7 @@ describe("Notifications Socket", () => {
       }),
       new SystemNotification({
         toUser: user.id,
+        notificationType: 0,
         notificationTitle: "系统通知",
         notificationContent: "系统通知内容",
       }),

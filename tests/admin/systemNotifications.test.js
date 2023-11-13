@@ -92,6 +92,7 @@ describe("SystemNotifications Admin API", () => {
     it("should create a new system notification", (done) => {
       const newSystemNotification = {
         toUser: toUser1.id,
+        notificationType: 0,
         notificationTitle: "系统通知",
         notificationContent: "这是一条系统通知",
         notificationTime: new Date().toISOString(),
@@ -118,6 +119,7 @@ describe("SystemNotifications Admin API", () => {
       // 创建两个系统类通知模型并获取它们的ID
       const systemNotification1 = new SystemNotification({
         toUser: toUser1.id,
+        notificationType: 0,
         notificationTitle: "Notification 1",
         notificationContent: "Content 1",
       });
@@ -125,6 +127,7 @@ describe("SystemNotifications Admin API", () => {
 
       const systemNotification2 = new SystemNotification({
         toUser: toUser2.id,
+        notificationType: 0,
         notificationTitle: "Notification 2",
         notificationContent: "Content 2",
       });
@@ -162,6 +165,7 @@ describe("SystemNotifications Admin API", () => {
       // 创建测试数据
       const systemNotification1 = new SystemNotification({
         toUser: toUser1.id,
+        notificationType: 0,
         notificationTitle: "Notification 1",
         notificationContent: "This is notification 1",
       });
@@ -169,6 +173,7 @@ describe("SystemNotifications Admin API", () => {
 
       const systemNotification2 = new SystemNotification({
         toUser: toUser2.id,
+        notificationType: 0,
         notificationTitle: "Notification 2",
         notificationContent: "This is notification 2",
       });
@@ -241,6 +246,7 @@ describe("SystemNotifications Admin API", () => {
       // 创建系统类通知
       const newSystemNotification = {
         toUser: toUser1.id,
+        notificationType: 0,
         notificationTitle: "Notification 1",
         notificationContent: "This is notification 1",
       };
@@ -257,6 +263,7 @@ describe("SystemNotifications Admin API", () => {
     it("should update a system notification", (done) => {
       const updatedSystemNotification = {
         toUser: toUser2.id,
+        notificationType: 1,
         notificationTitle: "Notification 2",
         notificationContent: "This is notification 2",
         notificationTime: new Date(),
@@ -277,6 +284,9 @@ describe("SystemNotifications Admin API", () => {
             (err, systemNotification) => {
               expect(systemNotification.toUser.toString()).to.equal(
                 updatedSystemNotification.toUser
+              );
+              expect(systemNotification.notificationType).to.equal(
+                updatedSystemNotification.notificationType
               );
               expect(systemNotification.notificationTitle).to.equal(
                 updatedSystemNotification.notificationTitle

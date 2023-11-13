@@ -718,12 +718,14 @@ describe("Notifications API", () => {
 
           res.body.forEach((notification) => {
             notification.should.have.property("notificationId");
+            notification.should.have.property("notificationType");
             notification.should.have.property("notificationTitle");
             notification.should.have.property("notificationContent");
             notification.should.have.property("notificationTime");
             notification.should.have.property("readStatus");
 
             notification.notificationId.should.be.a("string");
+            notification.notificationType.should.be.a("number");
             notification.notificationTitle.should.be.a("string");
             notification.notificationContent.should.be.a("string");
             notification.notificationTime.should.be.a("number");
@@ -773,6 +775,7 @@ describe("Notifications API", () => {
       // 以另一个用户的身份生成系统类通知
       const notification = await SystemNotification.create({
         toUser: notificationUserId,
+        notificationType: 0,
         notificationTitle: "测试系统类通知",
         notificationContent: "这是一条测试系统类通知",
       });

@@ -79,6 +79,7 @@ const buyCoinProduct = async (req, res, next) => {
     // 创建系统类通知
     const systemNotificationData = {
       toUser: userId,
+      notificationType: 1,
       notificationTitle: "购买成功",
       notificationContent: `您已成功购买${coinCount}枚金币`,
       readStatus: 0,
