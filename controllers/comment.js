@@ -158,7 +158,7 @@ const likeComment = async (req, res, next) => {
       comment.likes.push(userId);
 
       // 创建交互类通知 (评论点赞)，但避免给自己创建通知
-      if (comment.author.toString() !== userId) {
+      if (comment.author._id.toString() !== userId) {
         const notification = new InteractionNotification({
           toUser: comment.author._id,
           user: userId,
