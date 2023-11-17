@@ -69,6 +69,11 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionType");
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
+            notification.should.have.property("postAuthorId");
+
+            if (notification.hasOwnProperty("postAuthorName")) {
+              notification.postAuthorName.should.be.a("string");
+            }
 
             if (notification.hasOwnProperty("username")) {
               notification.username.should.be.a("string");
@@ -81,6 +86,7 @@ describe("Notifications API", () => {
             notification.interactionType.should.equal(0);
             notification.interactionTime.should.be.a("number");
             notification.postId.should.should.be.a("string");
+            notification.postAuthorId.should.should.be.a("string");
             notification.readStatus.should.be.within(0, 1);
           });
 
@@ -105,7 +111,12 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionType");
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
+            notification.should.have.property("postAuthorId");
             notification.should.have.property("commentId");
+
+            if (notification.hasOwnProperty("postAuthorName")) {
+              notification.postAuthorName.should.be.a("string");
+            }
 
             if (notification.hasOwnProperty("username")) {
               notification.username.should.be.a("string");
@@ -118,6 +129,7 @@ describe("Notifications API", () => {
             notification.interactionType.should.equal(1);
             notification.interactionTime.should.be.a("number");
             notification.postId.should.should.be.a("string");
+            notification.postAuthorId.should.should.be.a("string");
             notification.readStatus.should.be.within(0, 1);
           });
 
@@ -142,6 +154,11 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionType");
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
+            notification.should.have.property("postAuthorId");
+
+            if (notification.hasOwnProperty("postAuthorName")) {
+              notification.postAuthorName.should.be.a("string");
+            }
 
             if (notification.hasOwnProperty("username")) {
               notification.username.should.be.a("string");
@@ -154,6 +171,7 @@ describe("Notifications API", () => {
             notification.interactionType.should.equal(2);
             notification.interactionTime.should.be.a("number");
             notification.postId.should.should.be.a("string");
+            notification.postAuthorId.should.should.be.a("string");
             notification.readStatus.should.be.within(0, 1);
           });
 
@@ -178,6 +196,11 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionType");
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
+            notification.should.have.property("postAuthorId");
+
+            if (notification.hasOwnProperty("postAuthorName")) {
+              notification.postAuthorName.should.be.a("string");
+            }
 
             if (notification.hasOwnProperty("username")) {
               notification.username.should.be.a("string");
@@ -190,6 +213,7 @@ describe("Notifications API", () => {
             notification.interactionType.should.equal(3);
             notification.interactionTime.should.be.a("number");
             notification.postId.should.should.be.a("string");
+            notification.postAuthorId.should.should.be.a("string");
             notification.readStatus.should.be.within(0, 1);
           });
 
@@ -214,7 +238,12 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionType");
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
+            notification.should.have.property("postAuthorId");
             notification.should.have.property("commentId");
+
+            if (notification.hasOwnProperty("postAuthorName")) {
+              notification.postAuthorName.should.be.a("string");
+            }
 
             if (notification.hasOwnProperty("username")) {
               notification.username.should.be.a("string");
@@ -227,6 +256,7 @@ describe("Notifications API", () => {
             notification.interactionType.should.equal(4);
             notification.interactionTime.should.be.a("number");
             notification.postId.should.should.be.a("string");
+            notification.postAuthorId.should.should.be.a("string");
             notification.readStatus.should.be.within(0, 1);
           });
 
@@ -251,7 +281,12 @@ describe("Notifications API", () => {
             notification.should.have.property("interactionType");
             notification.should.have.property("interactionTime");
             notification.should.have.property("postId");
+            notification.should.have.property("postAuthorId");
             notification.should.have.property("commentId");
+
+            if (notification.hasOwnProperty("postAuthorName")) {
+              notification.postAuthorName.should.be.a("string");
+            }
 
             if (notification.hasOwnProperty("username")) {
               notification.username.should.be.a("string");
@@ -264,6 +299,7 @@ describe("Notifications API", () => {
             notification.interactionType.should.equal(5);
             notification.interactionTime.should.be.a("number");
             notification.postId.should.should.be.a("string");
+            notification.postAuthorId.should.should.be.a("string");
             notification.readStatus.should.be.within(0, 1);
           });
 

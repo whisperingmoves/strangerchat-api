@@ -1902,6 +1902,7 @@ paths:
                     - interactionType
                     - interactionTime
                     - postId
+                    - postAuthorId
                   properties:
                     notificationId:
                       type: string
@@ -1940,6 +1941,14 @@ paths:
                       type: string
                       description: 帖子唯一ID
                       example: 6133a6e2f7dcb80021a7e28a
+                    postAuthorId:
+                      type: string
+                      description: 帖子作者的 ID
+                      example: 6133a6e2f7dcb80021a7e28a
+                    postAuthorName:
+                      type: string
+                      description: 帖子作者的用户名
+                      example: John Doe
                     postImage:
                       type: string
                       description: 相关帖子的照片列表中的第一张照片的 URL（可选）

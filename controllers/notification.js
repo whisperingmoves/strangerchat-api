@@ -15,6 +15,10 @@ exports.getInteractionNotifications = async (req, res, next) => {
     const notifications = await InteractionNotification.find({ toUser: userId })
       .populate("user", "id username avatar")
       .populate("post", "id images")
+      .populate({
+        path: "post",
+        populate: { path: "author", select: "id username" },
+      })
       .populate("comment", "id")
       .sort({ interactionTime: -1 })
       .skip(skip)
@@ -30,7 +34,7 @@ exports.getInteractionNotifications = async (req, res, next) => {
         user,
         comment,
       } = notification;
-      const { images } = post;
+      const { images, author } = post;
       const postImage = images[0];
       const { avatar } = user;
       const commentId = comment ? comment.id : undefined;
@@ -42,6 +46,8 @@ exports.getInteractionNotifications = async (req, res, next) => {
         interactionType,
         interactionTime: Math.floor(interactionTime.getTime() / 1000),
         postId: post.id,
+        postAuthorId: author.id, // 帖子作者的 ID
+        postAuthorName: author.username, // 帖子作者的用户名
         postImage,
         readStatus: readStatus ? 1 : 0,
         commentId,
