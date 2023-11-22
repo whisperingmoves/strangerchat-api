@@ -3,6 +3,7 @@ const InteractionNotification = require("../models/InteractionNotification");
 const StatusNotification = require("../models/StatusNotification");
 const GiftNotification = require("../models/GiftNotification");
 const SystemNotification = require("../models/SystemNotification");
+const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 
 exports.getInteractionNotifications = async (req, res, next) => {
   try {
@@ -83,6 +84,13 @@ exports.markInteractionNotificationAsRead = async (req, res, next) => {
     notification.readStatus = 1; // 将通知标记为已读
     await notification.save();
 
+    // 向当前用户推送最新未读通知数
+    await pushUnreadNotificationsCount(
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      req.user.userId
+    );
+
     res.json({});
   } catch (err) {
     next(err); // 将错误传递给下一个中间件或错误处理中间件进行处理
@@ -145,6 +153,13 @@ exports.markStatusNotificationAsRead = async (req, res, next) => {
 
     notification.readStatus = 1; // 将通知标记为已读
     await notification.save();
+
+    // 向当前用户推送最新未读通知数
+    await pushUnreadNotificationsCount(
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      req.user.userId
+    );
 
     res.json({});
   } catch (err) {
@@ -210,6 +225,13 @@ exports.markGiftNotificationAsRead = async (req, res, next) => {
 
     notification.readStatus = 1; // 将通知标记为已读
     await notification.save();
+
+    // 向当前用户推送最新未读通知数
+    await pushUnreadNotificationsCount(
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      req.user.userId
+    );
 
     res.json({});
   } catch (err) {
@@ -277,6 +299,13 @@ exports.markSystemNotificationAsRead = async (req, res, next) => {
 
     notification.readStatus = 1; // 将通知标记为已读
     await notification.save();
+
+    // 向当前用户推送最新未读通知数
+    await pushUnreadNotificationsCount(
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      req.user.userId
+    );
 
     res.json({});
   } catch (err) {
