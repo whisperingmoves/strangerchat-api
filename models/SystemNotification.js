@@ -9,7 +9,7 @@ const systemNotificationSchema = new mongoose.Schema({
   notificationType: {
     type: Number,
     required: true,
-    enum: [0, 1], // 通知类型 (0: 更新提醒, 1: 金币购买成功)
+    enum: [0, 1], // 通知类型 (0: 更新通知, 1: 金币变动通知)
   },
   notificationTitle: {
     type: String,

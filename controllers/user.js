@@ -4,6 +4,7 @@ const Post = require("../models/Post");
 const StatusNotification = require("../models/StatusNotification");
 const ChatConversation = require("../models/ChatConversation");
 const UserReport = require("../models/UserReport");
+const SystemNotification = require("../models/SystemNotification");
 const { sign } = require("jsonwebtoken");
 const config = require("../config");
 const {
@@ -542,6 +543,23 @@ const performCheckin = async (req, res, next) => {
     user.lastCheckDate = today;
     user.coinBalance += coinReward;
     await user.save();
+
+    // 创建系统类通知
+    const systemNotificationData = {
+      toUser: userId,
+      notificationType: 1,
+      notificationTitle: "签到成功",
+      notificationContent: `您已获得${coinReward}枚金币`,
+      readStatus: 0,
+    };
+    const systemNotification = new SystemNotification(systemNotificationData);
+    await systemNotification.save();
+
+    pushUnreadNotificationsCount(
+        req.app.get("io"),
+        req.app.get("userIdSocketMap"),
+        userId
+    ).then();
 
     // 推送用户金币余额
     pushCoinBalance(

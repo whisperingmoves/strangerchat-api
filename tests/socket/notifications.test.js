@@ -1136,6 +1136,52 @@ describe("Notifications Socket", () => {
     });
   });
 
+  it("should receive unread notifications count via WebSocket after perform checkin", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token: token,
+      },
+    });
+
+    let unreadCount = 0;
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 2) {
+          return;
+        }
+
+        if (unreadCount === 0) {
+          unreadCount++;
+          return;
+        }
+
+        if (
+          unreadCount === 1 &&
+          message.type === 2 &&
+          message.data.count === 1
+        ) {
+          unreadCount++;
+          done();
+        } else {
+          done(
+            new Error("Unexpected unread notifications count or message count")
+          );
+        }
+      });
+
+      chai
+        .request(app)
+        .post("/users/checkin/check")
+        .set("Authorization", `Bearer ${token}`)
+        .end((error) => {
+          if (error) {
+            done(error);
+          }
+        });
+    });
+  });
+
   it("should receive coin balance via WebSocket after perform checkin", (done) => {
     socket = ioClient(`http://localhost:${config.port}`, {
       auth: {
