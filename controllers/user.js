@@ -22,7 +22,8 @@ const ErrorMonitorService = require("../services/ErrorMonitorService");
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
 const register = async (req, res, next) => {
-  const { mobile, gender, birthday, avatar, longitude, latitude } = req.body;
+  const { mobile, gender, birthday, avatar, longitude, latitude, language } =
+    req.body;
 
   // 校验参数
   if (!mobile || !gender || !birthday || !avatar) {
@@ -43,6 +44,11 @@ const register = async (req, res, next) => {
       type: "Point",
       coordinates: [parseFloat(longitude), parseFloat(latitude)],
     };
+  }
+
+  // 保存语言代码(可选)
+  if (language) {
+    user.language = language;
   }
 
   try {
@@ -578,7 +584,7 @@ const performCheckin = async (req, res, next) => {
 };
 
 const updateUserProfile = async (req, res, next) => {
-  const { avatar, username, city, longitude, latitude } = req.body;
+  const { avatar, username, city, longitude, latitude, language } = req.body;
   const userId = req.user.userId; // 从请求中获取用户 ID
 
   // 查找用户
@@ -609,6 +615,9 @@ const updateUserProfile = async (req, res, next) => {
       type: "Point",
       coordinates: [parseFloat(longitude), parseFloat(latitude)],
     };
+  }
+  if (language) {
+    user.language = language;
   }
 
   // 保存用户资料

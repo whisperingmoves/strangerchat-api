@@ -97,6 +97,10 @@ paths:
                   type: string
                   format: float
                   description: 纬度
+                language:
+                  type: string
+                  description: 语言代码
+                  example: en
       responses:
         200:
           description: 验证成功并且手机号已注册,返回登录jwt和用户信息
@@ -213,6 +217,10 @@ paths:
                   type: string
                   format: float
                   description: 纬度
+                language:
+                  type: string
+                  description: 语言代码
+                  example: en
       responses:
         200:
           description: 注册成功
@@ -2583,6 +2591,10 @@ paths:
                   type: string
                   format: float
                   description: 纬度
+                language:
+                  type: string
+                  description: 语言代码
+                  example: en
       responses:
         200:
           description: 用户资料修改成功

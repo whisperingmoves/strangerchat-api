@@ -51,6 +51,7 @@ describe("Users API", () => {
           avatar: "xxxx.jpg", // 头像链接
           longitude: "116.403896", // 经度
           latitude: "39.914772", // 纬度
+          language: "en", // 语言代码
         })
         .then((res) => {
           res.should.have.status(200);
@@ -841,6 +842,7 @@ describe("Users API", () => {
           city: "New York",
           longitude: "40.7128",
           latitude: "-74.0060",
+          language: "en", // 语言代码
         });
 
       res.should.have.status(200);
@@ -852,6 +854,7 @@ describe("Users API", () => {
       updatedUser.city.should.equal("New York");
       updatedUser.location.coordinates[0].should.equal(40.7128);
       updatedUser.location.coordinates[1].should.equal(-74.006);
+      updatedUser.language.should.equal("en");
     });
 
     it("should ignore empty fields", async () => {

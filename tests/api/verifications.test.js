@@ -69,6 +69,7 @@ describe("Verifications API", () => {
             .send({
               mobile: mobile,
               code: code,
+              language: "en", // 语言代码
             })
             .then((res) => {
               res.should.have.status(200);

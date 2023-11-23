@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema({
     enum: [0, 1], // 是否在线 (0: 否, 1: 是, 默认值: 0)
     default: 0,
   },
+  language: { type: String },
 });
 
 userSchema.virtual("id").get(function () {

@@ -40,7 +40,7 @@ const sendVerificationCode = async (req, res) => {
 };
 
 const verifyVerificationCode = async (req, res) => {
-  const { mobile, code, longitude, latitude } = req.body;
+  const { mobile, code, longitude, latitude, language } = req.body;
 
   // 校验验证码
   const verification = await Verification.findOne({ mobile, code });
@@ -59,6 +59,12 @@ const verifyVerificationCode = async (req, res) => {
         type: "Point",
         coordinates: [longitude, latitude],
       };
+      await user.save();
+    }
+
+    // 保存语言代码
+    if (language) {
+      user.language = language;
       await user.save();
     }
 
