@@ -556,9 +556,9 @@ const performCheckin = async (req, res, next) => {
     await systemNotification.save();
 
     pushUnreadNotificationsCount(
-        req.app.get("io"),
-        req.app.get("userIdSocketMap"),
-        userId
+      req.app.get("io"),
+      req.app.get("userIdSocketMap"),
+      userId
     ).then();
 
     // 推送用户金币余额

@@ -1182,6 +1182,74 @@ describe("Notifications Socket", () => {
     });
   });
 
+  it("should receive unread notifications count via WebSocket after sender a gift", (done) => {
+    socket = ioClient(`http://localhost:${config.port}`, {
+      auth: {
+        token: otherToken,
+      },
+    });
+
+    let unreadCount = 0;
+
+    socket.on("connect", () => {
+      socket.on("notifications", (message) => {
+        if (message.type !== 2) {
+          return;
+        }
+
+        if (unreadCount === 0) {
+          unreadCount++;
+          return;
+        }
+
+        if (
+          unreadCount === 1 &&
+          message.type === 2 &&
+          message.data.count === 1
+        ) {
+          unreadCount++;
+          done();
+        } else {
+          done(
+            new Error("Unexpected unread notifications count or message count")
+          );
+        }
+      });
+
+      Gift.create(
+        {
+          image: "example.jpg",
+          name: "Example Gift",
+          value: 10,
+        },
+        (error, createdGift) => {
+          if (error) {
+            done(error);
+          } else {
+            const giftId = createdGift.id;
+
+            const sendGiftData = {
+              receiverId: user.id,
+              giftId: giftId,
+              quantity: 1,
+            };
+
+            chai
+              .request(app)
+              .post("/gifts/send")
+              .set("Authorization", `Bearer ${otherToken}`)
+              .send(sendGiftData)
+              .end((giftErr) => {
+                if (giftErr) {
+                  done(giftErr);
+                }
+              });
+          }
+        }
+      );
+    });
+  });
+
   it("should receive coin balance via WebSocket after perform checkin", (done) => {
     socket = ioClient(`http://localhost:${config.port}`, {
       auth: {

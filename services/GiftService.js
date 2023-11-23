@@ -1,5 +1,6 @@
 const GiftHistory = require("../models/GiftHistory");
 const GiftNotification = require("../models/GiftNotification");
+const SystemNotification = require("../models/SystemNotification");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const pushCoinBalance = require("../sockets/pushCoinBalance");
 const pushGiftsReceived = require("../sockets/pushGiftsReceived");
@@ -37,6 +38,19 @@ const sendGift = async (
     giftName: gift.name,
   });
   await notification.save();
+
+  // 创建系统类通知
+  const systemNotificationData = {
+    toUser: sender.id,
+    notificationType: 1,
+    notificationTitle: "送礼扣除金币",
+    notificationContent: `您因送礼扣除${gift.value * quantity}枚金币`,
+    readStatus: 0,
+  };
+  const systemNotification = new SystemNotification(systemNotificationData);
+  await systemNotification.save();
+
+  pushUnreadNotificationsCount(io, userIdSocketMap, sender.id).then();
 
   await pushUnreadNotificationsCount(io, userIdSocketMap, receiver.id);
 
