@@ -4,6 +4,7 @@ const SystemNotification = require("../models/SystemNotification");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const pushCoinBalance = require("../sockets/pushCoinBalance");
 const pushGiftsReceived = require("../sockets/pushGiftsReceived");
+const { __ } = require("../lang/lang");
 
 const sendGift = async (
   sender,
@@ -43,8 +44,12 @@ const sendGift = async (
   const systemNotificationData = {
     toUser: sender.id,
     notificationType: 1,
-    notificationTitle: "送礼扣除金币",
-    notificationContent: `您因送礼扣除${gift.value * quantity}枚金币`,
+    notificationTitle: __("Successful gift-giving", [], sender.language),
+    notificationContent: __(
+      "Deducted %d coins",
+      [gift.value * quantity],
+      sender.language
+    ),
     readStatus: 0,
   };
   const systemNotification = new SystemNotification(systemNotificationData);

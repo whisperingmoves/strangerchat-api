@@ -6,6 +6,7 @@ const SystemNotification = require("../models/SystemNotification");
 const pushUnreadNotificationsCount = require("../sockets/pushUnreadNotificationsCount");
 const mongoose = require("mongoose");
 const pushCoinBalance = require("../sockets/pushCoinBalance");
+const { __ } = require("../lang/lang");
 
 const getCoinProductList = async (req, res, next) => {
   try {
@@ -80,8 +81,12 @@ const buyCoinProduct = async (req, res, next) => {
     const systemNotificationData = {
       toUser: userId,
       notificationType: 1,
-      notificationTitle: "购买成功",
-      notificationContent: `您已成功购买${coinCount}枚金币`,
+      notificationTitle: __("Purchase Successfully", [], user.language),
+      notificationContent: __(
+        "You have successfully purchased %d coins",
+        [coinCount],
+        user.language
+      ),
       readStatus: 0,
     };
     const systemNotification = new SystemNotification(systemNotificationData);

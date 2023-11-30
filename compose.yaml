@@ -1,0 +1,21 @@
+version: '1.0.0'
+
+services:
+  app:
+    image: node:12-alpine
+    command: sh -c "npm install --production && npm start"
+    ports:
+      - $HOST_PORT:$PORT
+    working_dir: /app
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:4.4.23
+    volumes:
+      - mongo:/var/lib/mongodb
+
+volumes:
+  mongo:

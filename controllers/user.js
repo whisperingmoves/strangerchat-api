@@ -18,6 +18,7 @@ const pushCoinBalance = require("../sockets/pushCoinBalance");
 const pushFollowersCount = require("../sockets/pushFollowersCount");
 const pushVisitorsCount = require("../sockets/pushVisitorsCount");
 const ErrorMonitorService = require("../services/ErrorMonitorService");
+const { __ } = require("../lang/lang");
 
 const errorMonitoringService = ErrorMonitorService.getInstance();
 
@@ -554,8 +555,12 @@ const performCheckin = async (req, res, next) => {
     const systemNotificationData = {
       toUser: userId,
       notificationType: 1,
-      notificationTitle: "签到成功",
-      notificationContent: `您已获得${coinReward}枚金币`,
+      notificationTitle: __("Sign in Successfully", [], user.language),
+      notificationContent: __(
+        "You have earned %d coins",
+        [coinReward],
+        user.language
+      ),
       readStatus: 0,
     };
     const systemNotification = new SystemNotification(systemNotificationData);
