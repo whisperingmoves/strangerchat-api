@@ -26,7 +26,13 @@
     "generate-admin-user-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateAdminUser.js",
     "generate-monitor-token": "node scripts/generateMonitorToken.js",
     "generate-monitor-token-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateMonitorToken.js",
-    "generate-monitor-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateMonitorToken.js"
+    "generate-monitor-token-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateMonitorToken.js",
+    "generate-gifts": "node scripts/generateGifts.js",
+    "generate-gifts-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateGifts.js",
+    "generate-gifts-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateGifts.js",
+    "generate-coin-products": "node scripts/generateCoinProducts.js",
+    "generate-coin-products-dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node scripts/generateCoinProducts.js",
+    "generate-coin-products-test": "cross-env NODE_ENV=test NODE_NO_WARNINGS=1 node scripts/generateCoinProducts.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
